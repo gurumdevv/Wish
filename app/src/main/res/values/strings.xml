@@ -5,4 +5,8 @@
     <string name="post">글 작성</string>
     <string name="wishes">소원들</string>
     <string name="home">홈</string>
+    <string name="start">시작해요</string>
+    <string name="like">응원해요</string>
+    <string name="btn_start">시작해요 버튼</string>
+    <string name="btn_like">응원해요 버튼</string>
 </resources>
