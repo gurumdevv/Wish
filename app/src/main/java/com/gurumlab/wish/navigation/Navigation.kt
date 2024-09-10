@@ -1,4 +1,4 @@
-package com.gurumlab.wish
+package com.gurumlab.wish.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
