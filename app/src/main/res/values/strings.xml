@@ -9,4 +9,6 @@
     <string name="like">응원해요</string>
     <string name="btn_start">시작해요 버튼</string>
     <string name="btn_like">응원해요 버튼</string>
+    <string name="logo">앱 로고</string>
+    <string name="wish_representative_image">소원 대표 이미지</string>
 </resources>

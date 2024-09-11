@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
@@ -50,16 +54,40 @@ fun HomeScreen() {
     }
 }
 
-//@Preview
-//@Composable
-//fun HomeScreenPreview() {
-//    HomeScreen()
-//}
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen()
+}
 
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
+    val wishList = listOf(
+        TempWish(
+            R.drawable.sample_wish_image,
+            "wish1",
+            "oneLineDescription1",
+            "simpleDescription1"
+        ),
+        TempWish(
+            R.drawable.sample_wish_image,
+            "wish2",
+            "oneLineDescription2",
+            "simpleDescription2"
+        ),
+        TempWish(
+            R.drawable.sample_wish_image,
+            "wish3",
+            "oneLineDescription3",
+            "simpleDescription3"
+        )
+        //TODO("나중에 서버에서 데이터를 불러오도록 구현하기")
+    )
+
+    val pagerState = rememberPagerState(pageCount = { wishList.size })
+
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -67,17 +95,24 @@ fun HomeContent(
                 .padding(16.dp)
         ) {
             Image(
-                modifier = Modifier.size(35.dp),
-                painter = painterResource(id = R.drawable.temp_logo), contentDescription = "앱 로고"
+                modifier = Modifier.size(30.dp),
+                painter = painterResource(id = R.drawable.temp_logo),
+                contentDescription = stringResource(
+                    R.string.logo
+                )
             )
-            Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Text(
                 modifier = Modifier.padding(top = 3.dp),
                 text = "Wish",
                 color = Color.White,
-                fontSize = 25.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        VerticalPager(state = pagerState) { page ->
+            WishCard(wish = wishList[page])
         }
     }
 }
@@ -91,10 +126,12 @@ fun HomeContent(
 @Composable
 fun WishCard(
     modifier: Modifier = Modifier,
-    wish: Wish
+    wish: TempWish
 ) {
     Column(
-        modifier = modifier.background(backgroundColor)
+        modifier = modifier
+            .fillMaxSize()
+            .background(backgroundColor)
     ) {
         Box(modifier = Modifier) {
             Image(
@@ -102,7 +139,7 @@ fun WishCard(
                     .fillMaxWidth()
                     .height(500.dp),
                 painter = painterResource(id = wish.representativeImage),
-                contentDescription = "상품 이미지",
+                contentDescription = stringResource(R.string.wish_representative_image),
                 contentScale = ContentScale.Crop
             )
             Box(
@@ -136,6 +173,7 @@ fun WishCard(
         Spacer(modifier = Modifier.height(16.dp))
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(defaultBoxColor)
@@ -181,3 +219,10 @@ fun WishCard(
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+data class TempWish(
+    val representativeImage: Int,
+    val title: String,
+    val oneLineDescription: String,
+    val simpleDescription: String,
+)
