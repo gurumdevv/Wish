@@ -11,4 +11,8 @@
     <string name="btn_like">응원해요 버튼</string>
     <string name="logo">앱 로고</string>
     <string name="wish_representative_image">소원 대표 이미지</string>
+    <string name="wishes_screen_header">소원들 화면 헤더</string>
+    <string name="wishes_sort_by_like_count_title">응원이 많은 소원들</string>
+    <string name="wish_image">소원 이미지</string>
+    <string name="wishes_random_title">소망하는 소원들</string>
 </resources>

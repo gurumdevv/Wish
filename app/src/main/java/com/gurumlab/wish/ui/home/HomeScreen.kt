@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +39,7 @@ import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomIconButton
+import com.gurumlab.wish.ui.util.CustomTopAppBar
 
 @Composable
 fun HomeScreen() {
@@ -64,64 +63,16 @@ fun HomeScreenPreview() {
 fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
-    val wishList = listOf(
-        TempWish(
-            R.drawable.sample_wish_image,
-            "wish1",
-            "oneLineDescription1",
-            "simpleDescription1"
-        ),
-        TempWish(
-            R.drawable.sample_wish_image,
-            "wish2",
-            "oneLineDescription2",
-            "simpleDescription2"
-        ),
-        TempWish(
-            R.drawable.sample_wish_image,
-            "wish3",
-            "oneLineDescription3",
-            "simpleDescription3"
-        )
-        //TODO("나중에 서버에서 데이터를 불러오도록 구현하기")
-    )
-
     val pagerState = rememberPagerState(pageCount = { wishList.size })
 
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Image(
-                modifier = Modifier.size(30.dp),
-                painter = painterResource(id = R.drawable.temp_logo),
-                contentDescription = stringResource(
-                    R.string.logo
-                )
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                modifier = Modifier.padding(top = 3.dp),
-                text = "Wish",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        CustomTopAppBar()
 
         VerticalPager(state = pagerState) { page ->
             WishCard(wish = wishList[page])
         }
     }
 }
-
-//@Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF000000)
-//@Composable
-//fun HomeContentPreview() {
-//    WishCard()
-//}
 
 @Composable
 fun WishCard(
@@ -225,4 +176,30 @@ data class TempWish(
     val title: String,
     val oneLineDescription: String,
     val simpleDescription: String,
+    val review: String,
+)
+
+val wishList = listOf(
+    TempWish(
+        R.drawable.sample_wish_image,
+        "wish1",
+        "oneLineDescription1",
+        "simpleDescription1",
+        ""
+    ),
+    TempWish(
+        R.drawable.sample_wish_image,
+        "wish2",
+        "oneLineDescription2",
+        "simpleDescription2",
+        ""
+    ),
+    TempWish(
+        R.drawable.sample_wish_image,
+        "wish3",
+        "oneLineDescription3",
+        "simpleDescription3",
+        ""
+    )
+    //TODO("나중에 서버에서 데이터를 불러오도록 구현하기")
 )
