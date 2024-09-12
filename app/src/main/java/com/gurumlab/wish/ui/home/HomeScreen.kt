@@ -152,8 +152,8 @@ fun WishCard(
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CustomIconButton(

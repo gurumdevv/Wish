@@ -15,4 +15,8 @@
     <string name="wishes_sort_by_like_count_title">응원이 많은 소원들</string>
     <string name="wish_image">소원 이미지</string>
     <string name="wishes_random_title">소망하는 소원들</string>
+    <string name="btn_begin">착수해요</string>
+    <string name="btn_message">메세지</string>
+    <string name="btn_back">뒤로가기</string>
+    <string name="representative_feature_title">대표 기능</string>
 </resources>
