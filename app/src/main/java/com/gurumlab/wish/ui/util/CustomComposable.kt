@@ -101,7 +101,7 @@ fun CustomTopAppBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(start = 16.dp,  bottom = 5.dp)
     ) {
         Image(
             modifier = Modifier.size(30.dp),
