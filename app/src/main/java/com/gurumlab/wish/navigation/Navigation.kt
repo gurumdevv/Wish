@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.gurumlab.wish.ui.home.Home
+import com.gurumlab.wish.ui.home.HomeRoute
 import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.Post
 import com.gurumlab.wish.ui.settings.Settings
@@ -28,7 +28,7 @@ fun WishNavHost(
         startDestination = WishScreen.HOME.name
     ) {
         composable(route = WishScreen.HOME.name) {
-            Home()
+            HomeRoute()
         }
         composable(route = WishScreen.WISHES.name) {
             Wishes()

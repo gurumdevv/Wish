@@ -2,9 +2,9 @@ package com.gurumlab.wish.data.model
 
 data class Wish(
     val postId: Int,
-    val createdDate: String,
-    val startedDate: String,
-    val completedDate: String,
+    val createdDate: Int,
+    val startedDate: Int,
+    val completedDate: Int,
     val posterId: String,
     val developerId: String,
     val posterName: String,

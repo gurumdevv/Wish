@@ -19,7 +19,9 @@ import com.gurumlab.wish.navigation.NavigationActions
 import com.gurumlab.wish.navigation.WishNavHost
 import com.gurumlab.wish.navigation.WishScreen
 import com.gurumlab.wish.ui.theme.WishTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
