@@ -128,7 +128,7 @@ fun WishCardContentWithoutImageArea(
         Spacer(modifier = Modifier.height(16.dp))
         WishCardDescriptionArea(wish)
         Spacer(modifier = Modifier.height(16.dp))
-        WishCardButtonArea(wish, onStartClick, onLikeClick)
+        WishCardButtonArea(onStartClick, onLikeClick)
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
@@ -166,7 +166,6 @@ fun WishCardDescriptionArea(wish: Wish) {
 
 @Composable
 fun WishCardButtonArea(
-    wish: Wish,
     onStartClick: () -> Unit,
     onLikeClick: () -> Unit
 ) {

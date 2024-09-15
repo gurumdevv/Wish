@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class HomeViewModel @Inject constructor(
 
     val wishes: StateFlow<Map<String, Wish>> = loadWishes().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyMap()
     )
 
@@ -55,17 +54,28 @@ class HomeViewModel @Inject constructor(
                 _isException.value = true
                 Log.d("HomeViewModel", "onException called $message")
             }
-        ).map { data ->
-            Log.d("HomeViewModel", "Received data: $data")
-            data
-        }
+        )
 
         emitAll(response)
     }
 
-    fun updateLikeCount(postId: String, count: Int) {
+    fun getLikes(identifier: String): Flow<Int> = flow {
+        val response = repository.getPostsLikes(
+            identifier = identifier,
+            onError = { message ->
+                Log.d("HomeViewModel", "onError called $message")
+            },
+            onException = { message ->
+                Log.d("HomeViewModel", "onException called $message")
+            }
+        )
+
+        emitAll(response)
+    }
+
+    fun updateLikeCount(identifier: String, count: Int) {
         viewModelScope.launch {
-            repository.updateLikeCount(postId, count)
+            repository.updateLikeCount(identifier, count)
         }
     }
 }

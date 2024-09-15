@@ -3,7 +3,6 @@ package com.gurumlab.wish.data.source.remote
 import com.gurumlab.wish.data.model.Wish
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -26,17 +25,11 @@ interface ApiClient {
     @PUT("posts/{postId}/likes.json")
     suspend fun updateLikeCount(
         @Path("postId") postId: String,
-        likeCount: Int
+        @Body likeCount: Int
     )
 
-    @GET("posts.json")
-    suspend fun getPostId(
-        @Query("orderBy") orderBy: String,
-        @Query("equalTo") postId: Int
-    ): ApiResponse<Map<String, Wish>>
-
-    @POST("posts.json")
-    suspend fun uploadDummyData(
-        @Body wish: Wish
-    )
+    @GET("posts/{postIdentifier}/likes.json")
+    suspend fun getLikeCount(
+        @Path("postIdentifier") postIdentifier: String
+    ): ApiResponse<Int>
 }

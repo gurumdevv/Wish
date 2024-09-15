@@ -1,5 +1,6 @@
 package com.gurumlab.wish.data.repository
 
+import android.util.Log
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -38,10 +39,31 @@ class HomeRepository @Inject constructor(
         onCompletion()
     }.flowOn(Dispatchers.IO)
 
+    fun getPostsLikes(
+        identifier: String,
+        onError: (message: String?) -> Unit,
+        onException: (message: String?) -> Unit
+    ): Flow<Int> = flow {
+        val response = apiClient.getLikeCount(identifier)
+        response.onSuccess {
+            emit(it)
+        }.onError { code, message ->
+            emit(-1)
+            onError("code: $code, message: $message")
+        }.onException {
+            emit(-1)
+            onException(it.message)
+        }
+    }.flowOn(Dispatchers.IO)
+
     suspend fun updateLikeCount(
         postId: String,
         count: Int
     ) {
-        apiClient.updateLikeCount(postId, count)
+        try {
+            apiClient.updateLikeCount(postId, count)
+        } catch (e: Exception) {
+            Log.d("updateLikeCount", "Error updating like count: ${e.message}")
+        }
     }
 }
