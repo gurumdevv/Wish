@@ -41,6 +41,7 @@ import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomIconButton
+import com.gurumlab.wish.ui.util.CustomLottieLoader
 
 @Composable
 fun WishCard(
@@ -185,5 +186,20 @@ fun WishCardButtonArea(
             icon = R.drawable.ic_like,
             description = stringResource(R.string.btn_like),
             onClick = { onLikeClick() })
+    }
+}
+
+@Composable
+fun HomeLoadingScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(backgroundColor),
+        verticalArrangement = Arrangement.Center
+    ) {
+        CustomLottieLoader(
+            modifier = Modifier.fillMaxWidth(),
+            resId = R.raw.animation_shooting_star
+        )
     }
 }

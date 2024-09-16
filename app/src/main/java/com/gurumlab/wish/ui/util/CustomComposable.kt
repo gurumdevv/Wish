@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 
@@ -187,5 +191,13 @@ fun CustomSnackbarContent(
                 fontSize = 14.sp
             )
         }
+    }
+}
+
+@Composable
+fun CustomLottieLoader(modifier: Modifier = Modifier, resId: Int) {
+    Box(modifier = modifier) {
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
+        LottieAnimation(composition)
     }
 }

@@ -38,6 +38,7 @@ class HomeViewModel @Inject constructor(
     val isException: StateFlow<Boolean> = _isException
 
     private fun loadWishes(): Flow<Map<String, Wish>> = flow {
+        _isLoading.value = true
         val response = repository.getPostsByDate(
             date = DataTimeConverter.getDateMinusDays(6),
             onCompletion = {

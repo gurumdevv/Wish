@@ -46,29 +46,35 @@ fun HomeContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val wishes = viewModel.wishes.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(pageCount = { wishes.value.keys.size })
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
+
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             CustomTopAppBar()
 
-            VerticalPager(state = pagerState) { page ->
-                val wishIdentifier = wishes.value.keys.elementAt(page)
-                val wishContent = wishes.value.values.elementAt(page)
-                WishCard(
-                    wish = wishContent,
-                    onStartClick = {},
-                    onLikeClick = {
-                        scope.launch {
-                            viewModel.getLikes(wishIdentifier).single().let { currentCount ->
-                                if (currentCount == -1) snackbarHostState.showSnackbar(
-                                    message = context.getString(R.string.fail_like_update),
-                                    duration = SnackbarDuration.Short
-                                )
-                                else viewModel.updateLikeCount(wishIdentifier, currentCount + 1)
+            if (isLoading.value) {
+                HomeLoadingScreen(modifier)
+            } else {
+                VerticalPager(state = pagerState) { page ->
+                    val wishIdentifier = wishes.value.keys.elementAt(page)
+                    val wishContent = wishes.value.values.elementAt(page)
+                    WishCard(
+                        wish = wishContent,
+                        onStartClick = {},
+                        onLikeClick = {
+                            scope.launch {
+                                viewModel.getLikes(wishIdentifier).single().let { currentCount ->
+                                    if (currentCount == -1) snackbarHostState.showSnackbar(
+                                        message = context.getString(R.string.fail_like_update),
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    else viewModel.updateLikeCount(wishIdentifier, currentCount + 1)
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
 
