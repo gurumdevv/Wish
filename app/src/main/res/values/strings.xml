@@ -19,4 +19,6 @@
     <string name="btn_message">메세지</string>
     <string name="btn_back">뒤로가기</string>
     <string name="representative_feature_title">대표 기능</string>
+    <string name="snackbar_icon">스낵바 아이콘</string>
+    <string name="fail_like_update">\'응원해요\' 업데이트에 실패했어요.</string>
 </resources>
