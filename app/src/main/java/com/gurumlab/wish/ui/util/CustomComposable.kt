@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.defaultBoxColor
@@ -198,6 +199,6 @@ fun CustomSnackbarContent(
 fun CustomLottieLoader(modifier: Modifier = Modifier, resId: Int) {
     Box(modifier = modifier) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
-        LottieAnimation(composition)
+        LottieAnimation(composition, iterations = LottieConstants.IterateForever)
     }
 }

@@ -9,11 +9,9 @@ import com.gurumlab.wish.ui.util.DataTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,11 +20,8 @@ class HomeViewModel @Inject constructor(
     private val repository: HomeRepository
 ) : ViewModel() {
 
-    val wishes: StateFlow<Map<String, Wish>> = loadWishes().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyMap()
-    )
+    private val _wishes: MutableStateFlow<Map<String, Wish>> = MutableStateFlow(emptyMap())
+    val wishes: StateFlow<Map<String, Wish>> = _wishes
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -37,28 +32,36 @@ class HomeViewModel @Inject constructor(
     private val _isException: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isException: StateFlow<Boolean> = _isException
 
-    private fun loadWishes(): Flow<Map<String, Wish>> = flow {
-        _isLoading.value = true
-        val response = repository.getPostsByDate(
-            date = DataTimeConverter.getDateMinusDays(6),
-            onCompletion = {
-                _isLoading.value = false
-            },
-            onSuccess = {
-                _isError.value = false
-                _isException.value = false
-            },
-            onError = { message ->
-                _isError.value = true
-                Log.d("HomeViewModel", "onError called $message")
-            },
-            onException = { message ->
-                _isException.value = true
-                Log.d("HomeViewModel", "onException called $message")
-            }
-        )
+    init {
+        loadWishes()
+    }
 
-        emitAll(response)
+    fun loadWishes() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val response = repository.getPostsByDate(
+                date = DataTimeConverter.getDateMinusDays(6),
+                onCompletion = {
+                    _isLoading.value = false
+                },
+                onSuccess = {
+                    _isError.value = false
+                    _isException.value = false
+                },
+                onError = { message ->
+                    _isError.value = true
+                    _isException.value = false
+                    Log.d("HomeViewModel", "onError called $message")
+                },
+                onException = { message ->
+                    _isError.value = false
+                    _isException.value = true
+                    Log.d("HomeViewModel", "onException called $message")
+                }
+            )
+
+            response.collect { _wishes.value = it }
+        }
     }
 
     fun getLikes(identifier: String): Flow<Int> = flow {
