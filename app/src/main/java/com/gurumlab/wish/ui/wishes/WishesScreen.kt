@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.wishes
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,55 +30,70 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
-import com.gurumlab.wish.ui.home.TempWish
+import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.ui.home.HomeLoadingScreen
 import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.CustomTopAppBar
+import kotlin.random.Random
 
 @Composable
-fun WishesScreen() {
-    Scaffold { innerPadding ->
-        WishesContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(backgroundColor)
-                .padding(innerPadding)
-        )
-    }
+fun WishesScreen(viewModel: WishesViewModel) {
+    WishesContent(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor),
+        viewModel = viewModel
+    )
 }
 
 @Composable
 fun WishesContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: WishesViewModel
 ) {
-    LazyColumn(
-        modifier = modifier
-    ) {
-        item {
-            WishesHeader(tempHeaderData)
-            Spacer(modifier = Modifier.height(16.dp))
-            WishesSortByLikeCount()
-            Spacer(modifier = Modifier.height(16.dp))
-            WishesRandomTitle()
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        items(wishList.size) { index ->
-            WishesRandomItem(wish = wishList[index])
+    val wishes = viewModel.wishes.collectAsStateWithLifecycle()
+    val wishesSortedByLikes = viewModel.wishesSortedByLikes.collectAsStateWithLifecycle()
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
+    val isError = viewModel.isError.collectAsStateWithLifecycle()
+    val isException = viewModel.isException.collectAsStateWithLifecycle()
+
+    Column(modifier = modifier) {
+        CustomTopAppBar()
+
+        if (isLoading.value) {
+            HomeLoadingScreen(modifier)
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+//                    WishesHeader(wishes.value)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    WishesSortByLikes(wishesSortedByLikes.value)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    WishesRandomTitle()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                items(wishes.value.keys.size) { index ->
+                    WishesRandomItem(wish = wishes.value.values.elementAt(index))
+                }
+            }
         }
     }
 }
 
-@Preview
 @Composable
-fun WishesContentPreview() {
-    WishesContent()
-}
+fun WishesHeader(wishes: Map<String, Wish>) {
+    val wishesCount = wishes.keys.size
+    val randomNumber = if (wishesCount > 0) Random.nextInt(wishesCount) else 0
+    val selectedWish = wishes.values.elementAt(randomNumber) // 없는 경우 표시할 헤더 데이터
 
-@Composable
-fun WishesHeader(wish: TempWish) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -86,7 +101,7 @@ fun WishesHeader(wish: TempWish) {
     ) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = wish.representativeImage),
+            painter = painterResource(id = selectedWish.representativeImage),
             contentDescription = stringResource(R.string.wishes_screen_header),
             contentScale = ContentScale.Crop
         )
@@ -109,7 +124,7 @@ fun WishesHeader(wish: TempWish) {
                 .padding(start = 24.dp, end = 24.dp)
         ) {
             Text(
-                text = wish.title,
+                text = selectedWish.title,
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -118,7 +133,7 @@ fun WishesHeader(wish: TempWish) {
             )
             Spacer(modifier = Modifier.height(3.dp))
             Text(
-                text = wish.review,
+                text = selectedWish.comment,
                 color = Color.White,
                 fontSize = 12.sp,
                 maxLines = 1,
@@ -128,14 +143,9 @@ fun WishesHeader(wish: TempWish) {
     }
 }
 
-@Preview
 @Composable
-fun WishesHeaderPreview() {
-    WishesHeader(tempHeaderData)
-}
-
-@Composable
-fun WishesSortByLikeCount() {
+fun WishesSortByLikes(wishes: List<Wish>) {
+    Log.d("WishesScreen", "wishes: ${wishes.size}")
     Column {
         Text(
             modifier = Modifier.padding(start = 24.dp, end = 24.dp),
@@ -146,22 +156,16 @@ fun WishesSortByLikeCount() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         LazyRow {
-            items(wishList.size) { index ->
+            items(wishes.size) { index ->
                 val paddingValue = if (index == 0) 24 else 16
-                WishesSortByLikeCountItem(wish = wishList[index], paddingValue)
+                WishesSortByLikeCountItem(wish = wishes[index], paddingValue)
             }
         }
     }
 }
 
-@Preview
 @Composable
-fun WishesSortByLikeCountPreview() {
-    WishesSortByLikeCount()
-}
-
-@Composable
-fun WishesSortByLikeCountItem(wish: TempWish, paddingValue: Int) {
+fun WishesSortByLikeCountItem(wish: Wish, paddingValue: Int) {
     Column(
         modifier = Modifier.padding(start = paddingValue.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -197,7 +201,7 @@ fun WishesRandomTitle() {
 }
 
 @Composable
-fun WishesRandomItem(wish: TempWish) {
+fun WishesRandomItem(wish: Wish) {
     Column {
         Row(
             modifier = Modifier
@@ -240,50 +244,3 @@ fun WishesRandomItem(wish: TempWish) {
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
-val wishList = listOf(
-    TempWish(
-        R.drawable.sample_wish_image,
-        "wish1",
-        "oneLineDescription1",
-        "simpleDescription1",
-        ""
-    ),
-    TempWish(
-        R.drawable.sample_wish_image,
-        "wish2wish2wish2wish2wish2wish2wish2wish2wish2wish2wish2wish2wish2wish2wish2",
-        "oneLineDescription2",
-        "simpleDescription2",
-        ""
-    ),
-    TempWish(
-        R.drawable.sample_wish_image,
-        "wish3",
-        "oneLineDescription3",
-        "simpleDescription3",
-        ""
-    ),
-    TempWish(
-        R.drawable.sample_wish_image,
-        "wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4wish4",
-        "oneLineDescription4",
-        "simpleDescription4",
-        ""
-    ),
-    TempWish(
-        R.drawable.sample_wish_image,
-        "wish5",
-        "oneLineDescription5",
-        "simpleDescription5",
-        ""
-    )
-    //TODO("나중에 서버에서 데이터를 불러오도록 구현하기")
-)
-
-val tempHeaderData = TempWish(
-    R.drawable.sample_wishes_header,
-    "독서누리",
-    "oneLineDescription",
-    "simpleDescription",
-    "저희 도서관 회원들끼리 지식 나눔 공유가 가능해졌어요."
-)

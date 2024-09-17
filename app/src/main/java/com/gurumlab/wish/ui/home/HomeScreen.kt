@@ -101,11 +101,3 @@ fun HomeContent(
         }
     }
 }
-
-data class TempWish(
-    val representativeImage: Int,
-    val title: String,
-    val oneLineDescription: String,
-    val simpleDescription: String,
-    val review: String,
-)
