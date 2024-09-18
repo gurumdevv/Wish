@@ -26,4 +26,6 @@
     <string name="no_internet_connection">인터넷 연결 안 됨</string>
     <string name="please_check_internet_connection">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="retry">재시도</string>
+    <string name="wish">Wish</string>
+    <string name="please_wishes_come_true">소중한 소원들을 이루어주세요.</string>
 </resources>

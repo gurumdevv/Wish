@@ -1,14 +1,214 @@
 package com.gurumlab.wish.ui.wishes
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.gurumlab.wish.R
+import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.ui.theme.White00
+import kotlin.random.Random
 
 @Composable
-fun Wishes(){
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text(text = "Wishes")
+fun WishesBanner(wishes: Map<String, Wish>) {
+    val defaultWish = Wish(
+        postId = 0,
+        createdDate = 0,
+        startedDate = 0,
+        completedDate = 0,
+        posterId = "",
+        developerId = "",
+        posterName = "",
+        developerName = "",
+        title = stringResource(R.string.wish),
+        representativeImage = R.drawable.image_wish_default,
+        status = 0,
+        likes = 0,
+        oneLineDescription = "",
+        simpleDescription = "",
+        detailDescription = emptyList(),
+        features = emptyList(),
+        comment = stringResource(R.string.please_wishes_come_true)
+    )
+
+    val successfulWishes = wishes.values.filter { it.status == 2 }
+    val wishesCount = successfulWishes.size
+    val randomNumber = if (wishesCount > 0) Random.nextInt(wishesCount) else 0
+    val selectedWish =
+        if (wishesCount > 0) wishes.values.elementAt(randomNumber) else defaultWish
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(260.dp)
+    ) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(id = selectedWish.representativeImage),
+            contentDescription = stringResource(R.string.wishes_screen_header),
+            contentScale = ContentScale.Crop
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(206.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(White00, Color.Black)
+                    )
+                )
+                .align(Alignment.BottomCenter)
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 24.dp, end = 24.dp)
+        ) {
+            Text(
+                text = selectedWish.title,
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(3.dp))
+            Text(
+                text = selectedWish.comment,
+                color = Color.White,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun WishesSortByLikes(wishes: List<Wish>) {
+    Column {
+        Text(
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp),
+            text = stringResource(R.string.wishes_sort_by_like_count_title),
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyRow {
+            items(wishes.size) { index ->
+                val paddingValue = if (index == 0) 24 else 16
+                WishesSortByLikesItem(wish = wishes[index], paddingValue)
+            }
+        }
+    }
+}
+
+@Composable
+fun WishesSortByLikesItem(wish: Wish, paddingValue: Int) {
+    Column(
+        modifier = Modifier.padding(start = paddingValue.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier.size(135.dp),
+            painter = painterResource(id = wish.representativeImage),
+            contentDescription = stringResource(R.string.wish_image),
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            modifier = Modifier.width(135.dp),
+            text = wish.title,
+            color = Color.White,
+            fontSize = 16.sp,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 2,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun WishesRandomTitle() {
+    Text(
+        modifier = Modifier.padding(start = 24.dp),
+        text = stringResource(R.string.wishes_random_title),
+        color = Color.White,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun WishesRandomItem(wish: Wish) {
+    Column {
+        Row(
+            modifier = Modifier
+                .padding(start = 24.dp, end = 24.dp)
+                .fillMaxWidth()
+                .height(110.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White)
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(0.8f),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = wish.title,
+                    color = Color.Black,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = wish.oneLineDescription,
+                    color = Color.Black,
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Image(
+                modifier = Modifier.weight(0.2f),
+                painter = painterResource(id = wish.representativeImage),
+                contentDescription = stringResource(R.string.wish_image),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
