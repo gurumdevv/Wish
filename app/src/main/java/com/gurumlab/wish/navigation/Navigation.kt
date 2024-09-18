@@ -5,6 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
+import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.ui.detail.DetailRoute
 import com.gurumlab.wish.ui.home.HomeRoute
 import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.Post
@@ -16,7 +19,8 @@ enum class WishScreen {
     WISHES,
     POST,
     MESSAGE,
-    SETTINGS
+    SETTINGS,
+    DETAIL
 }
 
 @Composable
@@ -28,10 +32,10 @@ fun WishNavHost(
         startDestination = WishScreen.HOME.name
     ) {
         composable(route = WishScreen.HOME.name) {
-            HomeRoute()
+            HomeRoute { navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(it)}") }
         }
         composable(route = WishScreen.WISHES.name) {
-            WishesRoute()
+            WishesRoute { navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(it)}") }
         }
         composable(route = WishScreen.POST.name) {
             Post()
@@ -41,6 +45,13 @@ fun WishNavHost(
         }
         composable(route = WishScreen.SETTINGS.name) {
             Settings()
+        }
+        composable(
+            route = WishScreen.DETAIL.name + "/{wish}"
+        ) { backStackEntry ->
+            val wishJson = backStackEntry.arguments?.getString("wish")
+            val wish = Gson().fromJson(wishJson, Wish::class.java)
+            DetailRoute(wish)
         }
     }
 }

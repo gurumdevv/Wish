@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
+import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
@@ -28,19 +29,21 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, onDetailScreen: (wish: Wish) -> Unit) {
     HomeContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor),
-        viewModel = viewModel
+        viewModel = viewModel,
+        onDetailScreen = onDetailScreen
     )
 }
 
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    onDetailScreen: (wish: Wish) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -69,7 +72,9 @@ fun HomeContent(
                     val wishContent = wishes.value.values.elementAt(page)
                     WishCard(
                         wish = wishContent,
-                        onStartClick = {},
+                        onStartClick = {
+                            onDetailScreen(wishContent)
+                        },
                         onLikeClick = {
                             scope.launch {
                                 viewModel.getLikes(wishIdentifier).single()

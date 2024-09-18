@@ -2,6 +2,7 @@ package com.gurumlab.wish.ui.wishes
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -138,19 +139,21 @@ fun WishesSortByLikesTitle() {
 }
 
 @Composable
-fun WishesSortByLikes(wishes: List<Wish>) {
+fun WishesSortByLikes(wishes: List<Wish>, onDetailScreen: (wish: Wish) -> Unit) {
     LazyRow {
         items(wishes.size) { index ->
             val paddingValue = if (index == 0) 24 else 16
-            WishesSortByLikesItem(wish = wishes[index], paddingValue)
+            WishesSortByLikesItem(wish = wishes[index], paddingValue, onDetailScreen)
         }
     }
 }
 
 @Composable
-fun WishesSortByLikesItem(wish: Wish, paddingValue: Int) {
+fun WishesSortByLikesItem(wish: Wish, paddingValue: Int, onDetailScreen: (wish: Wish) -> Unit) {
     Column(
-        modifier = Modifier.padding(start = paddingValue.dp),
+        modifier = Modifier
+            .padding(start = paddingValue.dp)
+            .clickable { onDetailScreen(wish) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -217,7 +220,7 @@ fun WishesRandomTitle() {
 }
 
 @Composable
-fun WishesRandomItem(wish: Wish) {
+fun WishesRandomItem(wish: Wish, onDetailScreen: (wish: Wish) -> Unit) {
     Column {
         Row(
             modifier = Modifier
@@ -227,6 +230,7 @@ fun WishesRandomItem(wish: Wish) {
                 .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
                 .padding(16.dp)
+                .clickable { onDetailScreen(wish) }
         ) {
             Column(
                 modifier = Modifier.weight(1f),

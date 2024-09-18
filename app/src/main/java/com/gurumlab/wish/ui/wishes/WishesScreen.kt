@@ -10,24 +10,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomTopAppBar
 
 @Composable
-fun WishesScreen(viewModel: WishesViewModel) {
+fun WishesScreen(viewModel: WishesViewModel, onDetailScreen: (wish: Wish) -> Unit) {
     WishesContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor),
-        viewModel = viewModel
+        viewModel = viewModel,
+        onDetailScreen = onDetailScreen
     )
 }
 
 @Composable
 fun WishesContent(
     modifier: Modifier = Modifier,
-    viewModel: WishesViewModel
+    viewModel: WishesViewModel,
+    onDetailScreen: (wish: Wish) -> Unit
 ) {
     val wishes = viewModel.wishes.collectAsStateWithLifecycle()
     val wishesSortedByLikes = viewModel.wishesSortedByLikes.collectAsStateWithLifecycle()
@@ -55,14 +58,17 @@ fun WishesContent(
                         Spacer(modifier = Modifier.height(16.dp))
                         WishesSortByLikesTitle()
                         Spacer(modifier = Modifier.height(16.dp))
-                        WishesSortByLikes(wishesSortedByLikes.value)
+                        WishesSortByLikes(wishesSortedByLikes.value, onDetailScreen)
                         Spacer(modifier = Modifier.height(16.dp))
                         WishesRandomTitle()
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     items(wishes.value.keys.size) { index ->
-                        WishesRandomItem(wish = wishes.value.values.elementAt(index))
+                        WishesRandomItem(
+                            wish = wishes.value.values.elementAt(index),
+                            onDetailScreen = onDetailScreen
+                        )
                     }
                 }
             }
