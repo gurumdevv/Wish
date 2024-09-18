@@ -38,7 +38,6 @@ class HomeViewModel @Inject constructor(
 
     fun loadWishes() {
         viewModelScope.launch {
-            _isLoading.value = true
             val response = repository.getPostsByDate(
                 date = DataTimeConverter.getDateMinusDays(6),
                 onCompletion = {

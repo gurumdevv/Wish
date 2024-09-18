@@ -39,7 +39,6 @@ class WishesViewModel @Inject constructor(
 
     fun loadWishes() {
         viewModelScope.launch {
-            _isLoading.value = true
             val response = repository.getPostsByDate(
                 date = DataTimeConverter.getDateMinusDays(10),
                 limit = 50,

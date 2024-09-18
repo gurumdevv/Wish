@@ -64,6 +64,7 @@ android {
 
 dependencies {
 
+    implementation(libs.compose.shimmer)
     implementation(libs.lottie.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

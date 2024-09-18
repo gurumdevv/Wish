@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gurumlab.wish.ui.home.HomeLoadingScreen
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomTopAppBar
 
 @Composable
@@ -39,22 +39,31 @@ fun WishesContent(
         CustomTopAppBar()
 
         if (isLoading.value) {
-            HomeLoadingScreen(modifier)
+            WishesLoadingScreen()
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    WishesBanner(wishes.value)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    WishesSortByLikes(wishesSortedByLikes.value)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    WishesRandomTitle()
-                    Spacer(modifier = Modifier.height(16.dp))
+            if (isException.value) {
+                CustomExceptionScreen {
+                    viewModel.loadWishes()
+                    viewModel.loadWishesSortedByLikes()
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    item {
+                        WishesBanner(wishes.value)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        WishesSortByLikesTitle()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        WishesSortByLikes(wishesSortedByLikes.value)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        WishesRandomTitle()
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
-                items(wishes.value.keys.size) { index ->
-                    WishesRandomItem(wish = wishes.value.values.elementAt(index))
+                    items(wishes.value.keys.size) { index ->
+                        WishesRandomItem(wish = wishes.value.values.elementAt(index))
+                    }
                 }
             }
         }

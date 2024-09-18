@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.White00
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 import kotlin.random.Random
 
 @Composable
@@ -113,21 +116,33 @@ fun WishesBanner(wishes: Map<String, Wish>) {
 }
 
 @Composable
+fun ShimmerWishesBanner() {
+    Box(
+        modifier = Modifier
+            .shimmer()
+            .fillMaxWidth()
+            .height(260.dp)
+            .background(Color.LightGray)
+    )
+}
+
+@Composable
+fun WishesSortByLikesTitle() {
+    Text(
+        modifier = Modifier.padding(start = 24.dp, end = 24.dp),
+        text = stringResource(R.string.wishes_sort_by_like_count_title),
+        color = Color.White,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
 fun WishesSortByLikes(wishes: List<Wish>) {
-    Column {
-        Text(
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp),
-            text = stringResource(R.string.wishes_sort_by_like_count_title),
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyRow {
-            items(wishes.size) { index ->
-                val paddingValue = if (index == 0) 24 else 16
-                WishesSortByLikesItem(wish = wishes[index], paddingValue)
-            }
+    LazyRow {
+        items(wishes.size) { index ->
+            val paddingValue = if (index == 0) 24 else 16
+            WishesSortByLikesItem(wish = wishes[index], paddingValue)
         }
     }
 }
@@ -158,6 +173,39 @@ fun WishesSortByLikesItem(wish: Wish, paddingValue: Int) {
 }
 
 @Composable
+fun ShimmerWishesSortByLikes() {
+    Row {
+        repeat(10) { index ->
+            val paddingValue = if (index == 0) 24 else 16
+            ShimmerWishesSortByLikesItem(paddingValue = paddingValue)
+        }
+    }
+}
+
+@Composable
+fun ShimmerWishesSortByLikesItem(paddingValue: Int) {
+    Column(
+        modifier = Modifier.padding(start = paddingValue.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .size(135.dp)
+                .background(Color.LightGray)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .width(135.dp)
+                .height(16.dp)
+                .background(Color.LightGray)
+        )
+    }
+}
+
+@Composable
 fun WishesRandomTitle() {
     Text(
         modifier = Modifier.padding(start = 24.dp),
@@ -181,7 +229,7 @@ fun WishesRandomItem(wish: Wish) {
                 .padding(16.dp)
         ) {
             Column(
-                modifier = Modifier.weight(0.8f),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -203,12 +251,77 @@ fun WishesRandomItem(wish: Wish) {
             }
             Spacer(modifier = Modifier.width(8.dp))
             Image(
-                modifier = Modifier.weight(0.2f),
+                modifier = Modifier.size(78.dp),
                 painter = painterResource(id = wish.representativeImage),
                 contentDescription = stringResource(R.string.wish_image),
                 contentScale = ContentScale.Crop
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun ShimmerWishesRandomItem() {
+    val shimmerInstance = rememberShimmer(shimmerBounds = ShimmerBounds.Window)
+
+    Column {
+        Row(
+            modifier = Modifier
+                .padding(start = 24.dp, end = 24.dp)
+                .fillMaxWidth()
+                .height(110.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White)
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(
+                    modifier = Modifier
+                        .shimmer(shimmerInstance)
+                        .width(170.dp)
+                        .height(16.dp)
+                        .background(Color.LightGray)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .shimmer(shimmerInstance)
+                        .width(120.dp)
+                        .height(16.dp)
+                        .background(Color.LightGray)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .shimmer(shimmerInstance)
+                    .size(78.dp)
+                    .background(Color.LightGray)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun WishesLoadingScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        ShimmerWishesBanner()
+        Spacer(modifier = Modifier.height(16.dp))
+        WishesSortByLikesTitle()
+        Spacer(modifier = Modifier.height(16.dp))
+        ShimmerWishesSortByLikes()
+        Spacer(modifier = Modifier.height(16.dp))
+        WishesRandomTitle()
+        Spacer(modifier = Modifier.height(16.dp))
+        repeat(15) {
+            ShimmerWishesRandomItem()
+        }
     }
 }

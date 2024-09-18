@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +49,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gurumlab.wish.R
+import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 
 @Preview
@@ -200,5 +204,51 @@ fun CustomLottieLoader(modifier: Modifier = Modifier, resId: Int) {
     Box(modifier = modifier) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
         LottieAnimation(composition, iterations = LottieConstants.IterateForever)
+    }
+}
+
+@Composable
+fun CustomExceptionScreen(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(backgroundColor),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.no_internet_connection),
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = stringResource(R.string.please_check_internet_connection),
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        Button(
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = defaultBoxColor,
+                contentColor = Color.White
+            ),
+            onClick = { onClick() }
+        ) {
+            Row {
+                Text(
+                    text = stringResource(R.string.retry),
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp,
+                    color = Color.White,
+                )
+            }
+        }
     }
 }
