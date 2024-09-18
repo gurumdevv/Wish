@@ -11,6 +11,7 @@ import com.gurumlab.wish.ui.detail.DetailRoute
 import com.gurumlab.wish.ui.home.HomeRoute
 import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.Post
+import com.gurumlab.wish.ui.progressForDeveloper.ProgressForDeveloperRoute
 import com.gurumlab.wish.ui.settings.Settings
 import com.gurumlab.wish.ui.wishes.WishesRoute
 
@@ -20,7 +21,8 @@ enum class WishScreen {
     POST,
     MESSAGE,
     SETTINGS,
-    DETAIL
+    DETAIL,
+    PROGRESS_FOR_DEVELOPER
 }
 
 @Composable
@@ -51,7 +53,22 @@ fun WishNavHost(
         ) { backStackEntry ->
             val wishJson = backStackEntry.arguments?.getString("wish")
             val wish = Gson().fromJson(wishJson, Wish::class.java)
-            DetailRoute(wish)
+            DetailRoute(
+                wish,
+                onProgressScreen = {
+                    navController.navigate(
+                        WishScreen.PROGRESS_FOR_DEVELOPER.name + "/${Gson().toJson(it)}"
+                    )
+                },
+                onMessageScreen = {} //TODO("메세지로 이동")
+            )
+        }
+        composable(
+            route = WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{wish}"
+        ) { backStackEntry ->
+            val wishJson = backStackEntry.arguments?.getString("wish")
+            val wish = Gson().fromJson(wishJson, Wish::class.java)
+            ProgressForDeveloperRoute(wish)
         }
     }
 }

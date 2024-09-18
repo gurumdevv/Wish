@@ -13,7 +13,11 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 
 @Composable
-fun DetailScreen(wish: Wish) {
+fun DetailScreen(
+    wish: Wish,
+    onProgressScreen: (Wish) -> Unit,
+    onMessageScreen: (Wish) -> Unit
+) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -24,7 +28,9 @@ fun DetailScreen(wish: Wish) {
     ) {
         DetailContent(
             scrollState = scrollState,
-            wish = wish
+            wish = wish,
+            onProgressScreen = onProgressScreen,
+            onMessageScreen = onMessageScreen
         )
     }
 }
@@ -32,12 +38,19 @@ fun DetailScreen(wish: Wish) {
 @Composable
 fun DetailContent(
     scrollState: ScrollState,
-    wish: Wish
+    wish: Wish,
+    onProgressScreen: (Wish) -> Unit,
+    onMessageScreen: (Wish) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         ProjectDescriptionArea(scrollState, wish)
-        DetailScreenButtonArea(Modifier.align(Alignment.BottomCenter))
+        DetailScreenButtonArea(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            wish = wish,
+            onProgressScreen = onProgressScreen,
+            onMessageScreen = onMessageScreen
+        )
     }
 }

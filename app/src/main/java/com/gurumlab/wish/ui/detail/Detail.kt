@@ -117,7 +117,12 @@ fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
 }
 
 @Composable
-fun DetailScreenButtonArea(modifier: Modifier = Modifier) {
+fun DetailScreenButtonArea(
+    modifier: Modifier = Modifier,
+    wish: Wish,
+    onProgressScreen: (Wish) -> Unit,
+    onMessageScreen: (Wish) -> Unit,
+) {
     Column(
         modifier
             .fillMaxWidth()
@@ -134,12 +139,16 @@ fun DetailScreenButtonArea(modifier: Modifier = Modifier) {
                 text = stringResource(R.string.start),
                 icon = R.drawable.ic_magic,
                 description = stringResource(R.string.btn_begin),
-                onClick = {})
+                onClick = {
+                    onProgressScreen(wish)
+                })
             CustomIconButton(
                 text = stringResource(R.string.like),
                 icon = R.drawable.ic_message_enabled,
                 description = stringResource(R.string.btn_message),
-                onClick = {})
+                onClick = {
+                    onMessageScreen(wish)
+                })
         }
         Spacer(modifier = Modifier.height(16.dp))
     }

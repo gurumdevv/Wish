@@ -28,4 +28,8 @@
     <string name="retry">재시도</string>
     <string name="wish">Wish</string>
     <string name="please_wishes_come_true">소중한 소원들을 이루어주세요.</string>
+    <string name="finish">완성했어요</string>
+    <string name="period_of_progress">진행 기간</string>
+    <string name="wish_maker">소원 공유자</string>
+    <string name="current">현재</string>
 </resources>

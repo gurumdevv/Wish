@@ -57,21 +57,23 @@ fun MainScreen(
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
 
-    val showTopBarScreen = listOf(WishScreen.DETAIL.name)
+    val specificScreens = listOf("DETAIL", "PROGRESS_FOR_DEVELOPER")
+
+    val isSpecificScreen = selectedDestination.let {
+        specificScreens.contains(selectedDestination.split("/").first())
+    }
 
     Scaffold(
         topBar = {
-            showTopBarScreen.forEach { screen ->
-                if (selectedDestination.startsWith(screen)) {
-                    ScaffoldTopAppBar(
-                        scrollBehavior = scrollBehavior,
-                        onNavIconPressed = { navController.navigateUp() }
-                    )
-                }
+            if (isSpecificScreen) {
+                ScaffoldTopAppBar(
+                    scrollBehavior = scrollBehavior,
+                    onNavIconPressed = { navController.navigateUp() }
+                )
             }
         },
         bottomBar = {
-            if (!selectedDestination.startsWith(WishScreen.DETAIL.name)) {
+            if (!isSpecificScreen) {
                 BottomNavigationBar(
                     currentDestination = selectedDestination,
                     navigateToDestination = navigationActions::navigateTo
