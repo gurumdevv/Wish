@@ -120,7 +120,8 @@ fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
 fun DetailScreenButtonArea(
     modifier: Modifier = Modifier,
     wish: Wish,
-    onProgressScreen: (Wish) -> Unit,
+    wishId: String,
+    onProgressScreen: (Wish, String) -> Unit,
     onMessageScreen: (Wish) -> Unit,
 ) {
     Column(
@@ -140,7 +141,7 @@ fun DetailScreenButtonArea(
                 icon = R.drawable.ic_magic,
                 description = stringResource(R.string.btn_begin),
                 onClick = {
-                    onProgressScreen(wish)
+                    onProgressScreen(wish, wishId)
                 })
             CustomIconButton(
                 text = stringResource(R.string.like),

@@ -34,10 +34,14 @@ fun WishNavHost(
         startDestination = WishScreen.HOME.name
     ) {
         composable(route = WishScreen.HOME.name) {
-            HomeRoute { navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(it)}") }
+            HomeRoute { wish, wishId ->
+                navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(wish)}" + "/${wishId}")
+            }
         }
         composable(route = WishScreen.WISHES.name) {
-            WishesRoute { navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(it)}") }
+            WishesRoute { wish, wishId ->
+                navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(wish)}" + "/${wishId}")
+            }
         }
         composable(route = WishScreen.POST.name) {
             Post()
@@ -49,15 +53,17 @@ fun WishNavHost(
             Settings()
         }
         composable(
-            route = WishScreen.DETAIL.name + "/{wish}"
+            route = WishScreen.DETAIL.name + "/{wish}" + "/{wishId}"
         ) { backStackEntry ->
             val wishJson = backStackEntry.arguments?.getString("wish")
             val wish = Gson().fromJson(wishJson, Wish::class.java)
+            val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
             DetailRoute(
                 wish,
-                onProgressScreen = {
+                wishId,
+                onProgressScreen = { wishObject, wishIdString ->
                     navController.navigate(
-                        WishScreen.PROGRESS_FOR_DEVELOPER.name + "/${Gson().toJson(it)}"
+                        WishScreen.PROGRESS_FOR_DEVELOPER.name + "/${Gson().toJson(wishObject)}" + "/${wishIdString}"
                     )
                 },
                 onMessageScreen = {} //TODO("메세지로 이동")
