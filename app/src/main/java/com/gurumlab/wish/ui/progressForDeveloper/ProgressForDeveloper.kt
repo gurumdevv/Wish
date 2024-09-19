@@ -1,15 +1,18 @@
 package com.gurumlab.wish.ui.progressForDeveloper
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,6 +27,32 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomIconButton
+
+@Composable
+fun ProjectProgressDescriptionArea(
+    wish: Wish,
+    scrollState: ScrollState
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(start = 24.dp, end = 24.dp)
+    ) {
+        ProjectTitle(wish.title)
+        Spacer(modifier = Modifier.height(16.dp))
+        ProjectDescription(wish.simpleDescription)
+        Spacer(modifier = Modifier.height(16.dp))
+        PeriodOfProgressTitle()
+        Spacer(modifier = Modifier.height(8.dp))
+        PeriodOfProgress(wish)
+        Spacer(modifier = Modifier.height(16.dp))
+        WishMakerTitle()
+        Spacer(modifier = Modifier.height(8.dp))
+        WishMaker(wish.posterName)
+        Spacer(modifier = Modifier.height(78.dp))
+    }
+}
 
 @Composable
 fun ProjectTitle(title: String) {
@@ -129,7 +158,8 @@ fun WishMaker(wishMaker: String) {
 fun ProgressForDeveloperScreenButtonArea(
     modifier: Modifier = Modifier,
     wish: Wish,
-    onSubmitScreen: (Wish) -> Unit,
+    wishId: String,
+    onSubmitScreen: (Wish, String) -> Unit,
     onMessageScreen: (Wish) -> Unit
 ) {
     Column(
@@ -148,7 +178,7 @@ fun ProgressForDeveloperScreenButtonArea(
                 text = stringResource(R.string.finish),
                 icon = R.drawable.ic_clap,
                 description = stringResource(R.string.btn_begin),
-                onClick = { onSubmitScreen(wish) })
+                onClick = { onSubmitScreen(wish, wishId) })
             CustomIconButton(
                 text = stringResource(R.string.message),
                 icon = R.drawable.ic_message_enabled,
