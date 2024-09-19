@@ -139,21 +139,34 @@ fun WishesSortByLikesTitle() {
 }
 
 @Composable
-fun WishesSortByLikes(wishes: List<Wish>, onDetailScreen: (wish: Wish) -> Unit) {
+fun WishesSortByLikes(
+    wishes: Map<String, Wish>,
+    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+) {
     LazyRow {
         items(wishes.size) { index ->
             val paddingValue = if (index == 0) 24 else 16
-            WishesSortByLikesItem(wish = wishes[index], paddingValue, onDetailScreen)
+            WishesSortByLikesItem(
+                wish = wishes.values.elementAt(index),
+                wishId = wishes.keys.elementAt(index),
+                paddingValue = paddingValue,
+                onDetailScreen = onDetailScreen
+            )
         }
     }
 }
 
 @Composable
-fun WishesSortByLikesItem(wish: Wish, paddingValue: Int, onDetailScreen: (wish: Wish) -> Unit) {
+fun WishesSortByLikesItem(
+    wish: Wish,
+    wishId: String,
+    paddingValue: Int,
+    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+) {
     Column(
         modifier = Modifier
             .padding(start = paddingValue.dp)
-            .clickable { onDetailScreen(wish) },
+            .clickable { onDetailScreen(wish, wishId) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -220,7 +233,11 @@ fun WishesRandomTitle() {
 }
 
 @Composable
-fun WishesRandomItem(wish: Wish, onDetailScreen: (wish: Wish) -> Unit) {
+fun WishesRandomItem(
+    wish: Wish,
+    wishId: String,
+    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+) {
     Column {
         Row(
             modifier = Modifier
@@ -230,7 +247,7 @@ fun WishesRandomItem(wish: Wish, onDetailScreen: (wish: Wish) -> Unit) {
                 .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
                 .padding(16.dp)
-                .clickable { onDetailScreen(wish) }
+                .clickable { onDetailScreen(wish, wishId) }
         ) {
             Column(
                 modifier = Modifier.weight(1f),

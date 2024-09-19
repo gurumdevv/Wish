@@ -20,8 +20,9 @@ class WishesViewModel @Inject constructor(
     private val _wishes: MutableStateFlow<Map<String, Wish>> = MutableStateFlow(emptyMap())
     val wishes: StateFlow<Map<String, Wish>> = _wishes
 
-    private val _wishesSortedByLikes: MutableStateFlow<List<Wish>> = MutableStateFlow(emptyList())
-    val wishesSortedByLikes: StateFlow<List<Wish>> = _wishesSortedByLikes
+    private val _wishesSortedByLikes: MutableStateFlow<Map<String, Wish>> =
+        MutableStateFlow(emptyMap())
+    val wishesSortedByLikes: StateFlow<Map<String, Wish>> = _wishesSortedByLikes
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -77,7 +78,7 @@ class WishesViewModel @Inject constructor(
                 }
             )
 
-            response.collect { _wishesSortedByLikes.value = it.values.toList() }
+            response.collect { _wishesSortedByLikes.value = it }
         }
     }
 }
