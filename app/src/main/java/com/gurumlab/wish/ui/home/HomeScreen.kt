@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onDetailScreen: (wish: Wish) -> Unit) {
+fun HomeScreen(viewModel: HomeViewModel, onDetailScreen: (wish: Wish, wishId: String) -> Unit) {
     HomeContent(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +43,7 @@ fun HomeScreen(viewModel: HomeViewModel, onDetailScreen: (wish: Wish) -> Unit) {
 fun HomeContent(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel,
-    onDetailScreen: (wish: Wish) -> Unit
+    onDetailScreen: (wish: Wish, wishId: String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -73,7 +73,7 @@ fun HomeContent(
                     WishCard(
                         wish = wishContent,
                         onStartClick = {
-                            onDetailScreen(wishContent)
+                            onDetailScreen(wishContent, wishIdentifier)
                         },
                         onLikeClick = {
                             scope.launch {
