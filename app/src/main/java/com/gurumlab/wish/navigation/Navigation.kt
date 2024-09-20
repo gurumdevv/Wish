@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.detail.DetailRoute
@@ -29,7 +28,7 @@ enum class WishScreen {
 
 @Composable
 fun WishNavHost(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController
 ) {
     NavHost(
         navController = navController,
@@ -91,7 +90,7 @@ fun WishNavHost(
             val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
             ProjectSubmitRoute(wish, wishId) {
                 navController.navigate(WishScreen.WISHES.name) {
-                    popUpTo(WishScreen.DETAIL.name) {
+                    popUpTo(WishScreen.DETAIL.name + "/{wish}/{wishId}") {
                         inclusive = true
                     }
                     launchSingleTop = true

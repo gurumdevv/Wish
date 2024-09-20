@@ -54,8 +54,7 @@ fun MainScreen(
     val navigationActions = remember(navController) { NavigationActions(navController) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val selectedDestination = navBackStackEntry?.destination?.route ?: WishScreen.HOME.name
-    val topBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     val specificScreens = listOf("DETAIL", "PROGRESS_FOR_DEVELOPER", "PROJECT_SUBMIT")
 
