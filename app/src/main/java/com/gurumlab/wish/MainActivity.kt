@@ -57,7 +57,7 @@ fun MainScreen(
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
 
-    val specificScreens = listOf("DETAIL", "PROGRESS_FOR_DEVELOPER")
+    val specificScreens = listOf("DETAIL", "PROGRESS_FOR_DEVELOPER", "PROJECT_SUBMIT")
 
     val isSpecificScreen = selectedDestination.let {
         specificScreens.contains(selectedDestination.split("/").first())

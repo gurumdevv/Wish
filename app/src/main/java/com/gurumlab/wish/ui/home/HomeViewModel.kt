@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.repository.HomeRepository
-import com.gurumlab.wish.ui.util.DataTimeConverter
+import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +39,7 @@ class HomeViewModel @Inject constructor(
     fun loadWishes() {
         viewModelScope.launch {
             val response = repository.getPostsByDate(
-                date = DataTimeConverter.getDateMinusDays(6),
+                date = DateTimeConverter.getDateMinusDays(6),
                 onCompletion = {
                     _isLoading.value = false
                 },

@@ -14,3 +14,4 @@ val White00 = Color(0x00FFFFFF)
 
 val backgroundColor = Color.Black
 val defaultBoxColor = Color(0xFF2E2E2E)
+val defaultPlaceHolderColor = Color(0xFF7F7F7F)

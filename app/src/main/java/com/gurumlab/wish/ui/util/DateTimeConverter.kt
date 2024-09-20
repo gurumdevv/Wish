@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
-object DataTimeConverter {
+object DateTimeConverter {
 
     fun getCurrentDate(): Int {
         val currentDate = LocalDate.now()

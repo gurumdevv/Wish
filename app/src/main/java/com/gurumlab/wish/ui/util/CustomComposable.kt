@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -26,6 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -39,7 +42,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +56,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
+import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 
 @Preview
 @Composable
@@ -62,7 +68,6 @@ fun PreviewDefaultIconButton() {
         onClick = {}
     )
 }
-
 
 @Composable
 fun CustomIconButton(
@@ -106,6 +111,33 @@ fun CustomIconButton(
                 fontWeight = FontWeight.Bold,
                 maxTextSize = 20.sp
             )
+        }
+    }
+}
+
+@Composable
+fun CustomWideButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(62.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = defaultBoxColor,
+            contentColor = Color.White
+        ),
+        onClick = { onClick() }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = text, fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -171,14 +203,13 @@ fun CustomSnackbarContent(
 ) {
     Box(
         modifier = Modifier
-            .padding(16.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(RoundedCornerShape(10.dp))
             .background(backgroundColor)
     ) {
         Row(
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
@@ -251,4 +282,40 @@ fun CustomExceptionScreen(
             }
         }
     }
+}
+
+@Composable
+fun CustomTextField(
+    modifier: Modifier = Modifier,
+    text: String,
+    onValueChange: (String) -> Unit,
+    placeholderText: String,
+    fontSize: Int,
+    imeOption: ImeAction = ImeAction.Default
+) {
+    TextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        value = text,
+        onValueChange = onValueChange,
+        placeholder = { Text(text = placeholderText) },
+        singleLine = true,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = defaultBoxColor,
+            unfocusedContainerColor = defaultBoxColor,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedPlaceholderColor = defaultPlaceHolderColor,
+            unfocusedPlaceholderColor = defaultPlaceHolderColor,
+            cursorColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        shape = RoundedCornerShape(10.dp),
+        textStyle = TextStyle(fontSize = fontSize.sp),
+        keyboardOptions = KeyboardOptions(
+            imeAction = imeOption
+        )
+    )
 }

@@ -1,8 +1,10 @@
 package com.gurumlab.wish.data.source.remote
 
+import com.gurumlab.wish.data.model.CompletedWish
 import com.gurumlab.wish.data.model.Wish
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -28,8 +30,19 @@ interface ApiClient {
         @Body likeCount: Int
     )
 
+    @PUT("posts/{postId}/status.json")
+    suspend fun updateStatus(
+        @Path("postId") postId: String,
+        @Body status: Int
+    )
+
     @GET("posts/{postIdentifier}/likes.json")
     suspend fun getLikeCount(
         @Path("postIdentifier") postIdentifier: String
     ): ApiResponse<Int>
+
+    @POST("completedPosts.json")
+    suspend fun uploadCompletedPost(
+        @Body completedWish: CompletedWish
+    )
 }

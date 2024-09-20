@@ -12,6 +12,7 @@ import com.gurumlab.wish.ui.home.HomeRoute
 import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.Post
 import com.gurumlab.wish.ui.progressForDeveloper.ProgressForDeveloperRoute
+import com.gurumlab.wish.ui.projectSubmit.ProjectSubmitRoute
 import com.gurumlab.wish.ui.settings.Settings
 import com.gurumlab.wish.ui.wishes.WishesRoute
 
@@ -22,7 +23,8 @@ enum class WishScreen {
     MESSAGE,
     SETTINGS,
     DETAIL,
-    PROGRESS_FOR_DEVELOPER
+    PROGRESS_FOR_DEVELOPER,
+    PROJECT_SUBMIT
 }
 
 @Composable
@@ -70,11 +72,31 @@ fun WishNavHost(
             )
         }
         composable(
-            route = WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{wish}"
+            route = WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{wish}" + "/{wishId}"
         ) { backStackEntry ->
             val wishJson = backStackEntry.arguments?.getString("wish")
             val wish = Gson().fromJson(wishJson, Wish::class.java)
-            ProgressForDeveloperRoute(wish)
+            val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
+            ProgressForDeveloperRoute(wish, wishId) { wishObject, wishIdString ->
+                navController.navigate(
+                    WishScreen.PROJECT_SUBMIT.name + "/${Gson().toJson(wishObject)}" + "/${wishIdString}"
+                )
+            }
+        }
+        composable(
+            route = WishScreen.PROJECT_SUBMIT.name + "/{wish}" + "/{wishId}"
+        ) { backStackEntry ->
+            val wishJson = backStackEntry.arguments?.getString("wish")
+            val wish = Gson().fromJson(wishJson, Wish::class.java)
+            val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
+            ProjectSubmitRoute(wish, wishId) {
+                navController.navigate(WishScreen.WISHES.name) {
+                    popUpTo(WishScreen.DETAIL.name) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
         }
     }
 }
