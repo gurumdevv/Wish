@@ -12,6 +12,8 @@ val Pink40 = Color(0xFF7D5260)
 
 val White00 = Color(0x00FFFFFF)
 
+val Gray00 = Color(0xFF7E7E7E)
+
 val backgroundColor = Color.Black
 val defaultBoxColor = Color(0xFF2E2E2E)
 val defaultPlaceHolderColor = Color(0xFF7F7F7F)

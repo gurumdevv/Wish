@@ -45,4 +45,10 @@ interface ApiClient {
     suspend fun uploadCompletedPost(
         @Body completedWish: CompletedWish
     )
+
+    @GET("posts.json")
+    suspend fun getPostsByPosterId(
+        @Query("orderBy") orderBy: String,
+        @Query("equalTo") equalTo: String
+    ): ApiResponse<Map<String, Wish>>
 }

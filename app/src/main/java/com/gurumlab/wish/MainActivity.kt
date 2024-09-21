@@ -56,7 +56,13 @@ fun MainScreen(
     val selectedDestination = navBackStackEntry?.destination?.route ?: WishScreen.HOME.name
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-    val specificScreens = listOf("DETAIL", "PROGRESS_FOR_DEVELOPER", "PROJECT_SUBMIT")
+    val specificScreens = listOf(
+        "DETAIL",
+        "PROGRESS_FOR_DEVELOPER",
+        "PROJECT_SUBMIT",
+        "ACCOUNT_SETTING",
+        "MY_PROJECT_SETTING"
+    )
 
     val isSpecificScreen = selectedDestination.let {
         specificScreens.contains(selectedDestination.split("/").first())

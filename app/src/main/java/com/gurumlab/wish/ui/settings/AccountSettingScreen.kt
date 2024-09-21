@@ -24,29 +24,25 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 
 @Composable
-fun AccountSettingScreen(
-    onLogOut: () -> Unit,
-    onDeleteAccount: () -> Unit
-) {
+fun AccountSettingScreen() {
     AccountSettingContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
             .padding(start = 24.dp, end = 24.dp),
-        onLogOut = onLogOut,
-        onDeleteAccount = onDeleteAccount
     )
 }
 
 @Composable
 fun AccountSettingContent(
-    modifier: Modifier = Modifier,
-    onLogOut: () -> Unit,
-    onDeleteAccount: () -> Unit
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
     ) {
+        val onLogOut = {} //TODO("회원가입 구현 후 구현하기")
+        val onDeleteAccount = {}
+
         AccountSettingTitle()
         Spacer(modifier = Modifier.height(16.dp))
         AccountSubsetTitle(textRsc = R.string.log_out)

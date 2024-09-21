@@ -3,10 +3,13 @@ package com.gurumlab.wish.ui.settings
 import androidx.compose.runtime.Composable
 
 @Composable
-fun SettingsRoute() {
+fun SettingsRoute(
+    onAccountSetting: () -> Unit,
+    onMyProjectSetting: () -> Unit,
+) {
     SettingsScreen(
-        onAccountSetting = { },
-        onMyProjectSetting = { },
+        onAccountSetting = onAccountSetting,
+        onMyProjectSetting = onMyProjectSetting,
         onApproachingProjectSetting = { },
         onTermsAndCondition = { }
     )

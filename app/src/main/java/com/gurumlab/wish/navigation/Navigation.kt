@@ -12,6 +12,8 @@ import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.Post
 import com.gurumlab.wish.ui.progressForDeveloper.ProgressForDeveloperRoute
 import com.gurumlab.wish.ui.projectSubmit.ProjectSubmitRoute
+import com.gurumlab.wish.ui.settings.AccountSettingScreen
+import com.gurumlab.wish.ui.settings.MyProjectSettingRoute
 import com.gurumlab.wish.ui.settings.SettingsRoute
 import com.gurumlab.wish.ui.wishes.WishesRoute
 
@@ -23,7 +25,9 @@ enum class WishScreen {
     SETTINGS,
     DETAIL,
     PROGRESS_FOR_DEVELOPER,
-    PROJECT_SUBMIT
+    PROJECT_SUBMIT,
+    ACCOUNT_SETTING,
+    MY_PROJECT_SETTING
 }
 
 @Composable
@@ -51,7 +55,14 @@ fun WishNavHost(
             Message()
         }
         composable(route = WishScreen.SETTINGS.name) {
-            SettingsRoute()
+            SettingsRoute(
+                onAccountSetting = {
+                    navController.navigate(WishScreen.ACCOUNT_SETTING.name)
+                },
+                onMyProjectSetting = {
+                    navController.navigate(WishScreen.MY_PROJECT_SETTING.name)
+                }
+            )
         }
         composable(
             route = WishScreen.DETAIL.name + "/{wish}" + "/{wishId}"
@@ -96,6 +107,16 @@ fun WishNavHost(
                     launchSingleTop = true
                 }
             }
+        }
+        composable(
+            route = WishScreen.ACCOUNT_SETTING.name
+        ) {
+            AccountSettingScreen()
+        }
+        composable(
+            route = WishScreen.MY_PROJECT_SETTING.name
+        ) {
+            MyProjectSettingRoute()
         }
     }
 }

@@ -19,3 +19,9 @@ data class Wish(
     val features: List<String>,
     val comment: String,
 )
+
+enum class WishStatus {
+    POSTED,
+    ONGOING,
+    COMPLETED
+}
