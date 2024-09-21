@@ -44,23 +44,21 @@ fun ProjectSubmitScreen(
     wishId: String,
     onComplete: () -> Unit
 ) {
-    Column(
+    ProjectSubmitContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp)
-    ) {
-        ProjectSubmitContent(
-            viewModel = viewModel,
-            wish = wish,
-            wishId = wishId,
-            onComplete = onComplete
-        )
-    }
+            .padding(start = 24.dp, end = 24.dp),
+        viewModel = viewModel,
+        wish = wish,
+        wishId = wishId,
+        onComplete = onComplete
+    )
 }
 
 @Composable
 fun ProjectSubmitContent(
+    modifier: Modifier = Modifier,
     viewModel: ProjectSubmitViewModel,
     wish: Wish,
     wishId: String,
@@ -78,11 +76,12 @@ fun ProjectSubmitContent(
 
     if (isSubmitSuccess.value && isUpdateSuccess.value) onComplete()
 
-    Box {
+    Box(
+        modifier = modifier
+    ) {
         Column(
             modifier = Modifier
                 .imePadding()
-                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
             ProjectTitle(wish.title)

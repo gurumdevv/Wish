@@ -143,11 +143,11 @@ fun CustomWideButton(
 }
 
 @Composable
-fun CustomTopAppBar(modifier: Modifier = Modifier) {
+fun CustomTopAppBar(text: String) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, bottom = 5.dp)
+            .padding(start = 24.dp, top = 8.dp, bottom = 12.dp)
     ) {
         Image(
             modifier = Modifier.size(30.dp),
@@ -159,7 +159,7 @@ fun CustomTopAppBar(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             modifier = Modifier.padding(top = 3.dp),
-            text = "Wish",
+            text = text,
             color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold

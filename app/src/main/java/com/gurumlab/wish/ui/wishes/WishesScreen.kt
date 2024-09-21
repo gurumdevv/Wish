@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
@@ -39,7 +41,7 @@ fun WishesContent(
     val isException = viewModel.isException.collectAsStateWithLifecycle()
 
     Column(modifier = modifier) {
-        CustomTopAppBar()
+        CustomTopAppBar(text = stringResource(R.string.wishes_top_bar))
 
         if (isLoading.value) {
             WishesLoadingScreen()

@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
@@ -56,7 +57,7 @@ fun HomeContent(
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
-            CustomTopAppBar()
+            CustomTopAppBar(text = stringResource(id = R.string.wish))
 
             Box {
                 if (isError.value) {

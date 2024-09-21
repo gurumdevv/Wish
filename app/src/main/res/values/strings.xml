@@ -45,4 +45,11 @@
     <string name="account_info_error">계좌번호를 작성해주세요.</string>
     <string name="account_owner_error">계좌 실소유주 명을 작성해주세요.</string>
     <string name="blank">올바르게 입력되지 않은 값이 있습니다.</string>
+    <string name="wishes_top_bar">Wishes</string>
+    <string name="settings_top_bar">Settings</string>
+    <string name="profile_image">프로필 이미지</string>
+    <string name="account_setting">계정 설정</string>
+    <string name="my_project_setting">내 프로젝트 관리</string>
+    <string name="approaching_project_setting">착수한 프로젝트 관리</string>
+    <string name="terms_and_condition">이용약관</string>
 </resources>

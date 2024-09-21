@@ -12,7 +12,7 @@ import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.Post
 import com.gurumlab.wish.ui.progressForDeveloper.ProgressForDeveloperRoute
 import com.gurumlab.wish.ui.projectSubmit.ProjectSubmitRoute
-import com.gurumlab.wish.ui.settings.Settings
+import com.gurumlab.wish.ui.settings.SettingsRoute
 import com.gurumlab.wish.ui.wishes.WishesRoute
 
 enum class WishScreen {
@@ -51,7 +51,7 @@ fun WishNavHost(
             Message()
         }
         composable(route = WishScreen.SETTINGS.name) {
-            Settings()
+            SettingsRoute()
         }
         composable(
             route = WishScreen.DETAIL.name + "/{wish}" + "/{wishId}"
