@@ -17,3 +17,4 @@ val Gray00 = Color(0xFF7E7E7E)
 val backgroundColor = Color.Black
 val defaultBoxColor = Color(0xFF2E2E2E)
 val defaultPlaceHolderColor = Color(0xFF7F7F7F)
+val defaultScrimColor = Color(0x80000000)

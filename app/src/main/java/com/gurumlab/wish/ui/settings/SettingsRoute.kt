@@ -10,7 +10,6 @@ fun SettingsRoute(
     SettingsScreen(
         onAccountSetting = onAccountSetting,
         onMyProjectSetting = onMyProjectSetting,
-        onApproachingProjectSetting = { },
-        onTermsAndCondition = { }
+        onApproachingProjectSetting = { }
     )
 }

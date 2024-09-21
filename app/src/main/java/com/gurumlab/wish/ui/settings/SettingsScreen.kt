@@ -1,5 +1,7 @@
 package com.gurumlab.wish.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
@@ -22,7 +25,6 @@ fun SettingsScreen(
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
-    onTermsAndCondition: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -36,7 +38,6 @@ fun SettingsScreen(
             onAccountSetting = onAccountSetting,
             onMyProjectSetting = onMyProjectSetting,
             onApproachingProjectSetting = onApproachingProjectSetting,
-            onTermsAndCondition = onTermsAndCondition
         )
     }
 }
@@ -47,8 +48,9 @@ fun SettingsContent(
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
-    onTermsAndCondition: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier
     ) {
@@ -89,7 +91,10 @@ fun SettingsContent(
         Spacer(modifier = Modifier.height(16.dp))
         SettingsItem(
             text = stringResource(R.string.terms_and_condition),
-            onClick = { onTermsAndCondition() },
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(URL.TERMS_AND_CONDITION))
+                context.startActivity(intent)
+            },
             shape = RoundedCornerShape(
                 topStart = 10.dp,
                 topEnd = 10.dp,
@@ -98,4 +103,8 @@ fun SettingsContent(
             )
         )
     }
+}
+
+object URL {
+    const val TERMS_AND_CONDITION = "https://firebase.google.com/terms/" //TODO("이용약관 작성후 URL 변경하기")
 }

@@ -2,6 +2,7 @@ package com.gurumlab.wish.ui.settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,13 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,7 +47,9 @@ import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.Gray00
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
+import com.gurumlab.wish.ui.theme.defaultScrimColor
 import com.gurumlab.wish.ui.util.toDp
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyProjectSettingScreen(viewModel: MyProjectSettingViewModel) {
@@ -55,6 +62,7 @@ fun MyProjectSettingScreen(viewModel: MyProjectSettingViewModel) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProjectSettingContent(
     modifier: Modifier = Modifier,
@@ -63,6 +71,10 @@ fun MyProjectSettingContent(
     val wishes = viewModel.wishes.collectAsStateWithLifecycle()
     val totalCount = wishes.value.keys.size
     val successCount = wishes.value.values.count { it.status == WishStatus.COMPLETED.ordinal }
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var currentWishId by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = modifier
@@ -82,8 +94,9 @@ fun MyProjectSettingContent(
                 MyProjectItem(
                     wish = wishes.value.values.elementAt(index),
                     wishId = wishes.value.keys.elementAt(index),
-                    onClick = {
-                        //TODO("제어 패널 띄우기")
+                    onClick = { wishId ->
+                        currentWishId = wishId
+                        showBottomSheet = true
                     })
             } else {
                 MyProjectItem(
@@ -92,6 +105,36 @@ fun MyProjectSettingContent(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet = false
+            },
+            sheetState = sheetState,
+            containerColor = defaultBoxColor,
+            contentColor = Color.White,
+            scrimColor = defaultScrimColor
+        ) {
+            ModalBottomSheetItem(
+                modifier = Modifier.clickable {
+                    scope.launch {
+                        viewModel.deleteWish(currentWishId)
+                        viewModel.loadWishes()
+                        sheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet = false
+                        }
+                    }
+                },
+                iconRsc = R.drawable.ic_trash,
+                textRsc = R.string.delete,
+                contentDescriptionRsc = R.string.btn_delete,
+                color = Color.Red
+            )
         }
     }
 }
@@ -164,7 +207,7 @@ fun MyProjectStaticsItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = stringResource(id = textRsc), fontSize = 18.sp, color = Gray00)
+        Text(text = stringResource(id = textRsc), fontSize = 16.sp, color = Gray00)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = count.toString(),
@@ -204,14 +247,14 @@ fun MyProjectItem(
                     text = wish.oneLineDescription,
                     fontSize = 14.sp,
                     color = Color.White,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
             Spacer(modifier = Modifier.size(8.dp))
             Box(
                 modifier = Modifier
-                    .size(94.dp)
+                    .size(72.dp)
             ) {
                 when (wish.status) {
                     WishStatus.ONGOING.ordinal -> {
@@ -252,5 +295,30 @@ fun MyProjectItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ModalBottomSheetItem(
+    modifier: Modifier = Modifier,
+    iconRsc: Int,
+    textRsc: Int,
+    contentDescriptionRsc: Int,
+    color: Color = Color.White
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = iconRsc),
+            contentDescription = stringResource(id = contentDescriptionRsc),
+            tint = color
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        Text(text = stringResource(id = textRsc), fontSize = 18.sp, color = color)
     }
 }

@@ -3,6 +3,7 @@ package com.gurumlab.wish.data.source.remote
 import com.gurumlab.wish.data.model.CompletedWish
 import com.gurumlab.wish.data.model.Wish
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -51,4 +52,9 @@ interface ApiClient {
         @Query("orderBy") orderBy: String,
         @Query("equalTo") equalTo: String
     ): ApiResponse<Map<String, Wish>>
+
+    @DELETE("posts/{wishId}.json")
+    suspend fun deleteWish(
+        @Path("wishId") wishId: String
+    )
 }

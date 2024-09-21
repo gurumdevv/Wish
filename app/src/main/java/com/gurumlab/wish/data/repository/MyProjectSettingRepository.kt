@@ -1,5 +1,6 @@
 package com.gurumlab.wish.data.repository
 
+import android.util.Log
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -32,4 +33,14 @@ class MyProjectSettingRepository @Inject constructor(
             onException(it.message)
         }
     }.flowOn(Dispatchers.IO)
+
+    suspend fun deleteWish(
+        wishId: String
+    ) {
+        try {
+            apiClient.deleteWish(wishId)
+        } catch (e: Exception) {
+            Log.d("deleteWish", "Error delete Wish: ${e.message}")
+        }
+    }
 }
