@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +49,7 @@ import com.gurumlab.wish.ui.theme.Gray00
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultScrimColor
+import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.toDp
 import kotlinx.coroutines.launch
 
@@ -75,36 +77,46 @@ fun MyProjectSettingContent(
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var currentWishId by remember { mutableStateOf("") }
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
+    val isException = viewModel.isException.collectAsStateWithLifecycle()
 
-    LazyColumn(
-        modifier = modifier
-    ) {
-        item {
-            MyProjectSettingTitle(textRsc = R.string.my_project_setting, fontSize = 24)
-            Spacer(modifier = Modifier.height(16.dp))
-            MyProjectSettingTitle(textRsc = R.string.statistics, fontSize = 20)
-            Spacer(modifier = Modifier.height(8.dp))
-            MyProjectStatistics(totalCount, successCount)
-            Spacer(modifier = Modifier.height(16.dp))
-            MyProjectSettingTitle(textRsc = R.string.posted_wish_list, fontSize = 20)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        items(wishes.value.keys.size) { index ->
-            if (wishes.value.values.elementAt(index).status == WishStatus.POSTED.ordinal) {
-                MyProjectItem(
-                    wish = wishes.value.values.elementAt(index),
-                    wishId = wishes.value.keys.elementAt(index),
-                    onClick = { wishId ->
-                        currentWishId = wishId
-                        showBottomSheet = true
-                    })
-            } else {
-                MyProjectItem(
-                    wish = wishes.value.values.elementAt(index),
-                    wishId = wishes.value.keys.elementAt(index)
-                )
+    if (isLoading.value) {
+        MyProjectSettingLoadingScreen()
+    } else {
+        if (isException.value) {
+            MyProjectSettingExceptionScreen()
+        } else {
+            LazyColumn(
+                modifier = modifier
+            ) {
+                item {
+                    MyProjectSettingTitle(textRsc = R.string.my_project_setting, fontSize = 24)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyProjectSettingTitle(textRsc = R.string.statistics, fontSize = 20)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MyProjectStatistics(totalCount, successCount)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyProjectSettingTitle(textRsc = R.string.posted_wish_list, fontSize = 20)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                items(wishes.value.keys.size) { index ->
+                    if (wishes.value.values.elementAt(index).status == WishStatus.POSTED.ordinal) {
+                        MyProjectItem(
+                            wish = wishes.value.values.elementAt(index),
+                            wishId = wishes.value.keys.elementAt(index),
+                            onClick = { wishId ->
+                                currentWishId = wishId
+                                showBottomSheet = true
+                            })
+                    } else {
+                        MyProjectItem(
+                            wish = wishes.value.values.elementAt(index),
+                            wishId = wishes.value.keys.elementAt(index)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 
@@ -320,5 +332,47 @@ fun ModalBottomSheetItem(
         )
         Spacer(modifier = Modifier.size(16.dp))
         Text(text = stringResource(id = textRsc), fontSize = 18.sp, color = color)
+    }
+}
+
+@Composable
+fun MyProjectSettingLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 24.dp, end = 24.dp)
+    ) {
+        MyProjectSettingTitle(textRsc = R.string.my_project_setting, fontSize = 24)
+        CustomLottieLoader(
+            modifier = Modifier
+                .size(130.dp)
+                .align(Alignment.Center),
+            resId = R.raw.animation_default_loading
+        )
+    }
+}
+
+@Composable
+fun MyProjectSettingExceptionScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.no_internet_connection),
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = stringResource(R.string.cannot_load_data),
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            color = Color.White
+        )
     }
 }

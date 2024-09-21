@@ -20,6 +20,8 @@ class MyProjectSettingViewModel @Inject constructor(
     val wishes = _wishes.asStateFlow()
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
+    private val _isException = MutableStateFlow(false)
+    val isException = _isException.asStateFlow()
 
     init {
         loadWishes()
@@ -35,6 +37,7 @@ class MyProjectSettingViewModel @Inject constructor(
                 },
                 onException = { e ->
                     _isLoading.value = false
+                    _isException.value = true
                     Log.d("MyProjectSetting", "Fail to load data: $e")
                 }
             )

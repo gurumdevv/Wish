@@ -63,4 +63,5 @@
     <string name="posted_wish_list">등록된 프로젝트</string>
     <string name="delete">삭제</string>
     <string name="btn_delete">삭제 버튼</string>
+    <string name="cannot_load_data">데이터 불러오기에 실패했습니다.</string>
 </resources>
