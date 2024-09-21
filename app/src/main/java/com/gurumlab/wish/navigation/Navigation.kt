@@ -16,6 +16,7 @@ import com.gurumlab.wish.ui.settings.AccountSettingScreen
 import com.gurumlab.wish.ui.settings.ApproachingProjectSettingRoute
 import com.gurumlab.wish.ui.settings.MyProjectSettingRoute
 import com.gurumlab.wish.ui.settings.SettingsRoute
+import com.gurumlab.wish.ui.settings.TermsAndConditionRoute
 import com.gurumlab.wish.ui.wishes.WishesRoute
 
 enum class WishScreen {
@@ -29,7 +30,8 @@ enum class WishScreen {
     PROJECT_SUBMIT,
     ACCOUNT_SETTING,
     MY_PROJECT_SETTING,
-    APPROACHING_PROJECT_SETTING
+    APPROACHING_PROJECT_SETTING,
+    TERMS_AND_CONDITION
 }
 
 @Composable
@@ -66,6 +68,9 @@ fun WishNavHost(
                 },
                 onApproachingProjectSetting = {
                     navController.navigate(WishScreen.APPROACHING_PROJECT_SETTING.name)
+                },
+                onTermsAndCondition = {
+                    navController.navigate(WishScreen.TERMS_AND_CONDITION.name)
                 }
             )
         }
@@ -127,6 +132,11 @@ fun WishNavHost(
             route = WishScreen.APPROACHING_PROJECT_SETTING.name
         ) {
             ApproachingProjectSettingRoute()
+        }
+        composable(
+            route = WishScreen.TERMS_AND_CONDITION.name
+        ) {
+            TermsAndConditionRoute()
         }
     }
 }

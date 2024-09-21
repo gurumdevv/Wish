@@ -6,11 +6,13 @@ import androidx.compose.runtime.Composable
 fun SettingsRoute(
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
-    onApproachingProjectSetting: () -> Unit
+    onApproachingProjectSetting: () -> Unit,
+    onTermsAndCondition: () -> Unit
 ) {
     SettingsScreen(
         onAccountSetting = onAccountSetting,
         onMyProjectSetting = onMyProjectSetting,
-        onApproachingProjectSetting = onApproachingProjectSetting
+        onApproachingProjectSetting = onApproachingProjectSetting,
+        onTermsAndCondition = onTermsAndCondition
     )
 }
