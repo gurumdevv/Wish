@@ -53,6 +53,12 @@ interface ApiClient {
         @Query("equalTo") equalTo: String
     ): ApiResponse<Map<String, Wish>>
 
+    @GET("posts.json")
+    suspend fun getPostsByDeveloperId(
+        @Query("orderBy") orderBy: String,
+        @Query("equalTo") equalTo: String
+    ): ApiResponse<Map<String, Wish>>
+
     @DELETE("posts/{wishId}.json")
     suspend fun deleteWish(
         @Path("wishId") wishId: String

@@ -61,7 +61,8 @@ fun MainScreen(
         "PROGRESS_FOR_DEVELOPER",
         "PROJECT_SUBMIT",
         "ACCOUNT_SETTING",
-        "MY_PROJECT_SETTING"
+        "MY_PROJECT_SETTING",
+        "APPROACHING_PROJECT_SETTING"
     )
 
     val isSpecificScreen = selectedDestination.let {

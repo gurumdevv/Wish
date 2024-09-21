@@ -5,6 +5,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun MyProjectSettingRoute() {
-    val viewModel: MyProjectSettingViewModel = hiltViewModel()
+    val viewModel = hiltViewModel<MyProjectSettingViewModel>()
     MyProjectSettingScreen(viewModel)
 }
