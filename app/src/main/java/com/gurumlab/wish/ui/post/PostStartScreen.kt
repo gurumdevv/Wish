@@ -1,6 +1,8 @@
 package com.gurumlab.wish.ui.post
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,15 +30,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.CustomWideButton
+import com.gurumlab.wish.ui.util.toDp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,6 +65,7 @@ fun PostStartContent(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     var projectTitle by remember { mutableStateOf("") }
     var oneLineDescription by remember { mutableStateOf("") }
@@ -66,7 +77,7 @@ fun PostStartContent(
         Column(
             modifier = Modifier
                 .imePadding()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             PostStartTitleSection()
             Spacer(modifier = Modifier.height(16.dp))
@@ -94,7 +105,9 @@ fun PostStartContent(
                     simpleDescription = if (it.length <= 30) it else it.substring(0, 30)
                 },
                 currentTextLength = simpleDescription.length,
-                maxTextLength = 30
+                maxTextLength = 30,
+                scope = scope,
+                scrollState = scrollState
             )
         }
 
@@ -195,11 +208,30 @@ fun PostSimpleDescriptionSection(
     text: String,
     onValueChange: (String) -> Unit,
     currentTextLength: Int,
-    maxTextLength: Int
+    maxTextLength: Int,
+    scope: CoroutineScope? = null,
+    scrollState: ScrollState? = null,
 ) {
+    val offsetDp = 18.sp.toDp()
+    val density = LocalDensity.current
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+
     PostSubTitle(textRsc = R.string.post_simple_description)
     Spacer(modifier = Modifier.height(8.dp))
     PostTextField(
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                isFocused = it.isFocused
+            }
+            .onGloballyPositioned { _ ->
+                if (isFocused) {
+                    scope?.launch {
+                        scrollState?.scrollBy(with(density) { offsetDp.toPx() })
+                    }
+                }
+            },
         text = text,
         onValueChange = onValueChange,
         placeHolderRsc = R.string.post_simple_description_placeholder,

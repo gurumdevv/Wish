@@ -3,6 +3,7 @@ package com.gurumlab.wish.ui.post
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +34,7 @@ fun PostSubTitle(textRsc: Int) {
 
 @Composable
 fun PostTextField(
+    modifier: Modifier = Modifier,
     text: String,
     onValueChange: (String) -> Unit,
     placeHolderRsc: Int,
@@ -41,6 +43,7 @@ fun PostTextField(
     minLines: Int = 1
 ) {
     CustomTextField(
+        modifier = modifier,
         text = text,
         onValueChange = onValueChange,
         placeholderText = stringResource(id = placeHolderRsc),
