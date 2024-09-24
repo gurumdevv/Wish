@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -291,7 +293,10 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     placeholderText: String,
     fontSize: Int,
-    imeOption: ImeAction = ImeAction.Default
+    placeholderTextSize: TextUnit = TextUnit.Unspecified,
+    imeOption: ImeAction = ImeAction.Default,
+    singleLine: Boolean = true,
+    minLines: Int = 1
 ) {
     TextField(
         modifier = modifier
@@ -299,8 +304,9 @@ fun CustomTextField(
             .wrapContentHeight(),
         value = text,
         onValueChange = onValueChange,
-        placeholder = { Text(text = placeholderText) },
-        singleLine = true,
+        placeholder = { Text(text = placeholderText, fontSize = placeholderTextSize) },
+        singleLine = singleLine,
+        minLines = minLines,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = defaultBoxColor,
             unfocusedContainerColor = defaultBoxColor,
@@ -310,7 +316,11 @@ fun CustomTextField(
             unfocusedPlaceholderColor = defaultPlaceHolderColor,
             cursorColor = Color.White,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            selectionColors = TextSelectionColors(
+                handleColor = Color.White,
+                backgroundColor = Color.White.copy(alpha = 0.4f)
+            )
         ),
         shape = RoundedCornerShape(10.dp),
         textStyle = TextStyle(fontSize = fontSize.sp),

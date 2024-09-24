@@ -67,4 +67,12 @@
     <string name="terms_of_service">서비스 이용 약관</string>
     <string name="privacy_policy">개인정보 처리 방침</string>
     <string name="terms_and_condition_more_info">이용 약관 더보기</string>
+    <string name="post_start_title">프로젝트 시작하기</string>
+    <string name="post_title_description">프로젝트를 작성해서 소원을 꿈꾸어보세요!</string>
+    <string name="post_project_title">프로젝트 명</string>
+    <string name="post_project_title_placeholder">프로젝트 명을 작성해주세요.</string>
+    <string name="post_one_line_description">프로젝트 한줄 설명</string>
+    <string name="post_one_line_description_placeholder">프로젝트를 뽐낼 수 있는 문장을 작성해주세요.</string>
+    <string name="post_simple_description">프로젝트 간단 설명</string>
+    <string name="post_simple_description_placeholder">프로젝트 소개에 표시되는 내용입니다. 프로젝트에 대해서 간략하게 소개해주세요.</string>
 </resources>
