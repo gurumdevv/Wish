@@ -3,12 +3,18 @@ package com.gurumlab.wish.ui.post
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.SnackbarDuration
@@ -22,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -30,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.launch
@@ -58,6 +66,7 @@ fun PostDescriptionContent(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var projectDescription by remember { mutableStateOf("") }
+    val buttonAndAroundPaddingHeight = 110.dp
 
     Box(
         modifier = modifier
@@ -67,8 +76,9 @@ fun PostDescriptionContent(
             Spacer(modifier = Modifier.height(16.dp))
             PostDescriptionTextFieldSection(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
+                    .weight(1f)
+                    .consumeWindowInsets(PaddingValues(bottom = buttonAndAroundPaddingHeight))
+                    .imePadding(),
                 text = projectDescription,
                 onValueChange = { projectDescription = it }
             )
@@ -114,15 +124,23 @@ fun PostDescriptionTextFieldSection(
     text: String,
     onValueChange: (String) -> Unit
 ) {
-    PostSubTitle(textRsc = R.string.post_project_description)
-    Spacer(modifier = Modifier.height(8.dp))
-    PostMultiLineTextField(
-        modifier = modifier,
-        text = text,
-        onValueChange = onValueChange,
-        placeHolderRsc = R.string.post_project_description_placeholder,
-        textSize = 16,
-        placeHolderTextSize = 16,
-        imeOption = ImeAction.Done
-    )
+    Column(
+        modifier = modifier
+    ) {
+        PostSubTitle(textRsc = R.string.post_project_description)
+        Spacer(modifier = Modifier.height(8.dp))
+        PostMultiLineTextField(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(10.dp))
+                .background(defaultBoxColor)
+                .verticalScroll(rememberScrollState()),
+            text = text,
+            onValueChange = onValueChange,
+            placeHolderRsc = R.string.post_project_description_placeholder,
+            textSize = 16,
+            placeHolderTextSize = 16,
+            imeOption = ImeAction.Done
+        )
+    }
 }

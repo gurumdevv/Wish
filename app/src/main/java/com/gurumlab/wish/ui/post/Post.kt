@@ -1,11 +1,8 @@
 package com.gurumlab.wish.ui.post
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -16,10 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.ui.theme.Gray01
-import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 import com.gurumlab.wish.ui.util.CustomTextField
 
@@ -102,7 +97,7 @@ fun PostMultiLineTextField(
     imeOption: ImeAction = ImeAction.Default
 ) {
     TextField(
-        modifier = modifier.verticalScroll(rememberScrollState()),
+        modifier = modifier,
         value = text,
         onValueChange = onValueChange,
         placeholder = {
@@ -111,10 +106,9 @@ fun PostMultiLineTextField(
                 fontSize = placeHolderTextSize.sp
             )
         },
-        singleLine = false,
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = defaultBoxColor,
-            unfocusedContainerColor = defaultBoxColor,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White,
             focusedPlaceholderColor = defaultPlaceHolderColor,
@@ -127,7 +121,6 @@ fun PostMultiLineTextField(
                 backgroundColor = Color.White.copy(alpha = 0.4f)
             )
         ),
-        shape = RoundedCornerShape(10.dp),
         textStyle = TextStyle(fontSize = textSize.sp),
         keyboardOptions = KeyboardOptions(
             imeAction = imeOption
