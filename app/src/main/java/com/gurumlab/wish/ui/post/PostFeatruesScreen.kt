@@ -179,7 +179,7 @@ fun PostFeaturesItem(
     PostFeaturesItemPhotos()
     Spacer(modifier = Modifier.height(16.dp))
     CustomWideButton(
-        text = stringResource(R.string.add_featues_item),
+        text = stringResource(R.string.add_features_item),
         onClick = onAddButtonClick
     )
     Spacer(modifier = Modifier.height(24.dp))
