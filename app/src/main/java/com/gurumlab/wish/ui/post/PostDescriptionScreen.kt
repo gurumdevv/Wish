@@ -21,11 +21,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,18 +44,22 @@ fun PostDescriptionScreen(viewModel: PostViewModel, onPostFeatures: () -> Unit) 
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp)
+            .padding(start = 24.dp, end = 24.dp),
+        viewModel = viewModel,
+        onPostFeatures = onPostFeatures
     )
 }
 
 @Composable
 fun PostDescriptionContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PostViewModel,
+    onPostFeatures: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    var projectDescription by remember { mutableStateOf("") }
+    val projectDescription = viewModel.projectDescription.value
     val buttonAndAroundPaddingHeight = 110.dp
 
     Box(
@@ -73,14 +74,14 @@ fun PostDescriptionContent(
                     .consumeWindowInsets(PaddingValues(bottom = buttonAndAroundPaddingHeight))
                     .imePadding(),
                 text = projectDescription,
-                onValueChange = { projectDescription = it }
+                onValueChange = { viewModel.setProjectDescription(it) }
             )
             Spacer(modifier = Modifier.height(24.dp))
             CustomWideButton(
-                text = stringResource(R.string.submit)
+                text = stringResource(R.string.next)
             ) {
                 if (projectDescription.isNotBlank()) {
-                    //TODO("something to do with viewmodel")
+                    onPostFeatures()
                 } else {
                     scope.launch {
                         snackbarHostState.showSnackbar(

@@ -55,21 +55,25 @@ fun PostStartScreen(viewModel: PostViewModel, onPostDescription: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp)
+            .padding(start = 24.dp, end = 24.dp),
+        viewModel = viewModel,
+        onPostDescription = onPostDescription
     )
 }
 
 @Composable
 fun PostStartContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PostViewModel,
+    onPostDescription: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var projectTitle by remember { mutableStateOf("") }
-    var oneLineDescription by remember { mutableStateOf("") }
-    var simpleDescription by remember { mutableStateOf("") }
+    val projectTitle = viewModel.projectTitle.value
+    val oneLineDescription = viewModel.oneLineDescription.value
+    val simpleDescription = viewModel.simpleDescription.value
 
     Box(
         modifier = modifier
@@ -84,7 +88,9 @@ fun PostStartContent(
             PostProjectTitleSection(
                 text = projectTitle,
                 onValueChange = {
-                    projectTitle = if (it.length <= 15) it else it.substring(0, 15)
+                    viewModel.setProjectTitle(
+                        if (it.length <= 15) it else it.substring(0, 15)
+                    )
                 },
                 currentTextLength = projectTitle.length,
                 maxTextLength = 15
@@ -93,7 +99,9 @@ fun PostStartContent(
             PostOneLineDescriptionSection(
                 text = oneLineDescription,
                 onValueChange = {
-                    oneLineDescription = if (it.length <= 15) it else it.substring(0, 15)
+                    viewModel.setOneLineDescription(
+                        if (it.length <= 15) it else it.substring(0, 15)
+                    )
                 },
                 currentTextLength = oneLineDescription.length,
                 maxTextLength = 15
@@ -102,7 +110,9 @@ fun PostStartContent(
             PostSimpleDescriptionSection(
                 text = simpleDescription,
                 onValueChange = {
-                    simpleDescription = if (it.length <= 30) it else it.substring(0, 30)
+                    viewModel.setSimpleDescription(
+                        if (it.length <= 30) it else it.substring(0, 30)
+                    )
                 },
                 currentTextLength = simpleDescription.length,
                 maxTextLength = 30,
@@ -115,10 +125,10 @@ fun PostStartContent(
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             CustomWideButton(
-                text = stringResource(R.string.submit)
+                text = stringResource(R.string.next)
             ) {
                 if (projectTitle.isNotBlank() && oneLineDescription.isNotBlank() && simpleDescription.isNotBlank()) {
-                    //TODO("something to do with viewmodel")
+                    onPostDescription()
                 } else {
                     scope.launch {
                         snackbarHostState.showSnackbar(

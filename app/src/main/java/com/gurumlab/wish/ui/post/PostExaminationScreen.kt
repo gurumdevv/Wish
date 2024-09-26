@@ -26,13 +26,17 @@ fun PostExaminationScreen(viewModel: PostViewModel, onWish: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp)
+            .padding(start = 24.dp, end = 24.dp),
+        viewModel = viewModel,
+        onWish = onWish
     )
 }
 
 @Composable
 fun PostExaminationContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PostViewModel,
+    onWish: () -> Unit
 ) {
     Column(modifier = modifier) {
         PostTitle(titleTextRsc = R.string.post_examination_title)
@@ -42,33 +46,32 @@ fun PostExaminationContent(
             item {
                 PostExaminationDefaultItem(
                     titleRsc = R.string.post_project_title,
-                    description = " "
+                    description = viewModel.projectTitle.value
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PostExaminationDefaultItem(
                     titleRsc = R.string.post_one_line_description,
-                    description = " "
+                    description = viewModel.oneLineDescription.value
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PostExaminationDefaultItem(
                     titleRsc = R.string.post_simple_description,
-                    description = " "
+                    description = viewModel.simpleDescription.value
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PostExaminationDefaultItem(
                     titleRsc = R.string.post_project_description,
-                    description = " "
+                    description = viewModel.projectDescription.value
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PostTitle(titleTextRsc = R.string.features_item_title)
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            items(5) { index ->
-                //TODO("Load features")
+            items(viewModel.itemCount.intValue) { index ->
                 PostExaminationFeaturesItem(
-                    title = "대표 기능 $index",
-                    description = "내용 $index",
-                    images = emptyList()
+                    title = viewModel.featureTitles[index] ?: "",
+                    description = viewModel.featureDescriptions[index] ?: "",
+                    images = emptyList() //TODO("Load images")
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -79,7 +82,8 @@ fun PostExaminationContent(
             CustomWideButton(
                 text = stringResource(R.string.submit)
             ) {
-                //onClick
+                //TODO("Submit in viewmodel")
+                onWish() //TODO("if submit is success")
             }
             Spacer(modifier = Modifier.size(24.dp))
         }
