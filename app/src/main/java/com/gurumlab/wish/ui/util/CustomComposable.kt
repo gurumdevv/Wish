@@ -48,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -293,7 +292,7 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     placeholderText: String,
     fontSize: Int,
-    placeholderTextSize: TextUnit = TextUnit.Unspecified,
+    placeholderTextSize: Int,
     imeOption: ImeAction = ImeAction.Default,
     singleLine: Boolean = true,
     minLines: Int = 1
@@ -304,7 +303,12 @@ fun CustomTextField(
             .wrapContentHeight(),
         value = text,
         onValueChange = onValueChange,
-        placeholder = { Text(text = placeholderText, fontSize = placeholderTextSize) },
+        placeholder = {
+            Text(
+                text = placeholderText,
+                fontSize = placeholderTextSize.sp
+            )
+        },
         singleLine = singleLine,
         minLines = minLines,
         colors = TextFieldDefaults.colors(

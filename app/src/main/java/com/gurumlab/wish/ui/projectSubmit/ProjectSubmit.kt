@@ -100,6 +100,7 @@ fun RepositoryInfoInput(
         onValueChange = onValueChange,
         placeholderText = stringResource(R.string.github_url),
         fontSize = 16,
+        placeholderTextSize = 16,
         imeOption = ImeAction.Next
     )
 }
@@ -133,6 +134,7 @@ fun AccountInfoInput(
         onValueChange = onValueChange,
         placeholderText = stringResource(R.string.sample_account_info),
         fontSize = 16,
+        placeholderTextSize = 16,
         imeOption = ImeAction.Next
     )
 }
@@ -157,6 +159,7 @@ fun AccountOwnerInput(
         onValueChange = onValueChange,
         placeholderText = stringResource(R.string.sample_account_owner),
         fontSize = 16,
+        placeholderTextSize = 16,
         imeOption = ImeAction.Done
     )
 }

@@ -54,7 +54,7 @@ fun PostTextField(
         onValueChange = onValueChange,
         placeholderText = stringResource(id = placeHolderRsc),
         fontSize = 16,
-        placeholderTextSize = 12.sp,
+        placeholderTextSize = 12,
         imeOption = imeOption,
         singleLine = singleLine,
         minLines = minLines
