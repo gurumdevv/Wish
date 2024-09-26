@@ -36,7 +36,7 @@ val navigationItems = listOf(
         iconTextId = R.string.message
     ),
     NavigationItem(
-        route = WishScreen.SETTINGS.name,
+        route = WishScreen.SETTING.name,
         icon = R.drawable.ic_settings,
         enabledIcon = R.drawable.ic_settings_enabled,
         iconTextId = R.string.settings

@@ -33,10 +33,11 @@ enum class WishScreen {
     WISHES,
     POST,
     MESSAGE,
-    SETTINGS,
+    SETTING,
     DETAIL,
     PROGRESS_FOR_DEVELOPER,
     PROJECT_SUBMIT,
+    SETTINGS,
     ACCOUNT_SETTING,
     MY_PROJECT_SETTING,
     APPROACHING_PROJECT_SETTING,
@@ -67,22 +68,6 @@ fun WishNavHost(
         }
         composable(route = WishScreen.MESSAGE.name) {
             Message()
-        }
-        composable(route = WishScreen.SETTINGS.name) {
-            SettingsRoute(
-                onAccountSetting = {
-                    navController.navigate(WishScreen.ACCOUNT_SETTING.name)
-                },
-                onMyProjectSetting = {
-                    navController.navigate(WishScreen.MY_PROJECT_SETTING.name)
-                },
-                onApproachingProjectSetting = {
-                    navController.navigate(WishScreen.APPROACHING_PROJECT_SETTING.name)
-                },
-                onTermsAndCondition = {
-                    navController.navigate(WishScreen.TERMS_AND_CONDITION.name)
-                }
-            )
         }
         composable(
             route = WishScreen.DETAIL.name + "/{wish}" + "/{wishId}"
@@ -128,33 +113,49 @@ fun WishNavHost(
                 }
             }
         }
-        composable(
-            route = WishScreen.ACCOUNT_SETTING.name
-        ) {
-            AccountSettingScreen()
-        }
-        composable(
-            route = WishScreen.MY_PROJECT_SETTING.name
-        ) {
-            MyProjectSettingRoute()
-        }
-        composable(
-            route = WishScreen.APPROACHING_PROJECT_SETTING.name
-        ) {
-            ApproachingProjectSettingRoute()
-        }
-        composable(
-            route = WishScreen.TERMS_AND_CONDITION.name
-        ) {
-            TermsAndConditionRoute()
+        navigation(startDestination = WishScreen.SETTINGS.name, route = WishScreen.SETTING.name) {
+            composable(route = WishScreen.SETTINGS.name) {
+                SettingsRoute(
+                    onAccountSetting = {
+                        navController.navigate(WishScreen.ACCOUNT_SETTING.name)
+                    },
+                    onMyProjectSetting = {
+                        navController.navigate(WishScreen.MY_PROJECT_SETTING.name)
+                    },
+                    onApproachingProjectSetting = {
+                        navController.navigate(WishScreen.APPROACHING_PROJECT_SETTING.name)
+                    },
+                    onTermsAndCondition = {
+                        navController.navigate(WishScreen.TERMS_AND_CONDITION.name)
+                    }
+                )
+            }
+            composable(
+                route = WishScreen.ACCOUNT_SETTING.name
+            ) {
+                AccountSettingScreen()
+            }
+            composable(
+                route = WishScreen.MY_PROJECT_SETTING.name
+            ) {
+                MyProjectSettingRoute()
+            }
+            composable(
+                route = WishScreen.APPROACHING_PROJECT_SETTING.name
+            ) {
+                ApproachingProjectSettingRoute()
+            }
+            composable(
+                route = WishScreen.TERMS_AND_CONDITION.name
+            ) {
+                TermsAndConditionRoute()
+            }
         }
         navigation(startDestination = WishScreen.POST_START.name, route = WishScreen.POST.name) {
             composable(route = WishScreen.POST_START.name) {
                 val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
                 PostStartRoute(viewModel) {
-                    navController.navigate(WishScreen.POST_DESCRIPTION.name) {
-
-                    }
+                    navController.navigate(WishScreen.POST_DESCRIPTION.name)
                 }
             }
             composable(
