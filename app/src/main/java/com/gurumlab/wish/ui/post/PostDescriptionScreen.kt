@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
@@ -43,19 +42,13 @@ import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostDescriptionScreen() {
+fun PostDescriptionScreen(viewModel: PostViewModel, onPostFeatures: () -> Unit) {
     PostDescriptionContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
             .padding(start = 24.dp, end = 24.dp)
     )
-}
-
-@Preview
-@Composable
-fun PreviewPostDescriptionScreen() {
-    PostDescriptionScreen()
 }
 
 @Composable

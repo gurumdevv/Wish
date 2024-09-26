@@ -1,15 +1,24 @@
 package com.gurumlab.wish.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import com.google.gson.Gson
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.detail.DetailRoute
 import com.gurumlab.wish.ui.home.HomeRoute
 import com.gurumlab.wish.ui.message.Message
-import com.gurumlab.wish.ui.post.Post
+import com.gurumlab.wish.ui.post.PostDescriptionRoute
+import com.gurumlab.wish.ui.post.PostExaminationRoute
+import com.gurumlab.wish.ui.post.PostFeaturesRoute
+import com.gurumlab.wish.ui.post.PostStartRoute
+import com.gurumlab.wish.ui.post.PostViewModel
 import com.gurumlab.wish.ui.progressForDeveloper.ProgressForDeveloperRoute
 import com.gurumlab.wish.ui.projectSubmit.ProjectSubmitRoute
 import com.gurumlab.wish.ui.settings.AccountSettingScreen
@@ -31,7 +40,11 @@ enum class WishScreen {
     ACCOUNT_SETTING,
     MY_PROJECT_SETTING,
     APPROACHING_PROJECT_SETTING,
-    TERMS_AND_CONDITION
+    TERMS_AND_CONDITION,
+    POST_START,
+    POST_DESCRIPTION,
+    POST_FEATURES,
+    POST_EXAMINATION
 }
 
 @Composable
@@ -51,9 +64,6 @@ fun WishNavHost(
             WishesRoute { wish, wishId ->
                 navController.navigate(WishScreen.DETAIL.name + "/${Gson().toJson(wish)}" + "/${wishId}")
             }
-        }
-        composable(route = WishScreen.POST.name) {
-            Post()
         }
         composable(route = WishScreen.MESSAGE.name) {
             Message()
@@ -138,5 +148,53 @@ fun WishNavHost(
         ) {
             TermsAndConditionRoute()
         }
+        navigation(startDestination = WishScreen.POST_START.name, route = WishScreen.POST.name) {
+            composable(route = WishScreen.POST_START.name) {
+                val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
+                PostStartRoute(viewModel) {
+                    navController.navigate(WishScreen.POST_DESCRIPTION.name) {
+
+                    }
+                }
+            }
+            composable(
+                route = WishScreen.POST_DESCRIPTION.name
+            ) {
+                val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
+                PostDescriptionRoute(viewModel) {
+                    navController.navigate(WishScreen.POST_FEATURES.name)
+                }
+            }
+            composable(
+                route = WishScreen.POST_FEATURES.name
+            ) {
+                val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
+                PostFeaturesRoute(viewModel) {
+                    navController.navigate(WishScreen.POST_EXAMINATION.name)
+                }
+            }
+            composable(
+                route = WishScreen.POST_EXAMINATION.name
+            ) {
+                val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
+                PostExaminationRoute(viewModel) {
+                    navController.navigate(WishScreen.WISHES.name) {
+                        popUpTo(WishScreen.POST.name) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            }
+        }
     }
+}
+
+@Composable
+inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavHostController): T {
+    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
+    val parentEntry = remember(this) {
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return hiltViewModel(parentEntry)
 }

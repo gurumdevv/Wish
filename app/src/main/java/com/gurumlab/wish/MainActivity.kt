@@ -63,7 +63,11 @@ fun MainScreen(
         "ACCOUNT_SETTING",
         "MY_PROJECT_SETTING",
         "APPROACHING_PROJECT_SETTING",
-        "TERMS_AND_CONDITION"
+        "TERMS_AND_CONDITION",
+        "POST_START",
+        "POST_DESCRIPTION",
+        "POST_FEATURES",
+        "POST_EXAMINATION"
     )
 
     val isSpecificScreen = selectedDestination.let {

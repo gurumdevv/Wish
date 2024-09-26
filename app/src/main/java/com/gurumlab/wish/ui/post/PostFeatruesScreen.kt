@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
@@ -47,7 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostFeaturesScreen() {
+fun PostFeaturesScreen(viewModel: PostViewModel, onPostExamination: () -> Unit) {
     PostFeaturesContent(
         modifier = Modifier
             .fillMaxSize()
@@ -55,12 +54,6 @@ fun PostFeaturesScreen() {
             .padding(start = 24.dp, end = 24.dp),
         onFinishClick = {} //TODO("something to do with viewModel")
     )
-}
-
-@Preview
-@Composable
-fun PreviewPostFeaturesScreen() {
-    PostFeaturesScreen()
 }
 
 @Composable

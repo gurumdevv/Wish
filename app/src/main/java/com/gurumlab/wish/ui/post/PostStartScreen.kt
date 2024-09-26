@@ -50,7 +50,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostStartScreen() {
+fun PostStartScreen(viewModel: PostViewModel, onPostDescription: () -> Unit) {
     PostStartContent(
         modifier = Modifier
             .fillMaxSize()

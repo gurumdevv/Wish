@@ -21,7 +21,7 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomWideButton
 
 @Composable
-fun PostExaminationScreen() {
+fun PostExaminationScreen(viewModel: PostViewModel, onWish: () -> Unit) {
     PostExaminationContent(
         modifier = Modifier
             .fillMaxSize()
