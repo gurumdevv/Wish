@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.post
 
+import android.net.Uri
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,8 @@ class PostViewModel @Inject constructor() : ViewModel() {
     val featureTitles = _featureTitles
     private val _featureDescriptions = mutableStateMapOf<Int, String>()
     val featureDescriptions = _featureDescriptions
+    private val _selectedImageUris = mutableStateMapOf<Int, List<Uri>>()
+    val selectedImageUris = _selectedImageUris
 
     fun setProjectTitle(title: String) {
         _projectTitle.value = title
@@ -53,5 +56,9 @@ class PostViewModel @Inject constructor() : ViewModel() {
 
     fun setFeatureDescriptions(index: Int, description: String) {
         _featureDescriptions[index] = description
+    }
+
+    fun setSelectedImageUris(index: Int, uris: List<Uri>) {
+        _selectedImageUris[index] = uris
     }
 }

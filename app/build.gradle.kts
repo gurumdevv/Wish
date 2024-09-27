@@ -64,6 +64,8 @@ android {
 
 dependencies {
 
+    implementation(libs.coil.compose)
+    implementation(libs.firebase.storage)
     implementation(libs.compose.shimmer)
     implementation(libs.lottie.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
