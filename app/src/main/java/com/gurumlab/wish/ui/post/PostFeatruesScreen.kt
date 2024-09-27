@@ -350,7 +350,7 @@ fun PostFeaturesItemPhotos(
         items(imageUris.size) {
             AsyncImage(
                 model = imageUris[it],
-                contentDescription = null,
+                contentDescription = stringResource(R.string.features_item_image),
                 modifier = Modifier
                     .size(65.dp)
                     .clip(RoundedCornerShape(10.dp)),

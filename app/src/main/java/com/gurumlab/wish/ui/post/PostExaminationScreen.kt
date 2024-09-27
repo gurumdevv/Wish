@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.post
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomWideButton
@@ -71,7 +74,7 @@ fun PostExaminationContent(
                 PostExaminationFeaturesItem(
                     title = viewModel.featureTitles[index] ?: "",
                     description = viewModel.featureDescriptions[index] ?: "",
-                    images = emptyList() //TODO("Load images")
+                    imageUris = viewModel.selectedImageUris[index] ?: emptyList()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -106,7 +109,7 @@ fun PostExaminationDefaultItem(
 fun PostExaminationFeaturesItem(
     title: String,
     description: String,
-    images: List<Int>
+    imageUris: List<Uri>
 ) {
     Text(
         text = title,
@@ -116,5 +119,13 @@ fun PostExaminationFeaturesItem(
     Spacer(modifier = Modifier.height(8.dp))
     PostDescription(descriptionText = description)
     Spacer(modifier = Modifier.height(8.dp))
-    //TODO("Load images")
+    imageUris.forEach { uri ->
+        AsyncImage(
+            model = uri,
+            contentDescription = stringResource(R.string.features_item_image),
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillWidth
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
 }
