@@ -1,7 +1,7 @@
 package com.gurumlab.wish.data.model
 
 data class Wish(
-    val postId: Int,
+    val postId: String,
     val createdDate: Int,
     val startedDate: Int,
     val completedDate: Int,
@@ -10,7 +10,7 @@ data class Wish(
     val posterName: String,
     val developerName: String,
     val title: String,
-    val representativeImage: Int,
+    val representativeImage: String,
     val status: Int,
     val likes: Int,
     val oneLineDescription: String,

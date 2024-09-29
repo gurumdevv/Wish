@@ -42,6 +42,11 @@ interface ApiClient {
         @Path("postIdentifier") postIdentifier: String
     ): ApiResponse<Int>
 
+    @POST("posts.json")
+    suspend fun uploadPost(
+        @Body wish: Wish
+    )
+
     @POST("completedPosts.json")
     suspend fun uploadCompletedPost(
         @Body completedWish: CompletedWish
