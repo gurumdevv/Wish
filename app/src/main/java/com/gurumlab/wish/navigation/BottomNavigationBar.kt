@@ -23,7 +23,11 @@ fun BottomNavigationBar(
         containerColor = backgroundColor,
     ) {
         navigationItems.forEach { item ->
-            val isSelected = currentDestination == item.route
+            val isSelected = if (currentDestination == WishScreen.SETTINGS.name) {
+                WishScreen.SETTING.name == item.route
+            } else {
+                currentDestination == item.route
+            }
 
             NavigationBarItem(
                 selected = isSelected,
