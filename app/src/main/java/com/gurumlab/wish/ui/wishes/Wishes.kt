@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.wishes
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,13 +23,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.White00
@@ -42,7 +41,7 @@ import kotlin.random.Random
 @Composable
 fun WishesBanner(wishes: Map<String, Wish>) {
     val defaultWish = Wish(
-        postId = 0,
+        postId = "",
         createdDate = 0,
         startedDate = 0,
         completedDate = 0,
@@ -51,7 +50,7 @@ fun WishesBanner(wishes: Map<String, Wish>) {
         posterName = "",
         developerName = "",
         title = stringResource(R.string.wish),
-        representativeImage = R.drawable.image_wish_default,
+        representativeImage = "https://firebasestorage.googleapis.com/v0/b/wish-a3649.appspot.com/o/default_image%2Fimage_wish_default.png?alt=media&token=8541851c-ed22-44f0-8ccb-e231cb23d86e",
         status = 0,
         likes = 0,
         oneLineDescription = "",
@@ -72,9 +71,9 @@ fun WishesBanner(wishes: Map<String, Wish>) {
             .fillMaxWidth()
             .height(260.dp)
     ) {
-        Image(
+        AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = selectedWish.representativeImage),
+            model = selectedWish.representativeImage,
             contentDescription = stringResource(R.string.wishes_screen_header),
             contentScale = ContentScale.Crop
         )
@@ -141,7 +140,7 @@ fun WishesSortByLikesTitle() {
 @Composable
 fun WishesSortByLikes(
     wishes: Map<String, Wish>,
-    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit
 ) {
     LazyRow {
         items(wishes.size) { index ->
@@ -161,17 +160,17 @@ fun WishesSortByLikesItem(
     wish: Wish,
     wishId: String,
     paddingValue: Int,
-    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .padding(start = paddingValue.dp)
-            .clickable { onDetailScreen(wish, wishId) },
+            .clickable { onDetailScreen(wishId) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
+        AsyncImage(
             modifier = Modifier.size(135.dp),
-            painter = painterResource(id = wish.representativeImage),
+            model = wish.representativeImage,
             contentDescription = stringResource(R.string.wish_image),
             contentScale = ContentScale.Crop
         )
@@ -236,7 +235,7 @@ fun WishesRandomTitle() {
 fun WishesRandomItem(
     wish: Wish,
     wishId: String,
-    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit
 ) {
     Column {
         Row(
@@ -247,7 +246,7 @@ fun WishesRandomItem(
                 .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
                 .padding(16.dp)
-                .clickable { onDetailScreen(wish, wishId) }
+                .clickable { onDetailScreen(wishId) }
         ) {
             Column(
                 modifier = Modifier.weight(1f),
@@ -271,9 +270,9 @@ fun WishesRandomItem(
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Image(
+            AsyncImage(
                 modifier = Modifier.size(78.dp),
-                painter = painterResource(id = wish.representativeImage),
+                model = wish.representativeImage,
                 contentDescription = stringResource(R.string.wish_image),
                 contentScale = ContentScale.Crop
             )

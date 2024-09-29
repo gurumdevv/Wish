@@ -18,7 +18,7 @@ import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomTopAppBar
 
 @Composable
-fun WishesScreen(viewModel: WishesViewModel, onDetailScreen: (wish: Wish, wishId: String) -> Unit) {
+fun WishesScreen(viewModel: WishesViewModel, onDetailScreen: (wishId: String) -> Unit) {
     WishesContent(
         modifier = Modifier
             .fillMaxSize()
@@ -32,7 +32,7 @@ fun WishesScreen(viewModel: WishesViewModel, onDetailScreen: (wish: Wish, wishId
 fun WishesContent(
     modifier: Modifier = Modifier,
     viewModel: WishesViewModel,
-    onDetailScreen: (wish: Wish, wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit
 ) {
     val wishes = viewModel.wishes.collectAsStateWithLifecycle()
     val wishesSortedByLikes = viewModel.wishesSortedByLikes.collectAsStateWithLifecycle()
