@@ -17,7 +17,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
-import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.CustomTextField
@@ -34,9 +34,9 @@ fun ProjectTitle(title: String) {
 }
 
 @Composable
-fun ExplanationThanks(wish: Wish) {
+fun ExplanationThanks(minimizedWish: MinimizedWish) {
     Text(
-        text = stringResource(R.string.thanks_explanation, wish.posterName),
+        text = stringResource(R.string.thanks_explanation, minimizedWish.posterName),
         fontSize = 13.sp,
         color = Color.White
     )
@@ -53,7 +53,7 @@ fun PeriodOfProgressTitle() {
 }
 
 @Composable
-fun PeriodOfProgress(wish: Wish) {
+fun PeriodOfProgress(minimizedWish: MinimizedWish) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,9 +62,9 @@ fun PeriodOfProgress(wish: Wish) {
             .background(defaultBoxColor)
             .padding(16.dp)
     ) {
-        val startYear = wish.startedDate / 10000
-        val startMonth = wish.startedDate % 10000 / 100
-        val startDay = wish.startedDate % 100
+        val startYear = minimizedWish.startedDate / 10000
+        val startMonth = minimizedWish.startedDate % 10000 / 100
+        val startDay = minimizedWish.startedDate % 100
         val currentDate = DateTimeConverter.getCurrentDate()
         val endYear = currentDate / 10000
         val endMonth = currentDate % 10000 / 100

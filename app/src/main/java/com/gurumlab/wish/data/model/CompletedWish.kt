@@ -1,7 +1,7 @@
 package com.gurumlab.wish.data.model
 
 data class CompletedWish(
-    val postId: Int,
+    val postId: String,
     val createdDate: Int,
     val startedDate: Int,
     val completedDate: Int,

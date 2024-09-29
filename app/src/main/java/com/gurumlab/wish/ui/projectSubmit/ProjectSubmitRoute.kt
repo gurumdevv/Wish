@@ -2,10 +2,15 @@ package com.gurumlab.wish.ui.projectSubmit
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.MinimizedWish
 
 @Composable
-fun ProjectSubmitRoute(wish: Wish, wishId: String, onComplete: () -> Unit) {
+fun ProjectSubmitRoute(minimizedWish: MinimizedWish, wishId: String, onComplete: () -> Unit) {
     val viewModel = hiltViewModel<ProjectSubmitViewModel>()
-    ProjectSubmitScreen(viewModel, wish, wishId, onComplete)
+    ProjectSubmitScreen(
+        viewModel = viewModel,
+        minimizedWish = minimizedWish,
+        wishId = wishId,
+        onComplete = onComplete
+    )
 }

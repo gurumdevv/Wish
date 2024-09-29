@@ -3,7 +3,7 @@ package com.gurumlab.wish.ui.projectSubmit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.CompletedWish
-import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.repository.ProjectSubmitRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,22 +22,22 @@ class ProjectSubmitViewModel @Inject constructor(
     val isUpdateSuccess = _isUpdateSuccess.asStateFlow()
 
     fun submitWish(
-        wish: Wish,
+        minimizedWish: MinimizedWish,
         repositoryURL: String,
         accountInfo: String,
         accountOwner: String
     ) {
         val completedWish = CompletedWish(
-            postId = wish.postId,
-            createdDate = wish.createdDate,
-            startedDate = wish.startedDate,
-            completedDate = wish.completedDate,
-            posterId = wish.posterId,
-            developerId = wish.developerId,
-            posterName = wish.posterName,
-            developerName = wish.developerName,
-            title = wish.title,
-            comment = wish.comment,
+            postId = minimizedWish.postId,
+            createdDate = minimizedWish.createdDate,
+            startedDate = minimizedWish.startedDate,
+            completedDate = minimizedWish.completedDate,
+            posterId = minimizedWish.posterId,
+            developerId = minimizedWish.developerId,
+            posterName = minimizedWish.posterName,
+            developerName = minimizedWish.developerName,
+            title = minimizedWish.title,
+            comment = minimizedWish.comment,
             repositoryURL = repositoryURL,
             accountInfo = accountInfo,
             accountOwner = accountOwner

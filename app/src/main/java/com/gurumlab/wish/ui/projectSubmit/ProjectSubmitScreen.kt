@@ -31,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
-import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.CustomWideButton
@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProjectSubmitScreen(
     viewModel: ProjectSubmitViewModel,
-    wish: Wish,
+    minimizedWish: MinimizedWish,
     wishId: String,
     onComplete: () -> Unit
 ) {
@@ -50,7 +50,7 @@ fun ProjectSubmitScreen(
             .background(backgroundColor)
             .padding(start = 24.dp, end = 24.dp),
         viewModel = viewModel,
-        wish = wish,
+        minimizedWish = minimizedWish,
         wishId = wishId,
         onComplete = onComplete
     )
@@ -60,7 +60,7 @@ fun ProjectSubmitScreen(
 fun ProjectSubmitContent(
     modifier: Modifier = Modifier,
     viewModel: ProjectSubmitViewModel,
-    wish: Wish,
+    minimizedWish: MinimizedWish,
     wishId: String,
     onComplete: () -> Unit
 ) {
@@ -84,13 +84,13 @@ fun ProjectSubmitContent(
                 .imePadding()
                 .verticalScroll(rememberScrollState())
         ) {
-            ProjectTitle(wish.title)
+            ProjectTitle(minimizedWish.title)
             Spacer(modifier = Modifier.height(8.dp))
-            ExplanationThanks(wish)
+            ExplanationThanks(minimizedWish)
             Spacer(modifier = Modifier.height(8.dp))
             PeriodOfProgressTitle()
             Spacer(modifier = Modifier.height(8.dp))
-            PeriodOfProgress(wish)
+            PeriodOfProgress(minimizedWish)
             Spacer(modifier = Modifier.height(16.dp))
             RepositoryInfoTitle()
             Spacer(modifier = Modifier.height(8.dp))
@@ -115,7 +115,12 @@ fun ProjectSubmitContent(
             ) {
                 if (repositoryInfo.isNotBlank() && accountInfo.isNotBlank() && accountOwner.isNotBlank()) {
                     isLoading = true
-                    viewModel.submitWish(wish, repositoryInfo, accountInfo, accountOwner)
+                    viewModel.submitWish(
+                        minimizedWish = minimizedWish,
+                        repositoryURL = repositoryInfo,
+                        accountInfo = accountInfo,
+                        accountOwner = accountOwner
+                    )
                     viewModel.updateWishStatusToComplete(wishId)
                 } else {
                     scope.launch {

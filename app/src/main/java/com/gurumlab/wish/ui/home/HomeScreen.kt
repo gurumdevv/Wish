@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
-import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
