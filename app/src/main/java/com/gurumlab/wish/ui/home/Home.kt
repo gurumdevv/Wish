@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +28,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.White00
@@ -78,12 +77,12 @@ fun WishCardImageArea(
 ) {
     val density = LocalDensity.current
 
-    Box(modifier = Modifier) {
-        Image(
+    Box {
+        AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(with(density) { (screenHeight - noImageContentHeight).toDp() }),
-            painter = painterResource(id = wish.representativeImage),
+            model = wish.representativeImage,
             contentDescription = stringResource(R.string.wish_representative_image),
             contentScale = ContentScale.Crop
         )

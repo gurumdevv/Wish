@@ -5,7 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gurumlab.wish.data.model.Wish
 
 @Composable
-fun HomeRoute(onDetailScreen: (wish: Wish, wishId: String) -> Unit) {
+fun HomeRoute(onDetailScreen: (wishId: String) -> Unit) {
     val viewModel = hiltViewModel<HomeViewModel>()
     HomeScreen(viewModel = viewModel, onDetailScreen = onDetailScreen)
 }
