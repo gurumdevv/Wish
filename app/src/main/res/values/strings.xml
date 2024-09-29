@@ -89,4 +89,5 @@
     <string name="next">다음</string>
     <string name="features_item_image">대표 기능 이미지</string>
     <string name="upload_fail">업로드에 실패했습니다.\n잠시 후 다시 시도해 주세요.</string>
+    <string name="retry_load_wish">재시도 버튼을 통해서 다시 시도해 주세요.</string>
 </resources>

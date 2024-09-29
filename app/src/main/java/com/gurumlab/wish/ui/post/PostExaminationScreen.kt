@@ -2,7 +2,6 @@ package com.gurumlab.wish.ui.post
 
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomLottieLoader
+import com.gurumlab.wish.ui.util.CustomLoadingScreen
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.launch
@@ -115,7 +114,7 @@ fun PostExaminationContent(
         }
 
         if (viewModel.isLoading.value) {
-            PostLoadingScreen()
+            CustomLoadingScreen()
         }
 
         SnackbarHost(
@@ -180,21 +179,5 @@ fun PostExaminationFeaturesItem(
             contentScale = ContentScale.FillWidth
         )
         Spacer(modifier = Modifier.height(4.dp))
-    }
-}
-
-@Composable
-fun PostLoadingScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CustomLottieLoader(
-            modifier = Modifier
-                .size(130.dp),
-            resId = R.raw.animation_default_loading
-        )
     }
 }

@@ -47,7 +47,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -58,17 +57,6 @@ import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
-
-@Preview
-@Composable
-fun PreviewDefaultIconButton() {
-    CustomIconButton(
-        text = "시작해요",
-        icon = R.drawable.ic_magic,
-        description = "버튼 설명",
-        onClick = {}
-    )
-}
 
 @Composable
 fun CustomIconButton(
@@ -240,8 +228,26 @@ fun CustomLottieLoader(modifier: Modifier = Modifier, resId: Int) {
 }
 
 @Composable
+fun CustomLoadingScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CustomLottieLoader(
+            modifier = Modifier
+                .size(130.dp),
+            resId = R.raw.animation_default_loading
+        )
+    }
+}
+
+@Composable
 fun CustomExceptionScreen(
     modifier: Modifier = Modifier,
+    titleRsc: Int = R.string.no_internet_connection,
+    descriptionRsc: Int = R.string.please_check_internet_connection,
     onClick: () -> Unit
 ) {
     Column(
@@ -252,14 +258,14 @@ fun CustomExceptionScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.no_internet_connection),
+            text = stringResource(titleRsc),
             textAlign = TextAlign.Center,
             fontSize = 18.sp,
             color = Color.White,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = stringResource(R.string.please_check_internet_connection),
+            text = stringResource(descriptionRsc),
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
             color = Color.White

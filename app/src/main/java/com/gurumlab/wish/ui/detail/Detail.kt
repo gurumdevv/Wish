@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,13 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.DetailDescription
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomIconButton
@@ -104,12 +104,12 @@ fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
             color = Color.White,
         )
         Spacer(modifier = Modifier.height(8.dp))
-        detailDescription.photos.forEach {
-            Image(
+        detailDescription.photos.forEach { url ->
+            AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
-                painter = painterResource(id = it),
+                model = url,
                 contentDescription = stringResource(R.string.wish_image),
-                contentScale = ContentScale.Inside
+                contentScale = ContentScale.FillWidth
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -121,9 +121,23 @@ fun DetailScreenButtonArea(
     modifier: Modifier = Modifier,
     wish: Wish,
     wishId: String,
-    onProgressScreen: (Wish, String) -> Unit,
-    onMessageScreen: (Wish) -> Unit,
+    onProgressScreen: (MinimizedWish, String) -> Unit,
+    onMessageScreen: (MinimizedWish) -> Unit,
 ) {
+    val minimizedWish = MinimizedWish(
+        postId = wish.postId,
+        createdDate = wish.createdDate,
+        startedDate = wish.startedDate,
+        completedDate = wish.completedDate,
+        posterId = wish.posterId,
+        developerId = wish.developerId,
+        posterName = wish.posterName,
+        developerName = wish.developerName,
+        title = wish.title,
+        simpleDescription = wish.simpleDescription,
+        comment = wish.comment
+    )
+
     Column(
         modifier
             .fillMaxWidth()
@@ -137,18 +151,18 @@ fun DetailScreenButtonArea(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CustomIconButton(
-                text = stringResource(R.string.start),
+                text = stringResource(R.string.btn_begin),
                 icon = R.drawable.ic_magic,
                 description = stringResource(R.string.btn_begin),
                 onClick = {
-                    onProgressScreen(wish, wishId)
+                    onProgressScreen(minimizedWish, wishId)
                 })
             CustomIconButton(
-                text = stringResource(R.string.like),
+                text = stringResource(R.string.btn_message),
                 icon = R.drawable.ic_message_enabled,
                 description = stringResource(R.string.btn_message),
                 onClick = {
-                    onMessageScreen(wish)
+                    onMessageScreen(minimizedWish)
                 })
         }
         Spacer(modifier = Modifier.height(16.dp))

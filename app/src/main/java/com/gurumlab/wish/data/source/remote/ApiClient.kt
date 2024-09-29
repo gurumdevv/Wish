@@ -12,6 +12,11 @@ import retrofit2.http.Query
 
 interface ApiClient {
 
+    @GET("posts/{postId}.json")
+    suspend fun getPostByPostId(
+        @Path("postId") postId: String
+    ): ApiResponse<Wish>
+
     @GET("posts.json")
     suspend fun getPostsByDate(
         @Query("orderBy") orderBy: String,
