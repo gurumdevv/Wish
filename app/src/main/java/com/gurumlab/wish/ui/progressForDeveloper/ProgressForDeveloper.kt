@@ -23,14 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
-import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomIconButton
 
 @Composable
 fun ProjectProgressDescriptionArea(
-    wish: Wish,
+    minimizedWish: MinimizedWish,
     scrollState: ScrollState
 ) {
     Column(
@@ -39,17 +39,17 @@ fun ProjectProgressDescriptionArea(
             .verticalScroll(scrollState)
             .padding(start = 24.dp, end = 24.dp)
     ) {
-        ProjectTitle(wish.title)
+        ProjectTitle(minimizedWish.title)
         Spacer(modifier = Modifier.height(16.dp))
-        ProjectDescription(wish.simpleDescription)
+        ProjectDescription(minimizedWish.simpleDescription)
         Spacer(modifier = Modifier.height(16.dp))
         PeriodOfProgressTitle()
         Spacer(modifier = Modifier.height(8.dp))
-        PeriodOfProgress(wish)
+        PeriodOfProgress(minimizedWish)
         Spacer(modifier = Modifier.height(16.dp))
         WishMakerTitle()
         Spacer(modifier = Modifier.height(8.dp))
-        WishMaker(wish.posterName)
+        WishMaker(minimizedWish.posterName)
         Spacer(modifier = Modifier.height(78.dp))
     }
 }
@@ -93,7 +93,7 @@ fun PeriodOfProgressTitle() {
 }
 
 @Composable
-fun PeriodOfProgress(wish: Wish) {
+fun PeriodOfProgress(minimizedWish: MinimizedWish) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,21 +102,21 @@ fun PeriodOfProgress(wish: Wish) {
             .background(defaultBoxColor)
             .padding(16.dp)
     ) {
-        val startYear = wish.startedDate / 10000
-        val startMonth = wish.startedDate % 10000 / 100
-        val startDay = wish.startedDate % 100
-        val (endYear, endMonth, endDay) = if (wish.completedDate == 0) {
+        val startYear = minimizedWish.startedDate / 10000
+        val startMonth = minimizedWish.startedDate % 10000 / 100
+        val startDay = minimizedWish.startedDate % 100
+        val (endYear, endMonth, endDay) = if (minimizedWish.completedDate == 0) {
             Triple(0, 0, 0)
         } else {
             Triple(
-                wish.completedDate / 10000,
-                (wish.completedDate % 10000) / 100,
-                wish.completedDate % 100
+                minimizedWish.completedDate / 10000,
+                (minimizedWish.completedDate % 10000) / 100,
+                minimizedWish.completedDate % 100
             )
         }
         val startDate = "${startYear}.${startMonth}.${startDay}"
         val endDate =
-            if (wish.completedDate == 0) stringResource(R.string.current) else "${endYear}.${endMonth}.${endDay}"
+            if (minimizedWish.completedDate == 0) stringResource(R.string.current) else "${endYear}.${endMonth}.${endDay}"
 
         Text(
             text = "$startDate ~ $endDate",
@@ -157,10 +157,10 @@ fun WishMaker(wishMaker: String) {
 @Composable
 fun ProgressForDeveloperScreenButtonArea(
     modifier: Modifier = Modifier,
-    wish: Wish,
+    minimizedWish: MinimizedWish,
     wishId: String,
-    onSubmitScreen: (Wish, String) -> Unit,
-    onMessageScreen: (Wish) -> Unit
+    onSubmitScreen: (MinimizedWish, String) -> Unit,
+    onMessageScreen: (MinimizedWish) -> Unit
 ) {
     Column(
         modifier
@@ -178,12 +178,12 @@ fun ProgressForDeveloperScreenButtonArea(
                 text = stringResource(R.string.finish),
                 icon = R.drawable.ic_clap,
                 description = stringResource(R.string.btn_begin),
-                onClick = { onSubmitScreen(wish, wishId) })
+                onClick = { onSubmitScreen(minimizedWish, wishId) })
             CustomIconButton(
                 text = stringResource(R.string.message),
                 icon = R.drawable.ic_message_enabled,
                 description = stringResource(R.string.btn_message),
-                onClick = { onMessageScreen(wish) })
+                onClick = { onMessageScreen(minimizedWish) })
         }
         Spacer(modifier = Modifier.height(16.dp))
     }

@@ -9,14 +9,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 
 @Composable
 fun ProgressForDeveloperScreen(
-    wish: Wish,
+    minimizedWish: MinimizedWish,
     wishId: String,
-    onSubmitScreen: (Wish, String) -> Unit
+    onSubmitScreen: (MinimizedWish, String) -> Unit,
+    onMessageScreen: (MinimizedWish) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -26,35 +28,33 @@ fun ProgressForDeveloperScreen(
             .background(backgroundColor)
     ) {
         ProgressForDeveloperContent(
-            wish = wish,
+            minimizedWish = minimizedWish,
             wishId = wishId,
             scrollState = scrollState,
-            onSubmitScreen = { wish, wishId ->
-                onSubmitScreen(wish, wishId) },
-            onMessageScreen = {}
+            onSubmitScreen = onSubmitScreen,
+            onMessageScreen = onMessageScreen
         )
     }
 }
 
 @Composable
 fun ProgressForDeveloperContent(
-    wish: Wish,
+    minimizedWish: MinimizedWish,
     wishId: String,
     scrollState: ScrollState,
-    onSubmitScreen: (Wish, String) -> Unit,
-    onMessageScreen: (Wish) -> Unit
+    onSubmitScreen: (MinimizedWish, String) -> Unit,
+    onMessageScreen: (MinimizedWish) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        ProjectProgressDescriptionArea(wish, scrollState)
+        ProjectProgressDescriptionArea(minimizedWish, scrollState)
         ProgressForDeveloperScreenButtonArea(
             modifier = Modifier.align(Alignment.BottomCenter),
-            wish = wish,
+            minimizedWish = minimizedWish,
             wishId = wishId,
-            onSubmitScreen = { wish, wishId ->
-                onSubmitScreen(wish, wishId) },
-            onMessageScreen = { onMessageScreen(wish) }
+            onSubmitScreen = onSubmitScreen,
+            onMessageScreen = onMessageScreen
         )
     }
 }
