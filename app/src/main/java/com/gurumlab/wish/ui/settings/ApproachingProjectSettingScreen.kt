@@ -45,7 +45,9 @@ import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.toDp
 
 @Composable
-fun ApproachingProjectSettingScreen(viewModel: ApproachingProjectSettingViewModel) {
+fun ApproachingProjectSettingScreen(viewModel: SettingsViewModel) {
+    viewModel.loadApproachingWishes()
+
     ApproachingProjectSettingContent(
         modifier = Modifier
             .fillMaxSize()
@@ -58,9 +60,9 @@ fun ApproachingProjectSettingScreen(viewModel: ApproachingProjectSettingViewMode
 @Composable
 fun ApproachingProjectSettingContent(
     modifier: Modifier = Modifier,
-    viewModel: ApproachingProjectSettingViewModel
+    viewModel: SettingsViewModel
 ) {
-    val wishes = viewModel.wishes.collectAsStateWithLifecycle()
+    val wishes = viewModel.approachingWishes.collectAsStateWithLifecycle()
     val totalCount = wishes.value.keys.size
     val successCount = wishes.value.values.count { it.status == WishStatus.COMPLETED.ordinal }
     val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
