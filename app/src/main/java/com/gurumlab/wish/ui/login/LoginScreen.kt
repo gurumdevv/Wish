@@ -75,7 +75,7 @@ fun LoginContent(
             Text(
                 text = stringResource(R.string.loading_screen_title),
                 fontSize = 48.sp,
-                lineHeight = 52.sp,
+                lineHeight = 55.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
