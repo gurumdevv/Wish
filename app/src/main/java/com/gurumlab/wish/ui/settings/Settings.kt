@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.settings
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,16 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 
 @Composable
-fun UserInfo() {
+fun UserInfo(userInfo: UserInfo) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,23 +36,23 @@ fun UserInfo() {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "일하는 팽귄", //TODO("사용자 이름 가져오기")
+                text = userInfo.name,
                 fontSize = 18.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "working@panguin.com", //TODO("사용자 이메일 가져오기")
+                text = userInfo.email,
                 fontSize = 16.sp,
                 color = Color.White,
             )
         }
-        Image(
+        AsyncImage(
             modifier = Modifier
                 .size(64.dp)
                 .clip(CircleShape),
-            painter = painterResource(id = R.drawable.sample_profile_image), //TODO("사용자 이미지 가져오기")
+            model = userInfo.imageUrl,
             contentDescription = stringResource(R.string.profile_image),
             contentScale = ContentScale.Crop
         )
