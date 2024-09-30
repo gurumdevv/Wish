@@ -175,9 +175,10 @@ class LoginViewModel @Inject constructor(
 
     fun resetIsLoginError() {
         _isLoginError.value = false
+        _isOnGoingSignIn.value = false
     }
 
-    fun notifyIsLoginError(){
+    fun notifyIsLoginError() {
         _isLoginError.value = true
     }
 }
