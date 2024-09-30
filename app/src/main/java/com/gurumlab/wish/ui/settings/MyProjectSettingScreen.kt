@@ -54,7 +54,9 @@ import com.gurumlab.wish.ui.util.toDp
 import kotlinx.coroutines.launch
 
 @Composable
-fun MyProjectSettingScreen(viewModel: MyProjectSettingViewModel) {
+fun MyProjectSettingScreen(viewModel: SettingsViewModel) {
+    viewModel.loadMyWishes()
+
     MyProjectSettingContent(
         modifier = Modifier
             .fillMaxSize()
@@ -68,9 +70,9 @@ fun MyProjectSettingScreen(viewModel: MyProjectSettingViewModel) {
 @Composable
 fun MyProjectSettingContent(
     modifier: Modifier = Modifier,
-    viewModel: MyProjectSettingViewModel
+    viewModel: SettingsViewModel
 ) {
-    val wishes = viewModel.wishes.collectAsStateWithLifecycle()
+    val wishes = viewModel.myWishes.collectAsStateWithLifecycle()
     val totalCount = wishes.value.keys.size
     val successCount = wishes.value.values.count { it.status == WishStatus.COMPLETED.ordinal }
     val sheetState = rememberModalBottomSheetState()
@@ -134,7 +136,7 @@ fun MyProjectSettingContent(
                 modifier = Modifier.clickable {
                     scope.launch {
                         viewModel.deleteWish(currentWishId)
-                        viewModel.loadWishes()
+                        viewModel.loadMyWishes()
                         sheetState.hide()
                     }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
