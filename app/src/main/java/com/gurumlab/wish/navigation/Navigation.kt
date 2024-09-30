@@ -55,11 +55,12 @@ enum class WishScreen {
 
 @Composable
 fun WishNavHost(
-    navController: NavHostController
+    navController: NavHostController,
+    startDestination: String
 ) {
     NavHost(
         navController = navController,
-        startDestination = WishScreen.LOGIN.name
+        startDestination = startDestination
     ) {
         composable(route = WishScreen.HOME.name) {
             HomeRoute { wishId ->

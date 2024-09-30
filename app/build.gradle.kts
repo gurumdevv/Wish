@@ -68,6 +68,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.auth)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
