@@ -84,7 +84,7 @@ fun PostFeaturesContent(
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val itemCount = viewModel.itemCount.intValue
+    val itemCount = viewModel.itemCount.value
     val titles = viewModel.featureTitles
     val descriptions = viewModel.featureDescriptions
     val imageUris = viewModel.selectedImageUris

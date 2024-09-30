@@ -1,6 +1,7 @@
 package com.gurumlab.wish.ui.post
 
 import android.net.Uri
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,23 +27,23 @@ class PostViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var _projectTitle = mutableStateOf("")
-    val projectTitle = _projectTitle
+    val projectTitle: State<String> = _projectTitle
     private var _oneLineDescription = mutableStateOf("")
-    val oneLineDescription = _oneLineDescription
+    val oneLineDescription: State<String> = _oneLineDescription
     private var _simpleDescription = mutableStateOf("")
-    val simpleDescription = _simpleDescription
+    val simpleDescription: State<String> = _simpleDescription
 
     private var _projectDescription = mutableStateOf("")
-    val projectDescription = _projectDescription
+    val projectDescription: State<String> = _projectDescription
 
     private var _itemCount = mutableIntStateOf(1)
-    val itemCount = _itemCount
+    val itemCount: State<Int> = _itemCount
     private val _featureTitles = mutableStateMapOf<Int, String>()
-    val featureTitles = _featureTitles
+    val featureTitles: Map<Int, String> get() = _featureTitles
     private val _featureDescriptions = mutableStateMapOf<Int, String>()
-    val featureDescriptions = _featureDescriptions
+    val featureDescriptions: Map<Int, String> get() = _featureDescriptions
     private val _selectedImageUris = mutableStateMapOf<Int, List<Uri>>()
-    val selectedImageUris = _selectedImageUris
+    val selectedImageUris: Map<Int, List<Uri>> get() = _selectedImageUris
     private var imageDownloadUrls = mutableMapOf<Int, MutableList<String>>()
 
     private var isImageUploaded = UploadState.NOTHING.ordinal
@@ -50,7 +51,7 @@ class PostViewModel @Inject constructor(
     val isPostUploaded = _isPostUploaded
 
     private var _isLoading = mutableStateOf(false)
-    val isLoading = _isLoading
+    val isLoading: State<Boolean> = _isLoading
 
     fun setProjectTitle(title: String) {
         _projectTitle.value = title

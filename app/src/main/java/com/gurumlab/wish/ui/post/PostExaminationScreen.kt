@@ -92,7 +92,7 @@ fun PostExaminationContent(
                     PostTitle(titleTextRsc = R.string.features_item_title)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                items(viewModel.itemCount.intValue) { index ->
+                items(viewModel.itemCount.value) { index ->
                     PostExaminationFeaturesItem(
                         title = viewModel.featureTitles[index] ?: "",
                         description = viewModel.featureDescriptions[index] ?: "",
