@@ -1,7 +1,11 @@
 import java.util.Properties
 
 val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
+val localPropertiesFile = rootProject.file("local.properties").let {
+    it.inputStream().use { input ->
+        localProperties.load(input)
+    }
+}
 val googleClientId: String = localProperties.getProperty("google_client_id") ?: ""
 
 plugins {
@@ -74,6 +78,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
     ksp(libs.dagger.compiler)
     ksp(libs.hilt.compiler)
     implementation(libs.logging.interceptor)

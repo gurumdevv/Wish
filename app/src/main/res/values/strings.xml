@@ -103,4 +103,6 @@
     <string name="terms_of_use_agreement">이용약관 동의</string>
     <string name="privacy_policy_agreement">개인정보 수집 이용 동의</string>
     <string name="confirm">확인</string>
+    <string name="login_error">로그인에 실패했습니다.\n잠시 후 다시 시도해 주세요.</string>
+    <string name="ongoing">진행 중</string>
 </resources>

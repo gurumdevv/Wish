@@ -208,7 +208,14 @@ fun WishNavHost(
                 }
             }
             composable(route = WishScreen.POLICY_AGREEMENT.name) {
-                PolicyAgreementRoute()
+                PolicyAgreementRoute {
+                    navController.navigate(WishScreen.HOME.name) {
+                        popUpTo(WishScreen.LOGIN.name) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
             }
         }
     }

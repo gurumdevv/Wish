@@ -1,27 +1,39 @@
 package com.gurumlab.wish.ui.login
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,23 +52,29 @@ import com.gurumlab.wish.ui.theme.Gray00
 import com.gurumlab.wish.ui.theme.Gray02
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.lightGreen00
+import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.URL
 
 @Composable
-fun PolicyAgreementScreen(viewModel: LoginViewModel) {
+fun PolicyAgreementScreen(viewModel: LoginViewModel, onHomeScreen: () -> Unit) {
     PolicyAgreementContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp)
+            .padding(start = 24.dp, end = 24.dp),
+        viewModel = viewModel,
+        onHomeScreen = onHomeScreen
     )
 }
 
 @Composable
 fun PolicyAgreementContent(
     modifier: Modifier = Modifier,
+    viewModel: LoginViewModel,
+    onHomeScreen: () -> Unit,
 ) {
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     var isAllChecked by remember { mutableStateOf(false) }
     var isAgeChecked by remember { mutableStateOf(false) }
     var isTermsChecked by remember { mutableStateOf(false) }
@@ -64,32 +82,87 @@ fun PolicyAgreementContent(
 
     isAllChecked = isAgeChecked && isTermsChecked && isPrivacyChecked
 
-    Column(modifier = modifier) {
-        AgreementTitle(
-            textRsc = R.string.policy_agreement,
-            fontSize = 24,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        AgreementTitle(textRsc = R.string.policy_agreement_content, fontSize = 14)
-        Spacer(modifier = Modifier.weight(1f))
-        AgreementButtonsField(
-            context = context,
-            isAllChecked = isAllChecked,
-            onAllCheckedChange = {
-                isAllChecked = it
-                isAgeChecked = it
-                isTermsChecked = it
-                isPrivacyChecked = it
-            },
-            isAgeChecked = isAgeChecked,
-            onAgeCheckedChange = { isAgeChecked = it },
-            isTermsChecked = isTermsChecked,
-            onTermsCheckedChange = { isTermsChecked = it },
-            isPrivacyChecked = isPrivacyChecked,
-            onPrivacyCheckedChange = { isPrivacyChecked = it }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
+    val oneTapSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.signInWithGoogle(result.data)
+        } else {
+            viewModel.notifyIsLoginError()
+            Log.d("LoginScreen", "One Tap Sign-In failed")
+        }
+    }
+
+    val legacySignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.signInWithGoogle(result.data)
+        } else {
+            viewModel.notifyIsLoginError()
+            Log.d("LoginScreen", "Legacy Sign-In failed")
+        }
+    }
+
+    val onLoginProcess: () -> Unit =
+        { viewModel.setSignInRequest(context, oneTapSignInLauncher, legacySignInLauncher) }
+
+
+    Box(
+        modifier = modifier
+    ) {
+        Column {
+            AgreementTitle(
+                textRsc = R.string.policy_agreement,
+                fontSize = 24,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            AgreementTitle(textRsc = R.string.policy_agreement_content, fontSize = 14)
+            Spacer(modifier = Modifier.weight(1f))
+            AgreementButtonsField(
+                context = context,
+                isAllChecked = isAllChecked,
+                onAllCheckedChange = {
+                    isAllChecked = it
+                    isAgeChecked = it
+                    isTermsChecked = it
+                    isPrivacyChecked = it
+                },
+                isAgeChecked = isAgeChecked,
+                onAgeCheckedChange = { isAgeChecked = it },
+                isTermsChecked = isTermsChecked,
+                onTermsCheckedChange = { isTermsChecked = it },
+                isPrivacyChecked = isPrivacyChecked,
+                onPrivacyCheckedChange = { isPrivacyChecked = it },
+                isOnGoing = viewModel.isOnGoingSignIn.value,
+                onConfirm = onLoginProcess
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = (-102).dp)
+        ) { data ->
+            CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
+        }
+
+        if (viewModel.isLoginSuccess.value) {
+            onHomeScreen()
+        }
+
+        LaunchedEffect(viewModel.isLoginError.value) {
+            if (viewModel.isLoginError.value) {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.login_error),
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.resetIsLoginError()
+            }
+        }
     }
 }
 
@@ -117,7 +190,9 @@ fun AgreementButtonsField(
     isTermsChecked: Boolean,
     onTermsCheckedChange: (Boolean) -> Unit,
     isPrivacyChecked: Boolean,
-    onPrivacyCheckedChange: (Boolean) -> Unit
+    onPrivacyCheckedChange: (Boolean) -> Unit,
+    isOnGoing: Boolean,
+    onConfirm: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AllAgreeCheckBoxField(
@@ -154,9 +229,12 @@ fun AgreementButtonsField(
             onCheckedChange = onPrivacyCheckedChange
         )
         Spacer(modifier = Modifier.height(16.dp))
-        PolicyAgreementButton(stringRsc = R.string.confirm, isEnabled = isAllChecked) {
-            //TODO("process sign in")
-        }
+        PolicyAgreementButton(
+            stringRsc = R.string.confirm,
+            onGoingRsc = R.string.ongoing,
+            isEnabled = isAllChecked,
+            isOnGoing = isOnGoing,
+        ) { onConfirm() }
     }
 }
 
@@ -243,12 +321,14 @@ fun CheckBoxField(
 @Composable
 fun PolicyAgreementButton(
     stringRsc: Int,
+    onGoingRsc: Int,
     isEnabled: Boolean,
+    isOnGoing: Boolean,
     onClick: () -> Unit
 ) {
     Button(
         modifier = Modifier.fillMaxWidth(),
-        enabled = isEnabled,
+        enabled = isEnabled && !isOnGoing,
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.White,
@@ -263,7 +343,7 @@ fun PolicyAgreementButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = stringRsc),
+                text = stringResource(id = if (isOnGoing) onGoingRsc else stringRsc),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

@@ -11,7 +11,12 @@ fun LoginRoute(
 }
 
 @Composable
-fun PolicyAgreementRoute() {
+fun PolicyAgreementRoute(
+    onHomeScreen: () -> Unit
+) {
     val viewModel = hiltViewModel<LoginViewModel>()
-    PolicyAgreementScreen(viewModel)
+    PolicyAgreementScreen(
+        viewModel = viewModel,
+        onHomeScreen = onHomeScreen
+    )
 }
