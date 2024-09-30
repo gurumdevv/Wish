@@ -33,6 +33,7 @@ import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.White00
+import com.gurumlab.wish.ui.util.URL
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
@@ -50,7 +51,7 @@ fun WishesBanner(wishes: Map<String, Wish>) {
         posterName = "",
         developerName = "",
         title = stringResource(R.string.wish),
-        representativeImage = "https://firebasestorage.googleapis.com/v0/b/wish-a3649.appspot.com/o/default_image%2Fimage_wish_default.png?alt=media&token=8541851c-ed22-44f0-8ccb-e231cb23d86e",
+        representativeImage = URL.DEFAULT_PHOTO,
         status = 0,
         likes = 0,
         oneLineDescription = "",

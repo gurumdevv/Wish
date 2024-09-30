@@ -12,10 +12,12 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.PostRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
+import com.gurumlab.wish.ui.util.URL
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -53,6 +55,8 @@ class PostViewModel @Inject constructor(
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
+    private var uid: String = ""
+
     fun setProjectTitle(title: String) {
         _projectTitle.value = title
     }
@@ -86,8 +90,6 @@ class PostViewModel @Inject constructor(
     }
 
     private fun uploadImages(imageUris: Map<Int, List<Uri>>): Job = viewModelScope.launch {
-        _isLoading.value = true
-
         val postId = getPostId()
         val uploadResults = imageUris.flatMap { (key, imageUris) ->
             imageUris.map { imageUri ->
@@ -113,74 +115,80 @@ class PostViewModel @Inject constructor(
     }
 
     fun uploadPost() {
-        val uploadImagesProcess = uploadImages(selectedImageUris.toMap())
+        _isLoading.value = true
 
-        uploadImagesProcess.invokeOnCompletion {
-            when (isImageUploaded) {
-                UploadState.SUCCESS.ordinal -> {
-                    val features = mutableListOf<DetailDescription>()
+        viewModelScope.launch {
+            getPosterUid()
+            while (uid.isBlank()) {
+                delay(100)
+            }
 
-                    featureTitles.forEach { (index, title) ->
-                        val description = featureDescriptions[index] ?: ""
-                        val photos = imageDownloadUrls[index] ?: emptyList()
-                        features.add(DetailDescription(title, description, photos))
-                    }
+            val uploadImagesProcess = uploadImages(selectedImageUris.toMap())
+            uploadImagesProcess.invokeOnCompletion {
+                when (isImageUploaded) {
+                    UploadState.SUCCESS.ordinal -> {
+                        val features = mutableListOf<DetailDescription>()
 
-                    val wish = Wish(
-                        postId = getPostId(),
-                        createdDate = DateTimeConverter.getCurrentDate(),
-                        startedDate = 0,
-                        completedDate = 0,
-                        posterId = getPosterUid(),
-                        developerId = "",
-                        posterName = getPosterName(),
-                        developerName = "",
-                        title = projectTitle.value,
-                        representativeImage = imageDownloadUrls[0]?.firstOrNull() ?: "",
-                        status = WishStatus.POSTED.ordinal,
-                        likes = 0,
-                        oneLineDescription = oneLineDescription.value,
-                        simpleDescription = simpleDescription.value,
-                        detailDescription = features,
-                        features = featureTitles.values.toList(),
-                        comment = ""
-                    )
+                        featureTitles.forEach { (index, title) ->
+                            val description = featureDescriptions[index] ?: ""
+                            val photos = imageDownloadUrls[index] ?: emptyList()
+                            features.add(DetailDescription(title, description, photos))
+                        }
 
-                    viewModelScope.launch {
-                        if (repository.uploadPost(wish)) {
-                            isPostUploaded.intValue = UploadState.SUCCESS.ordinal
-                        } else {
-                            isPostUploaded.intValue = UploadState.FAILED.ordinal
-                            _isLoading.value = false
+                        val wish = Wish(
+                            postId = getPostId(),
+                            createdDate = DateTimeConverter.getCurrentDate(),
+                            startedDate = 0,
+                            completedDate = 0,
+                            posterId = uid,
+                            developerId = "",
+                            posterName = getPosterName(),
+                            developerName = "",
+                            title = projectTitle.value,
+                            representativeImage = imageDownloadUrls[0]?.firstOrNull()
+                                ?: URL.DEFAULT_PHOTO,
+                            status = WishStatus.POSTED.ordinal,
+                            likes = 0,
+                            oneLineDescription = oneLineDescription.value,
+                            simpleDescription = simpleDescription.value,
+                            detailDescription = features,
+                            features = featureTitles.values.toList(),
+                            comment = ""
+                        )
+
+                        viewModelScope.launch {
+                            if (repository.uploadPost(wish)) {
+                                isPostUploaded.intValue = UploadState.SUCCESS.ordinal
+                            } else {
+                                isPostUploaded.intValue = UploadState.FAILED.ordinal
+                                _isLoading.value = false
+                            }
                         }
                     }
-                }
 
-                UploadState.FAILED.ordinal -> {
-                    isPostUploaded.intValue = UploadState.FAILED.ordinal
-                    _isLoading.value = false
+                    UploadState.FAILED.ordinal -> {
+                        isPostUploaded.intValue = UploadState.FAILED.ordinal
+                        _isLoading.value = false
+                    }
                 }
             }
         }
     }
 
     private fun getPostId(): String {
-        val uid = getPosterUid()
         val date = DateTimeConverter.getCurrentDate()
         val randomNum = Random.nextInt(0, 9999)
         val formattedNum = String.format(Locale.getDefault(), "%04d", randomNum)
         return "$uid$date$formattedNum"
     }
 
-    private fun getPosterUid(): String {
-        val uid = "userId" //TODO("get user id")
-        return uid
+    private fun getPosterUid() {
+        viewModelScope.launch {
+            uid = repository.getUid()
+        }
     }
 
-    private fun getPosterName(): String {
-        val name = "userName" //TODO("get user name")
-        return name
-    }
+    private fun getPosterName() = repository.getUserName()
 }
 
 enum class UploadState {
