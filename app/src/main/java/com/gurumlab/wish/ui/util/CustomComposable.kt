@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.util
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -49,6 +52,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -337,5 +344,31 @@ fun CustomTextField(
         keyboardOptions = KeyboardOptions(
             imeAction = imeOption
         )
+    )
+}
+
+@Composable
+fun CustomGifImage(
+    modifier: Modifier = Modifier,
+    resId: Int,
+    contentDescriptionSrc: Int,
+    contentScale: ContentScale
+) {
+    val context = LocalContext.current
+    val gifEnabledLoader = ImageLoader.Builder(context)
+        .components {
+            if (SDK_INT >= 28) {
+                add(ImageDecoderDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
+        }.build()
+
+    AsyncImage(
+        modifier = modifier,
+        model = resId,
+        imageLoader = gifEnabledLoader,
+        contentDescription = stringResource(id = contentDescriptionSrc),
+        contentScale = contentScale
     )
 }

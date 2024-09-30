@@ -13,6 +13,8 @@ import com.google.gson.Gson
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.detail.DetailRoute
 import com.gurumlab.wish.ui.home.HomeRoute
+import com.gurumlab.wish.ui.login.LoginRoute
+import com.gurumlab.wish.ui.login.PolicyAgreementRoute
 import com.gurumlab.wish.ui.message.Message
 import com.gurumlab.wish.ui.post.PostDescriptionRoute
 import com.gurumlab.wish.ui.post.PostExaminationRoute
@@ -45,7 +47,10 @@ enum class WishScreen {
     POST_START,
     POST_DESCRIPTION,
     POST_FEATURES,
-    POST_EXAMINATION
+    POST_EXAMINATION,
+    LOGIN,
+    START,
+    POLICY_AGREEMENT
 }
 
 @Composable
@@ -54,7 +59,7 @@ fun WishNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = WishScreen.HOME.name
+        startDestination = WishScreen.LOGIN.name
     ) {
         composable(route = WishScreen.HOME.name) {
             HomeRoute { wishId ->
@@ -194,6 +199,16 @@ fun WishNavHost(
                         launchSingleTop = true
                     }
                 }
+            }
+        }
+        navigation(startDestination = WishScreen.START.name, route = WishScreen.LOGIN.name) {
+            composable(route = WishScreen.START.name) {
+                LoginRoute {
+                    navController.navigate(WishScreen.POLICY_AGREEMENT.name)
+                }
+            }
+            composable(route = WishScreen.POLICY_AGREEMENT.name) {
+                PolicyAgreementRoute()
             }
         }
     }

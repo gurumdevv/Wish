@@ -66,6 +66,7 @@ dependencies {
 
     implementation(libs.firebase.auth)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
     implementation(libs.firebase.storage)
     implementation(libs.compose.shimmer)
     implementation(libs.lottie.compose)

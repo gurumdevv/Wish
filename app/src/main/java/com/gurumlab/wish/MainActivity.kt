@@ -67,7 +67,9 @@ fun MainScreen(
         "POST_START",
         "POST_DESCRIPTION",
         "POST_FEATURES",
-        "POST_EXAMINATION"
+        "POST_EXAMINATION",
+        "START",
+        "POLICY_AGREEMENT"
     )
 
     val isSpecificScreen = selectedDestination.let {
@@ -76,7 +78,7 @@ fun MainScreen(
 
     Scaffold(
         topBar = {
-            if (isSpecificScreen) {
+            if (isSpecificScreen && (selectedDestination != WishScreen.START.name)) {
                 ScaffoldTopAppBar(
                     scrollBehavior = scrollBehavior,
                     onNavIconPressed = { navController.navigateUp() }
