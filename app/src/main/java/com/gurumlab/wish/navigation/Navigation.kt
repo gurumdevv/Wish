@@ -153,7 +153,7 @@ fun WishNavHost(
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
                 AccountSettingRoute(viewModel) {
                     navController.navigate(WishScreen.LOGIN.name) {
-                        popUpTo(WishScreen.SETTING.name) {
+                        popUpTo(WishScreen.HOME.name) {
                             inclusive = true
                         }
                         launchSingleTop = true
