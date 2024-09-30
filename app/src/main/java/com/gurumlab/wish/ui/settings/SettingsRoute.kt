@@ -5,12 +5,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun SettingsRoute(
+    viewModel: SettingsViewModel,
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
     onTermsAndCondition: () -> Unit
 ) {
     SettingsScreen(
+        viewModel = viewModel,
         onAccountSetting = onAccountSetting,
         onMyProjectSetting = onMyProjectSetting,
         onApproachingProjectSetting = onApproachingProjectSetting,
@@ -19,14 +21,17 @@ fun SettingsRoute(
 }
 
 @Composable
-fun ApproachingProjectSettingRoute() {
-    val viewModel = hiltViewModel<ApproachingProjectSettingViewModel>()
+fun AccountSettingRoute(viewModel: SettingsViewModel, onStartScreen: () -> Unit) {
+    AccountSettingScreen(viewModel = viewModel, onStartScreen = onStartScreen)
+}
+
+@Composable
+fun ApproachingProjectSettingRoute(viewModel: SettingsViewModel) {
     ApproachingProjectSettingScreen(viewModel)
 }
 
 @Composable
-fun MyProjectSettingRoute() {
-    val viewModel = hiltViewModel<MyProjectSettingViewModel>()
+fun MyProjectSettingRoute(viewModel: SettingsViewModel) {
     MyProjectSettingScreen(viewModel)
 }
 

@@ -19,11 +19,14 @@ import com.gurumlab.wish.ui.util.CustomTopAppBar
 
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
     onTermsAndCondition: () -> Unit
 ) {
+    viewModel.resetUiState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,6 +36,7 @@ fun SettingsScreen(
         SettingsContent(
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
             onAccountSetting = onAccountSetting,
             onMyProjectSetting = onMyProjectSetting,
             onApproachingProjectSetting = onApproachingProjectSetting,
@@ -44,15 +48,18 @@ fun SettingsScreen(
 @Composable
 fun SettingsContent(
     modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel,
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
     onTermsAndCondition: () -> Unit
 ) {
+    val userInfo = viewModel.getUserInfo()
+
     Column(
         modifier = modifier
     ) {
-        UserInfo()
+        UserInfo(userInfo)
         Spacer(modifier = Modifier.height(16.dp))
         SettingsItem(
             text = stringResource(R.string.account_setting),

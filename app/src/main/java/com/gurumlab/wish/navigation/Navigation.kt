@@ -23,10 +23,11 @@ import com.gurumlab.wish.ui.post.PostStartRoute
 import com.gurumlab.wish.ui.post.PostViewModel
 import com.gurumlab.wish.ui.progressForDeveloper.ProgressForDeveloperRoute
 import com.gurumlab.wish.ui.projectSubmit.ProjectSubmitRoute
-import com.gurumlab.wish.ui.settings.AccountSettingScreen
+import com.gurumlab.wish.ui.settings.AccountSettingRoute
 import com.gurumlab.wish.ui.settings.ApproachingProjectSettingRoute
 import com.gurumlab.wish.ui.settings.MyProjectSettingRoute
 import com.gurumlab.wish.ui.settings.SettingsRoute
+import com.gurumlab.wish.ui.settings.SettingsViewModel
 import com.gurumlab.wish.ui.settings.TermsAndConditionRoute
 import com.gurumlab.wish.ui.wishes.WishesRoute
 
@@ -129,7 +130,9 @@ fun WishNavHost(
         }
         navigation(startDestination = WishScreen.SETTINGS.name, route = WishScreen.SETTING.name) {
             composable(route = WishScreen.SETTINGS.name) {
+                val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
                 SettingsRoute(
+                    viewModel = viewModel,
                     onAccountSetting = {
                         navController.navigate(WishScreen.ACCOUNT_SETTING.name)
                     },
@@ -147,17 +150,27 @@ fun WishNavHost(
             composable(
                 route = WishScreen.ACCOUNT_SETTING.name
             ) {
-                AccountSettingScreen()
+                val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
+                AccountSettingRoute(viewModel) {
+                    navController.navigate(WishScreen.LOGIN.name) {
+                        popUpTo(WishScreen.SETTING.name) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
             }
             composable(
                 route = WishScreen.MY_PROJECT_SETTING.name
             ) {
-                MyProjectSettingRoute()
+                val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
+                MyProjectSettingRoute(viewModel)
             }
             composable(
                 route = WishScreen.APPROACHING_PROJECT_SETTING.name
             ) {
-                ApproachingProjectSettingRoute()
+                val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
+                ApproachingProjectSettingRoute(viewModel)
             }
             composable(
                 route = WishScreen.TERMS_AND_CONDITION.name
