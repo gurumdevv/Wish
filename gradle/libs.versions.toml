@@ -40,6 +40,7 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilGif" }
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerCompiler" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }

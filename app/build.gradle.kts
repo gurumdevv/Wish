@@ -70,6 +70,7 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.database.ktx)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.firebase.storage)

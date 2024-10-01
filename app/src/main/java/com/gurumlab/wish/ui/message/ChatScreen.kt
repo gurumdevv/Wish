@@ -24,10 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,10 +35,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Chat
@@ -52,6 +49,7 @@ import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 
 @Composable
 fun ChatScreen(
+    viewModel: ChatViewModel,
     currentUserUid: String,
     otherUserUid: String,
     otherUserName: String,
@@ -62,6 +60,7 @@ fun ChatScreen(
             .fillMaxSize()
             .background(backgroundColor)
             .padding(start = 24.dp, end = 24.dp),
+        viewModel = viewModel,
         currentUserUid = currentUserUid,
         otherUserUid = otherUserUid,
         otherUserName = otherUserName,
@@ -69,34 +68,23 @@ fun ChatScreen(
     )
 }
 
-@Preview
-@Composable
-fun ChatScreenPreview() {
-    ChatScreen(
-        currentUserUid = "",
-        otherUserUid = "",
-        otherUserName = "",
-        otherUserImageUrl = ""
-    )
-}
-
 @Composable
 fun ChatContent(
     modifier: Modifier = Modifier,
+    viewModel: ChatViewModel,
     currentUserUid: String,
     otherUserUid: String,
     otherUserName: String,
     otherUserImageUrl: String
 ) {
-    var chatInput by remember { mutableStateOf("") }
-    var isChatInputEnabled by remember { mutableStateOf(true) }
+    val messages = viewModel.messages.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier
     ) {
         ChatList(
             modifier = Modifier.weight(1f),
-            chatList = emptyList(),
+            chatList = messages.value,
             currentUserUid = currentUserUid,
             otherUserUid = otherUserUid,
             otherUserName = otherUserName,
@@ -104,10 +92,12 @@ fun ChatContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         ChatInput(
-            text = chatInput,
-            isEnabled = isChatInputEnabled,
-            onTextChange = { chatInput = it }) {
-            //TODO("onSendClick")
+            text = viewModel.message.value,
+            isEnabled = viewModel.isChatEnabled.value,
+            onTextChange = { viewModel.updateMessage(it) }) {
+            if (viewModel.message.value.isNotBlank()) {
+                viewModel.addMessage()
+            }
         }
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -172,17 +162,6 @@ fun ChatInput(
     }
 }
 
-@Preview
-@Composable
-fun ChatInputPreview() {
-    ChatInput(
-        text = "",
-        isEnabled = true,
-        onTextChange = {},
-        onSendClick = {}
-    )
-}
-
 @Composable
 fun ChatList(
     modifier: Modifier,
@@ -214,6 +193,7 @@ fun ChatList(
                     screenWidth = screenWidth
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -228,30 +208,36 @@ fun ChatItem(
 ) {
     when (chatType) {
         ChatType.ME.ordinal -> {
-            Column(
-                modifier = Modifier
-                    .widthIn(max = screenWidth * 0.7f)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 10.dp,
-                            topEnd = 10.dp,
-                            bottomStart = 10.dp,
-                            bottomEnd = 0.dp
-                        )
-                    )
-                    .background(defaultMyMessageItemColor)
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(text = text, color = Color.White, fontSize = 16.sp)
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = screenWidth * 0.7f)
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 10.dp,
+                                bottomEnd = 10.dp
+                            )
+                        )
+                        .background(defaultMyMessageItemColor)
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = text, color = Color.White, fontSize = 16.sp)
+                }
             }
         }
 
         ChatType.OTHER.ordinal -> {
             Row(
                 modifier = Modifier.widthIn(max = screenWidth * 0.7f),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Start
             ) {
                 AsyncImage(
                     modifier = Modifier
@@ -261,14 +247,14 @@ fun ChatItem(
                     contentDescription = stringResource(R.string.user_profile_image),
                     contentScale = ContentScale.Crop,
                 )
-
+                Spacer(modifier = Modifier.width(8.dp))
                 Column(
                     modifier = Modifier
                         .clip(
                             RoundedCornerShape(
-                                topStart = 10.dp,
+                                topStart = 0.dp,
                                 topEnd = 10.dp,
-                                bottomStart = 0.dp,
+                                bottomStart = 10.dp,
                                 bottomEnd = 10.dp
                             )
                         )
