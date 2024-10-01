@@ -22,3 +22,5 @@ val backgroundColor = Color.Black
 val defaultBoxColor = Color(0xFF2E2E2E)
 val defaultPlaceHolderColor = Color(0xFF7F7F7F)
 val defaultScrimColor = Color(0x80000000)
+val defaultMyMessageItemColor = Color(0xFF3F00FF)
+val defaultOtherMessageItemColor = Color(0xFFFFFFFF)

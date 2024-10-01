@@ -105,4 +105,6 @@
     <string name="confirm">확인</string>
     <string name="login_error">로그인에 실패했습니다.\n잠시 후 다시 시도해 주세요.</string>
     <string name="ongoing">진행 중</string>
+    <string name="user_profile_image">사용자 프로필 이미지</string>
+    <string name="btn_send">전송 버튼</string>
 </resources>
