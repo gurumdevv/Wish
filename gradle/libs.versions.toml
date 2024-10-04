@@ -10,7 +10,7 @@ moshi = "1.15.1"
 moshiKotlin = "1.15.1"
 converterMoshi = "2.11.0"
 daggerCompiler = "2.52"
-firebaseBom = "33.3.0"
+firebaseBom = "33.4.0"
 hiltCompiler = "2.52"
 hiltNavigationFragment = "1.2.0"
 kotlin = "1.9.24"
@@ -20,10 +20,10 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
-composeBom = "2024.09.02"
+composeBom = "2024.09.03"
 loggingInterceptor = "4.12.0"
-navigationRuntimeKtx = "2.8.1"
-navigationCompose = "2.8.1"
+navigationRuntimeKtx = "2.8.2"
+navigationCompose = "2.8.2"
 okhttp = "4.12.0"
 playServicesAuth = "21.2.0"
 retrofit = "2.11.0"
@@ -41,6 +41,7 @@ coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilGif" }
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerCompiler" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatViewModel @Inject constructor() : ViewModel() {
+class ChatRoomViewModel @Inject constructor() : ViewModel() {
     private val database = Firebase.database
     private val messagesRef = database.getReference(Constants.MESSAGES)
     private val uid: String = Firebase.auth.currentUser?.uid ?: ""

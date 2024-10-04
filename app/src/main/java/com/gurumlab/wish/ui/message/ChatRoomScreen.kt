@@ -48,14 +48,14 @@ import com.gurumlab.wish.ui.theme.defaultOtherMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 
 @Composable
-fun ChatScreen(
-    viewModel: ChatViewModel,
-    currentUserUid: String,
-    otherUserUid: String,
-    otherUserName: String,
-    otherUserImageUrl: String
+fun ChatRoomScreen(
+    viewModel: ChatRoomViewModel,
+    currentUserUid: String = "",
+    otherUserUid: String = "",
+    otherUserName: String = "",
+    otherUserImageUrl: String = ""
 ) {
-    ChatContent(
+    ChatRoomContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
@@ -69,9 +69,9 @@ fun ChatScreen(
 }
 
 @Composable
-fun ChatContent(
+fun ChatRoomContent(
     modifier: Modifier = Modifier,
-    viewModel: ChatViewModel,
+    viewModel: ChatRoomViewModel,
     currentUserUid: String,
     otherUserUid: String,
     otherUserName: String,

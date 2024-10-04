@@ -107,4 +107,10 @@
     <string name="ongoing">진행 중</string>
     <string name="user_profile_image">사용자 프로필 이미지</string>
     <string name="btn_send">전송 버튼</string>
+    <string name="chats">Chats</string>
+    <string name="share_idea_each_others">개발자나 소원 공유자와\n아이디어를 나누세요!</string>
+    <string name="today">오늘</string>
+    <string name="yesterday">어제</string>
+    <string name="month">월</string>
+    <string name="day">일</string>
 </resources>

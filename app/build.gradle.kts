@@ -68,6 +68,7 @@ android {
 
 dependencies {
 
+    implementation(libs.firebase.firestore)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database.ktx)
