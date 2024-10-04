@@ -86,7 +86,8 @@ fun MainScreen(
         "POST_FEATURES",
         "POST_EXAMINATION",
         "START",
-        "POLICY_AGREEMENT"
+        "POLICY_AGREEMENT",
+        "CHAT_ROOM"
     )
 
     val isSpecificScreen = selectedDestination.let {

@@ -29,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.gurumlab.wish.R
@@ -40,24 +39,27 @@ import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.toDp
 
 @Composable
-fun ChatScreen() {
+fun ChatsScreen(viewModel: ChatsViewModel, onChatRoom: (ChatRoom, String, String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
         CustomTopAppBar(stringResource(R.string.chats))
-        ChatContent(
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp)
+        ChatsContent(
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            onChatRoom = onChatRoom
         )
     }
 }
 
 @Composable
-fun ChatContent(
-    modifier: Modifier = Modifier
+fun ChatsContent(
+    modifier: Modifier = Modifier,
+    viewModel: ChatsViewModel,
+    onChatRoom: (ChatRoom, String, String) -> Unit
 ) {
-    val viewModel: ChatsViewModel = hiltViewModel()
     val context = LocalContext.current
     val chatRooms = viewModel.chatRooms.collectAsStateWithLifecycle()
 
@@ -66,7 +68,7 @@ fun ChatContent(
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
             items(chatRooms.value.count()) { index ->
-                ChatItem(chatRooms.value[index], context)
+                ChatsItem(chatRooms.value[index], onChatRoom, context)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -84,15 +86,16 @@ fun ChatRoomTitle() {
 }
 
 @Composable
-fun ChatItem(
+fun ChatsItem(
     chatRoom: ChatRoom,
+    onChatRoom: (ChatRoom, String, String) -> Unit,
     context: Context
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                //TODO("채팅방으로 이동")
+                onChatRoom(chatRoom, "", "") //TODO("상대방 이름, 프로필 이미지 url 전달")
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -100,8 +103,7 @@ fun ChatItem(
             modifier = Modifier
                 .clip(CircleShape)
                 .size(48.dp),
-            model =
-            "상대방 프로필 이미지", //TODO("상대방 프로필 이미지 가져오기")
+            model = "", //TODO("상대방 프로필 이미지 가져오기")
             contentDescription = stringResource(id = R.string.profile_image),
             contentScale = ContentScale.Crop
         )

@@ -30,13 +30,13 @@ val navigationItems = listOf(
         iconTextId = R.string.post
     ),
     NavigationItem(
-        route = WishScreen.MESSAGE.name,
+        route = WishScreen.CHATS.name,
         icon = R.drawable.ic_message,
         enabledIcon = R.drawable.ic_message_enabled,
         iconTextId = R.string.message
     ),
     NavigationItem(
-        route = WishScreen.SETTING.name,
+        route = WishScreen.SETTINGS.name,
         icon = R.drawable.ic_settings,
         enabledIcon = R.drawable.ic_settings_enabled,
         iconTextId = R.string.settings

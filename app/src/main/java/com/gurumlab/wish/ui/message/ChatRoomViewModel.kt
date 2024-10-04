@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.Query
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -19,8 +21,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatRoomViewModel @Inject constructor() : ViewModel() {
+    private var roomId: String = ""
     private val database = Firebase.database
-    private val messagesRef = database.getReference(Constants.MESSAGES)
+    private lateinit var messagesRef: DatabaseReference
+    private lateinit var messagesQuery: Query
     private val uid: String = Firebase.auth.currentUser?.uid ?: ""
 
     private val _message = mutableStateOf("")
@@ -30,12 +34,17 @@ class ChatRoomViewModel @Inject constructor() : ViewModel() {
     private var _isChatEnabled = mutableStateOf(true)
     val isChatEnabled: State<Boolean> = _isChatEnabled
 
-    init {
+    fun setRoomId(roomId: String) {
+        this.roomId = roomId
+        messagesRef =
+            database.getReference().child(Constants.MESSAGES).child(roomId)
+        messagesQuery =
+            database.getReference().child(Constants.MESSAGES).child(roomId).orderByChild("sentAt")
         getMessage()
     }
 
     private fun getMessage() {
-        messagesRef.addValueEventListener(object : ValueEventListener {
+        messagesQuery.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chatList = snapshot.children.mapNotNull { it.getValue(Chat::class.java) }
                 _messages.value = chatList

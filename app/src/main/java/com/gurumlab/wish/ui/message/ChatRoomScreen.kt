@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,8 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Chat
+import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultMyMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultOtherMessageItemColor
@@ -50,19 +54,21 @@ import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 @Composable
 fun ChatRoomScreen(
     viewModel: ChatRoomViewModel,
-    currentUserUid: String = "",
-    otherUserUid: String = "",
-    otherUserName: String = "",
-    otherUserImageUrl: String = ""
+    chatRoom: ChatRoom,
+    otherUserName: String,
+    otherUserImageUrl: String
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.setRoomId(chatRoom.id)
+    }
+
     ChatRoomContent(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
             .padding(start = 24.dp, end = 24.dp),
         viewModel = viewModel,
-        currentUserUid = currentUserUid,
-        otherUserUid = otherUserUid,
+        currentUserUid = Firebase.auth.currentUser?.uid ?: "",
         otherUserName = otherUserName,
         otherUserImageUrl = otherUserImageUrl
     )
@@ -73,7 +79,6 @@ fun ChatRoomContent(
     modifier: Modifier = Modifier,
     viewModel: ChatRoomViewModel,
     currentUserUid: String,
-    otherUserUid: String,
     otherUserName: String,
     otherUserImageUrl: String
 ) {
@@ -86,7 +91,6 @@ fun ChatRoomContent(
             modifier = Modifier.weight(1f),
             chatList = messages.value,
             currentUserUid = currentUserUid,
-            otherUserUid = otherUserUid,
             otherUserName = otherUserName,
             otherUserImageUrl = otherUserImageUrl
         )
@@ -167,7 +171,6 @@ fun ChatList(
     modifier: Modifier,
     chatList: List<Chat>,
     currentUserUid: String,
-    otherUserUid: String,
     otherUserName: String,
     otherUserImageUrl: String
 ) {

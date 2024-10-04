@@ -10,12 +10,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.gson.Gson
+import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.detail.DetailRoute
 import com.gurumlab.wish.ui.home.HomeRoute
 import com.gurumlab.wish.ui.login.LoginRoute
 import com.gurumlab.wish.ui.login.PolicyAgreementRoute
-import com.gurumlab.wish.ui.message.Message
+import com.gurumlab.wish.ui.message.ChatRoomRoute
+import com.gurumlab.wish.ui.message.ChatsRoute
 import com.gurumlab.wish.ui.post.PostDescriptionRoute
 import com.gurumlab.wish.ui.post.PostExaminationRoute
 import com.gurumlab.wish.ui.post.PostFeaturesRoute
@@ -30,6 +32,8 @@ import com.gurumlab.wish.ui.settings.SettingsRoute
 import com.gurumlab.wish.ui.settings.SettingsViewModel
 import com.gurumlab.wish.ui.settings.TermsAndConditionRoute
 import com.gurumlab.wish.ui.wishes.WishesRoute
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 enum class WishScreen {
     HOME,
@@ -51,7 +55,9 @@ enum class WishScreen {
     POST_EXAMINATION,
     LOGIN,
     START,
-    POLICY_AGREEMENT
+    POLICY_AGREEMENT,
+    CHATS,
+    CHAT_ROOM
 }
 
 @Composable
@@ -73,8 +79,30 @@ fun WishNavHost(
                 navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
             }
         }
-        composable(route = WishScreen.MESSAGE.name) {
-            Message()
+        navigation(startDestination = WishScreen.CHATS.name, route = WishScreen.MESSAGE.name) {
+            composable(route = WishScreen.CHATS.name) {
+                ChatsRoute { chatRoom, name, imageUrl ->
+                    navController.navigate(
+                        WishScreen.CHAT_ROOM.name
+                                + "/${Gson().toJson(chatRoom)}"
+                                + "/${name}"
+                                + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                    )
+                }
+            }
+            composable(
+                route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}"
+            ) { backStackEntry ->
+                val chatRoomJson = backStackEntry.arguments?.getString("chatRoom")
+                val chatRoom = Gson().fromJson(chatRoomJson, ChatRoom::class.java)
+                val name = backStackEntry.arguments?.getString("name") ?: ""
+                val imageUrl = URLDecoder.decode(backStackEntry.arguments?.getString("imageUrl"), "UTF-8")
+                ChatRoomRoute(
+                    chatRoom = chatRoom,
+                    otherUserName = name,
+                    otherUserImageUrl = imageUrl
+                )
+            }
         }
         composable(
             route = WishScreen.DETAIL.name + "/{wishId}"
