@@ -62,7 +62,7 @@ fun ChatRoomScreen(
     otherUserImageUrl: String
 ) {
     LaunchedEffect(Unit) {
-        viewModel.setRoomId(chatRoom.id)
+        viewModel.initializeChatRoom(roomId = chatRoom.id, othersUid = chatRoom.othersUid)
     }
 
     ChatRoomContent(
