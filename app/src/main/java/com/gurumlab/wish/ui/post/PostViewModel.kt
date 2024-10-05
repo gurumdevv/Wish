@@ -146,7 +146,7 @@ class PostViewModel @Inject constructor(
                             developerName = "",
                             title = projectTitle.value,
                             representativeImage = imageDownloadUrls[0]?.firstOrNull()
-                                ?: URL.DEFAULT_PHOTO,
+                                ?: URL.DEFAULT_WISH_PHOTO,
                             status = WishStatus.POSTED.ordinal,
                             likes = 0,
                             oneLineDescription = oneLineDescription.value,

@@ -113,4 +113,5 @@
     <string name="yesterday">어제</string>
     <string name="month">월</string>
     <string name="day">일</string>
+    <string name="name">이름</string>
 </resources>

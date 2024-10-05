@@ -51,7 +51,7 @@ fun WishesBanner(wishes: Map<String, Wish>) {
         posterName = "",
         developerName = "",
         title = stringResource(R.string.wish),
-        representativeImage = URL.DEFAULT_PHOTO,
+        representativeImage = URL.DEFAULT_WISH_PHOTO,
         status = 0,
         likes = 0,
         oneLineDescription = "",

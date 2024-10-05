@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.theme.backgroundColor
@@ -68,7 +69,15 @@ fun ChatsContent(
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
             items(chatRooms.value.count()) { index ->
-                ChatsItem(chatRooms.value[index], onChatRoom, context)
+                val othersUid = chatRooms.value[index].othersUid
+                val userInfo = viewModel.userInfos[othersUid]
+                ChatsItem(
+                    context = context,
+                    chatRoom = chatRooms.value[index],
+                    othersName = userInfo?.name ?: stringResource(R.string.name),
+                    othersProfileImageUrl = userInfo?.profileImageUrl ?: "",
+                    onChatRoom = onChatRoom
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -87,15 +96,17 @@ fun ChatRoomTitle() {
 
 @Composable
 fun ChatsItem(
+    context: Context,
     chatRoom: ChatRoom,
-    onChatRoom: (ChatRoom, String, String) -> Unit,
-    context: Context
+    othersName: String,
+    othersProfileImageUrl: String,
+    onChatRoom: (ChatRoom, String, String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onChatRoom(chatRoom, "", "") //TODO("상대방 이름, 프로필 이미지 url 전달")
+                onChatRoom(chatRoom, othersName, othersProfileImageUrl)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -103,7 +114,9 @@ fun ChatsItem(
             modifier = Modifier
                 .clip(CircleShape)
                 .size(48.dp),
-            model = "", //TODO("상대방 프로필 이미지 가져오기")
+            model = othersProfileImageUrl.ifBlank {
+                ImageRequest.Builder(context).data(R.drawable.ic_profile).build()
+            },
             contentDescription = stringResource(id = R.string.profile_image),
             contentScale = ContentScale.Crop
         )
@@ -113,7 +126,7 @@ fun ChatsItem(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "상대방 이름", //TODO("상대방 이름 가져오기")
+                text = othersName,
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,

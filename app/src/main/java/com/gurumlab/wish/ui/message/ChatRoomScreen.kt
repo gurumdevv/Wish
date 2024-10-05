@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.message
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.R
@@ -82,6 +85,9 @@ fun ChatRoomContent(
     otherUserName: String,
     otherUserImageUrl: String
 ) {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val screenWidth = remember { configuration.screenWidthDp.dp }
     val messages = viewModel.messages.collectAsStateWithLifecycle()
 
     Column(
@@ -92,7 +98,9 @@ fun ChatRoomContent(
             chatList = messages.value,
             currentUserUid = currentUserUid,
             otherUserName = otherUserName,
-            otherUserImageUrl = otherUserImageUrl
+            otherUserImageUrl = otherUserImageUrl,
+            context = context,
+            screenWidth = screenWidth
         )
         Spacer(modifier = Modifier.height(16.dp))
         ChatInput(
@@ -172,11 +180,10 @@ fun ChatList(
     chatList: List<Chat>,
     currentUserUid: String,
     otherUserName: String,
-    otherUserImageUrl: String
+    otherUserImageUrl: String,
+    context: Context,
+    screenWidth: Dp
 ) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = remember { configuration.screenWidthDp.dp }
-
     LazyColumn(modifier) {
         items(chatList.size) { index ->
             if (chatList[index].uid == currentUserUid) {
@@ -185,7 +192,8 @@ fun ChatList(
                     userName = "",
                     userImageUrl = "",
                     chatType = ChatType.ME.ordinal,
-                    screenWidth = screenWidth
+                    screenWidth = screenWidth,
+                    context = context
                 )
             } else {
                 ChatItem(
@@ -193,7 +201,8 @@ fun ChatList(
                     userName = otherUserName,
                     userImageUrl = otherUserImageUrl,
                     chatType = ChatType.OTHER.ordinal,
-                    screenWidth = screenWidth
+                    screenWidth = screenWidth,
+                    context = context
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -207,7 +216,8 @@ fun ChatItem(
     userName: String,
     userImageUrl: String,
     chatType: Int,
-    screenWidth: Dp
+    screenWidth: Dp,
+    context: Context
 ) {
     when (chatType) {
         ChatType.ME.ordinal -> {
@@ -246,7 +256,9 @@ fun ChatItem(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape),
-                    model = userImageUrl,
+                    model = userImageUrl.ifBlank {
+                        ImageRequest.Builder(context).data(R.drawable.ic_profile).build()
+                    },
                     contentDescription = stringResource(R.string.user_profile_image),
                     contentScale = ContentScale.Crop,
                 )

@@ -18,8 +18,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.BuildConfig
+import com.gurumlab.wish.data.model.UserInfo
 import com.gurumlab.wish.data.repository.LoginRepository
+import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,8 +54,7 @@ class LoginViewModel @Inject constructor(
         if (user != null) {
             _isLoginSuccess.value = true
         } else {
-            _isOnGoingSignIn.value = false
-            _isLoginError.value = true
+            updateFailState()
         }
     }
 
@@ -155,9 +159,11 @@ class LoginViewModel @Inject constructor(
                                     } else {
                                         viewModelScope.launch {
                                             repository.setUid(user.uid)
-                                            updateUI(user)
+                                            registerUserInfo(user.uid) { isSuccess ->
+                                                if (isSuccess) updateUI(user)
+                                                else updateFailState()
+                                            }
                                         }
-
                                     }
                                 } else {
                                     _isOnGoingSignIn.value = false
@@ -173,12 +179,37 @@ class LoginViewModel @Inject constructor(
             }
     }
 
+    private fun registerUserInfo(uid: String, callback: (Boolean) -> Unit) {
+        val ref = Firebase.database.getReference(Constants.AUTH)
+        ref.child(uid).get().addOnSuccessListener {
+            if (it.value == null) {
+                val currentUser = Firebase.auth.currentUser
+                val userInfo = UserInfo(
+                    uid,
+                    currentUser?.email ?: "",
+                    currentUser?.displayName ?: "",
+                    (currentUser?.photoUrl ?: "").toString()
+                )
+                ref.child(uid).setValue(userInfo)
+            }
+            callback(true)
+        }.addOnFailureListener {
+            Log.d("LoginViewModel", "Firebase authentication failed: ${it.message}")
+            callback(false)
+        }
+    }
+
     fun resetIsLoginError() {
         _isLoginError.value = false
         _isOnGoingSignIn.value = false
     }
 
     fun notifyIsLoginError() {
+        _isLoginError.value = true
+    }
+
+    private fun updateFailState() {
+        _isOnGoingSignIn.value = false
         _isLoginError.value = true
     }
 }
