@@ -18,6 +18,7 @@ import com.gurumlab.wish.ui.login.LoginRoute
 import com.gurumlab.wish.ui.login.PolicyAgreementRoute
 import com.gurumlab.wish.ui.message.ChatRoomRoute
 import com.gurumlab.wish.ui.message.ChatsRoute
+import com.gurumlab.wish.ui.message.moveToChatRoom
 import com.gurumlab.wish.ui.post.PostDescriptionRoute
 import com.gurumlab.wish.ui.post.PostExaminationRoute
 import com.gurumlab.wish.ui.post.PostFeaturesRoute
@@ -96,7 +97,8 @@ fun WishNavHost(
                 val chatRoomJson = backStackEntry.arguments?.getString("chatRoom")
                 val chatRoom = Gson().fromJson(chatRoomJson, ChatRoom::class.java)
                 val name = backStackEntry.arguments?.getString("name") ?: ""
-                val imageUrl = URLDecoder.decode(backStackEntry.arguments?.getString("imageUrl"), "UTF-8")
+                val imageUrl =
+                    URLDecoder.decode(backStackEntry.arguments?.getString("imageUrl"), "UTF-8")
                 ChatRoomRoute(
                     chatRoom = chatRoom,
                     otherUserName = name,
@@ -118,7 +120,14 @@ fun WishNavHost(
                     )
                 },
                 onMessageScreen = {
-                    //TODO("Go to Message")
+                    moveToChatRoom(it.posterId) { chatRoom, name, imageUrl ->
+                        navController.navigate(
+                            WishScreen.CHAT_ROOM.name
+                                    + "/${Gson().toJson(chatRoom)}"
+                                    + "/${name}"
+                                    + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                        )
+                    }
                 }
             )
         }
@@ -137,7 +146,14 @@ fun WishNavHost(
                     )
                 },
                 onMessageScreen = {
-                    //TODO("Go to Message")
+                    moveToChatRoom(it.posterId) { chatRoom, name, imageUrl ->
+                        navController.navigate(
+                            WishScreen.CHAT_ROOM.name
+                                    + "/${Gson().toJson(chatRoom)}"
+                                    + "/${name}"
+                                    + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                        )
+                    }
                 }
             )
         }

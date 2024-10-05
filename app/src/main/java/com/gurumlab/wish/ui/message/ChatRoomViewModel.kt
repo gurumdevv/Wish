@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.data.model.Chat
+import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class ChatRoomViewModel @Inject constructor() : ViewModel() {
     private var roomId = ""
     private var othersUid = ""
+    private lateinit var chatRoom: ChatRoom
     private val database = Firebase.database
     private lateinit var messagesRef: DatabaseReference
     private lateinit var messagesQuery: Query
@@ -41,7 +43,8 @@ class ChatRoomViewModel @Inject constructor() : ViewModel() {
     private var _isChatEnabled = mutableStateOf(true)
     val isChatEnabled: State<Boolean> = _isChatEnabled
 
-    fun initializeChatRoom(roomId: String, othersUid: String) {
+    fun initializeChatRoom(chatRoom: ChatRoom, roomId: String, othersUid: String) {
+        this.chatRoom = chatRoom
         this.roomId = roomId
         this.othersUid = othersUid
         messagesRef =
@@ -94,19 +97,38 @@ class ChatRoomViewModel @Inject constructor() : ViewModel() {
 
     private fun updateFireStore(currentMessage: String) {
         val currentTimeStamp = FieldValue.serverTimestamp()
-        myFireStoreRef.update(
-            mapOf(
-                Constants.LAST_MESSAGE to currentMessage,
-                Constants.LAST_SENT_AT to currentTimeStamp
+
+        val chatRoomData = mutableMapOf(
+            Constants.LAST_MESSAGE to currentMessage,
+            Constants.LAST_SENT_AT to currentTimeStamp
+        ).apply {
+            if (chatRoom.lastMessageSentAt == null) {
+                put(Constants.ID, roomId)
+                put(Constants.OTHERS_UID, othersUid)
+                put(Constants.NOT_READ_MESSAGE_COUNT, 1)
+            }
+        }
+
+        val batch = Firebase.firestore.batch()
+
+        if (chatRoom.lastMessageSentAt == null) {
+            batch.set(myFireStoreRef, chatRoomData)
+            batch.set(othersFireStoreRef, chatRoomData)
+        } else {
+            batch.update(myFireStoreRef, chatRoomData)
+            batch.update(othersFireStoreRef, chatRoomData)
+            batch.update(
+                othersFireStoreRef,
+                Constants.NOT_READ_MESSAGE_COUNT,
+                FieldValue.increment(1)
             )
-        )
-        othersFireStoreRef.update(
-            mapOf(
-                Constants.LAST_MESSAGE to currentMessage,
-                Constants.LAST_SENT_AT to currentTimeStamp
-            )
-        )
-        othersFireStoreRef.update(Constants.NOT_READ_MESSAGE_COUNT, FieldValue.increment(1))
+        }
+
+        batch.commit().addOnSuccessListener {
+            Log.d("updateFireStore", "Chat room updated successfully")
+        }.addOnFailureListener { e ->
+            Log.e("updateFireStore", "Error updating chat room", e)
+        }
     }
 
 
