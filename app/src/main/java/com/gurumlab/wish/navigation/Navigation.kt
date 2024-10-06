@@ -163,7 +163,7 @@ fun WishNavHost(
             val minimizedWishJson = backStackEntry.arguments?.getString("minimizedWish")
             val minimizedWish = Gson().fromJson(minimizedWishJson, MinimizedWish::class.java)
             val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
-            ProjectSubmitRoute(minimizedWish, wishId) {
+            ProjectSubmitRoute(wishId, minimizedWish) {
                 navController.navigate(WishScreen.WISHES.name) {
                     popUpTo(WishScreen.DETAIL.name + "/{minimizedWish}/{wishId}") {
                         inclusive = true

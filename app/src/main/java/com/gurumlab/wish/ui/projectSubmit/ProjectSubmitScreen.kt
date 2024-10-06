@@ -18,11 +18,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,13 +32,12 @@ import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.CustomWideButton
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProjectSubmitScreen(
     viewModel: ProjectSubmitViewModel,
-    minimizedWish: MinimizedWish,
     wishId: String,
+    minimizedWish: MinimizedWish,
     onComplete: () -> Unit
 ) {
     ProjectSubmitContent(
@@ -65,14 +61,9 @@ fun ProjectSubmitContent(
     onComplete: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    var repositoryInfo by remember { mutableStateOf("") }
-    var accountInfo by remember { mutableStateOf("") }
-    var accountOwner by remember { mutableStateOf("") }
     val isSubmitSuccess = viewModel.isSubmitSuccess.collectAsStateWithLifecycle()
     val isUpdateSuccess = viewModel.isUpdateSuccess.collectAsStateWithLifecycle()
-    var isLoading by remember { mutableStateOf(false) }
 
     if (isSubmitSuccess.value && isUpdateSuccess.value) onComplete()
 
@@ -94,17 +85,17 @@ fun ProjectSubmitContent(
             Spacer(modifier = Modifier.height(16.dp))
             RepositoryInfoTitle()
             Spacer(modifier = Modifier.height(8.dp))
-            RepositoryInfoInput(repositoryInfo) { repositoryInfo = it }
+            RepositoryInfoInput(viewModel.repositoryInfo.value) { viewModel.setRepositoryInfo(it) }
             Spacer(modifier = Modifier.height(2.dp))
             RepositoryInfoInputHint()
             Spacer(modifier = Modifier.height(6.dp))
             AccountInfoTitle()
             Spacer(modifier = Modifier.height(8.dp))
-            AccountInfoInput(accountInfo) { accountInfo = it }
+            AccountInfoInput(viewModel.accountInfo.value) { viewModel.setAccountInfo(it) }
             Spacer(modifier = Modifier.height(16.dp))
             AccountOwnerTitle()
             Spacer(modifier = Modifier.height(8.dp))
-            AccountOwnerInput(accountOwner) { accountOwner = it }
+            AccountOwnerInput(viewModel.accountOwner.value) { viewModel.setAccountOwner(it) }
         }
 
         Column(
@@ -113,23 +104,11 @@ fun ProjectSubmitContent(
             CustomWideButton(
                 text = stringResource(R.string.submit)
             ) {
-                if (repositoryInfo.isNotBlank() && accountInfo.isNotBlank() && accountOwner.isNotBlank()) {
-                    isLoading = true
-                    viewModel.submitWish(
-                        minimizedWish = minimizedWish,
-                        repositoryURL = repositoryInfo,
-                        accountInfo = accountInfo,
-                        accountOwner = accountOwner
-                    )
-                    viewModel.updateWishStatusToComplete(wishId)
-                } else {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = context.getString(R.string.blank),
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                }
+                viewModel.submitWish(
+                    wishId = wishId,
+                    minimizedWish = minimizedWish,
+                    snackbarMessageRes = R.string.blank
+                )
             }
             Spacer(modifier = Modifier.size(24.dp))
         }
@@ -143,12 +122,22 @@ fun ProjectSubmitContent(
             CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
         }
 
-        if (isLoading) {
+        if (viewModel.isLoading.value) {
             ProjectSubmitLoadingScreen(
                 Modifier
                     .size(130.dp)
                     .align(Alignment.Center)
             )
+        }
+
+        LaunchedEffect(viewModel.snackbarMessage.value) {
+            viewModel.snackbarMessage.value?.let {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(it),
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.resetSnackbarMessageState()
+            }
         }
     }
 }
