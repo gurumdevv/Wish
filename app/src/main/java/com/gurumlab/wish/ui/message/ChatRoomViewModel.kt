@@ -79,7 +79,8 @@ class ChatRoomViewModel @Inject constructor() : ViewModel() {
             val newChat = Chat(
                 uid = uid,
                 message = message,
-                sentAt = System.currentTimeMillis()
+                sentAt = System.currentTimeMillis(),
+                submission = false
             )
 
             messagesRef.push().setValue(newChat)
@@ -97,26 +98,36 @@ class ChatRoomViewModel @Inject constructor() : ViewModel() {
 
     private fun updateFireStore(currentMessage: String) {
         val currentTimeStamp = FieldValue.serverTimestamp()
+        val batch = Firebase.firestore.batch()
 
-        val chatRoomData = mutableMapOf(
+        val myChatRoomData = mutableMapOf(
             Constants.LAST_MESSAGE to currentMessage,
             Constants.LAST_SENT_AT to currentTimeStamp
         ).apply {
             if (chatRoom.lastMessageSentAt == null) {
                 put(Constants.ID, roomId)
                 put(Constants.OTHERS_UID, othersUid)
+                put(Constants.NOT_READ_MESSAGE_COUNT, 0)
+            }
+        }
+
+        val othersChatRoomData = mutableMapOf(
+            Constants.LAST_MESSAGE to currentMessage,
+            Constants.LAST_SENT_AT to currentTimeStamp
+        ).apply {
+            if (chatRoom.lastMessageSentAt == null) {
+                put(Constants.ID, roomId)
+                put(Constants.OTHERS_UID, uid)
                 put(Constants.NOT_READ_MESSAGE_COUNT, 1)
             }
         }
 
-        val batch = Firebase.firestore.batch()
-
         if (chatRoom.lastMessageSentAt == null) {
-            batch.set(myFireStoreRef, chatRoomData)
-            batch.set(othersFireStoreRef, chatRoomData)
+            batch.set(myFireStoreRef, myChatRoomData)
+            batch.set(othersFireStoreRef, othersChatRoomData)
         } else {
-            batch.update(myFireStoreRef, chatRoomData)
-            batch.update(othersFireStoreRef, chatRoomData)
+            batch.update(myFireStoreRef, myChatRoomData)
+            batch.update(othersFireStoreRef, othersChatRoomData)
             batch.update(
                 othersFireStoreRef,
                 Constants.NOT_READ_MESSAGE_COUNT,

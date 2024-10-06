@@ -115,7 +115,7 @@ class ProjectSubmitViewModel @Inject constructor(
             uid = uid,
             message = completedWishId,
             sentAt = System.currentTimeMillis(),
-            isSubmit = true
+            submission = true
         )
 
         val currentTimeStamp = FieldValue.serverTimestamp()

@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -30,7 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -50,9 +54,13 @@ import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Chat
 import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.theme.defaultDonationButtonColor
+import com.gurumlab.wish.ui.theme.defaultMessageAboutSubmissionItemColor
+import com.gurumlab.wish.ui.theme.defaultMessageAboutSubmissionTextColor
 import com.gurumlab.wish.ui.theme.defaultMyMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultOtherMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
+import com.gurumlab.wish.ui.theme.defaultSubmissionCheckButtonColor
 
 @Composable
 fun ChatRoomScreen(
@@ -190,26 +198,115 @@ fun ChatList(
 ) {
     LazyColumn(modifier) {
         items(chatList.size) { index ->
-            if (chatList[index].uid == currentUserUid) {
-                ChatItem(
-                    text = chatList[index].message,
-                    userName = "",
-                    userImageUrl = "",
-                    chatType = ChatType.ME.ordinal,
-                    screenWidth = screenWidth,
-                    context = context
-                )
+            val currentItem = chatList[index]
+            if (currentItem.uid == currentUserUid) {
+                if (currentItem.submission) {
+                    ChatItemAboutSubmission(R.string.submission_complete)
+                } else {
+                    ChatItem(
+                        text = currentItem.message,
+                        userName = "",
+                        userImageUrl = "",
+                        chatType = ChatType.ME.ordinal,
+                        screenWidth = screenWidth,
+                        context = context
+                    )
+                }
             } else {
-                ChatItem(
-                    text = chatList[index].message,
-                    userName = otherUserName,
-                    userImageUrl = otherUserImageUrl,
-                    chatType = ChatType.OTHER.ordinal,
-                    screenWidth = screenWidth,
-                    context = context
-                )
+                if (currentItem.submission) {
+                    ChatItemAboutSubmission(R.string.submission_received)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ChatItemWithButton(
+                        R.string.receive_submission_from_developer,
+                        R.string.btn_check_result,
+                        SubmissionType.CHECK,
+                        screenWidth,
+                        onClick = {}
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ChatItemWithButton(
+                        R.string.please_donate_to_developer,
+                        R.string.btn_donation,
+                        SubmissionType.DONATION,
+                        screenWidth,
+                        onClick = {}
+                    )
+                } else {
+                    ChatItem(
+                        text = currentItem.message,
+                        userName = otherUserName,
+                        userImageUrl = otherUserImageUrl,
+                        chatType = ChatType.OTHER.ordinal,
+                        screenWidth = screenWidth,
+                        context = context
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun ChatItemAboutSubmission(messageRes: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(defaultMessageAboutSubmissionItemColor)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(id = messageRes),
+            color = defaultMessageAboutSubmissionTextColor,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+fun ChatItemWithButton(
+    messageRes: Int,
+    buttonTextRes: Int,
+    submissionType: SubmissionType,
+    screenWidth: Dp,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .width(screenWidth * 0.6f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.White)
+            .padding(10.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = stringResource(id = messageRes), fontSize = 12.sp, color = Color.Black)
+        Spacer(modifier = Modifier.height(4.dp))
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = when (submissionType) {
+                    SubmissionType.CHECK -> defaultSubmissionCheckButtonColor
+                    SubmissionType.DONATION -> defaultDonationButtonColor
+                }
+            ),
+            shape = RoundedCornerShape(10.dp),
+            onClick = { onClick() }) {
+            Text(
+                text = stringResource(id = buttonTextRes),
+                fontSize = 12.sp,
+                color = Color.White,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.Black,
+                        offset = Offset(1f, 1f),
+                        blurRadius = 1f
+                    )
+                )
+            )
         }
     }
 }
@@ -292,4 +389,9 @@ fun ChatItem(
 enum class ChatType {
     ME,
     OTHER
+}
+
+enum class SubmissionType {
+    CHECK,
+    DONATION
 }
