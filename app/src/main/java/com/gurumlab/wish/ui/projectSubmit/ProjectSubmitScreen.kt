@@ -107,7 +107,9 @@ fun ProjectSubmitContent(
                 viewModel.submitWish(
                     wishId = wishId,
                     minimizedWish = minimizedWish,
-                    snackbarMessageRes = R.string.blank
+                    emptySnackbarMessageRes = R.string.blank,
+                    failSnackbarMessageRes = R.string.fail_submit,
+                    projectCompletedString = context.getString(R.string.project_completed)
                 )
             }
             Spacer(modifier = Modifier.size(24.dp))

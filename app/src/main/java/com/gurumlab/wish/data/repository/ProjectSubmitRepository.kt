@@ -3,20 +3,34 @@ package com.gurumlab.wish.data.repository
 import android.util.Log
 import com.gurumlab.wish.data.model.CompletedWish
 import com.gurumlab.wish.data.source.remote.ApiClient
+import com.gurumlab.wish.data.source.remote.onError
+import com.gurumlab.wish.data.source.remote.onException
+import com.gurumlab.wish.data.source.remote.onSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class ProjectSubmitRepository @Inject constructor(
     private val apiClient: ApiClient
 ) {
-    suspend fun submitWish(completedWish: CompletedWish): Boolean {
-        try {
-            apiClient.uploadCompletedPost(completedWish)
-            return true
-        } catch (e: Exception) {
-            Log.d("submitWish", "Error submitting wish: ${e.message}")
-            return false
+
+    fun submitWish(
+        completedWish: CompletedWish,
+        onErrorOrException: (message: String?) -> Unit,
+    ): Flow<Map<String, String>> = flow {
+        val response = apiClient.uploadCompletedPost(completedWish)
+        response.onSuccess {
+            emit(it)
+        }.onError { code, message ->
+            emit(emptyMap())
+            onErrorOrException("code: $code, message: $message")
+        }.onException {
+            emit(emptyMap())
+            onErrorOrException(it.message)
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     suspend fun updateWishStatus(postId: String, status: Int): Boolean {
         try {

@@ -55,7 +55,7 @@ interface ApiClient {
     @POST("completedPosts.json")
     suspend fun uploadCompletedPost(
         @Body completedWish: CompletedWish
-    )
+    ): ApiResponse<Map<String, String>>
 
     @GET("posts.json")
     suspend fun getPostsByPosterId(

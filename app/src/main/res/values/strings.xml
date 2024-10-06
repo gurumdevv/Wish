@@ -114,4 +114,6 @@
     <string name="month">월</string>
     <string name="day">일</string>
     <string name="name">이름</string>
+    <string name="fail_submit">제출하기에 실패했습니다.\\n잠시 후 다시 시도해 주세요.</string>
+    <string name="project_completed">프로젝트가 완료되었습니다!</string>
 </resources>
