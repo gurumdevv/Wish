@@ -63,11 +63,17 @@ fun ProjectSubmitContent(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val isSubmitSuccess = viewModel.isSubmitSuccess.collectAsStateWithLifecycle()
-    val isUpdateSuccess = viewModel.isStatusUpdateSuccess.collectAsStateWithLifecycle()
+    val isStatusUpdateSuccess = viewModel.isStatusUpdateSuccess.collectAsStateWithLifecycle()
     val isCompletedDateUpdateSuccess =
         viewModel.isCompletedDateUpdateSuccess.collectAsStateWithLifecycle()
 
-    if (isSubmitSuccess.value && isUpdateSuccess.value && isCompletedDateUpdateSuccess.value) onComplete()
+    LaunchedEffect(
+        isSubmitSuccess.value,
+        isStatusUpdateSuccess.value,
+        isCompletedDateUpdateSuccess.value
+    ) {
+        if (isSubmitSuccess.value && isStatusUpdateSuccess.value && isCompletedDateUpdateSuccess.value) onComplete()
+    }
 
     Box(
         modifier = modifier
