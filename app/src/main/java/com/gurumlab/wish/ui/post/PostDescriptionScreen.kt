@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,15 +40,26 @@ import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostDescriptionScreen(viewModel: PostViewModel, onPostFeatures: () -> Unit) {
-    PostDescriptionContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel,
-        onPostFeatures = onPostFeatures
-    )
+fun PostDescriptionScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: PostViewModel,
+    onPostFeatures: () -> Unit
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        PostDescriptionContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            onPostFeatures = onPostFeatures
+        )
+    }
 }
 
 @Composable

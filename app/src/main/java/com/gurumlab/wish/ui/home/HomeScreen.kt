@@ -2,12 +2,13 @@ package com.gurumlab.wish.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -18,25 +19,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
-import com.gurumlab.wish.ui.util.CustomTopAppBar
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onDetailScreen: (wishId: String) -> Unit) {
-    HomeContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor),
-        viewModel = viewModel,
-        onDetailScreen = onDetailScreen
-    )
+fun HomeScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: HomeViewModel,
+    onDetailScreen: (wishId: String) -> Unit
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        HomeContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding),
+            viewModel = viewModel,
+            onDetailScreen = onDetailScreen
+        )
+    }
 }
 
 @Composable
@@ -55,48 +65,42 @@ fun HomeContent(
     val isException = viewModel.isException.collectAsStateWithLifecycle()
 
     Box(modifier = modifier) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            CustomTopAppBar(text = stringResource(id = R.string.wish))
+        if (isError.value) {
+            HomeErrorScreen(modifier)
+        } else if (isException.value) {
+            CustomExceptionScreen(modifier) {
+                viewModel.loadWishes()
+            }
+        }
 
-            Box {
-                if (isError.value) {
-                    HomeErrorScreen(modifier)
-                } else if (isException.value) {
-                    CustomExceptionScreen(modifier) {
-                        viewModel.loadWishes()
+        VerticalPager(state = pagerState) { page ->
+            val wishIdentifier = wishes.value.keys.elementAt(page)
+            val wishContent = wishes.value.values.elementAt(page)
+            WishCard(
+                wish = wishContent,
+                onStartClick = {
+                    onDetailScreen(wishIdentifier)
+                },
+                onLikeClick = {
+                    scope.launch {
+                        viewModel.getLikes(wishIdentifier).single()
+                            .let { currentCount ->
+                                if (currentCount == -1) snackbarHostState.showSnackbar(
+                                    message = context.getString(R.string.fail_like_update),
+                                    duration = SnackbarDuration.Short
+                                )
+                                else viewModel.updateLikeCount(
+                                    wishIdentifier,
+                                    currentCount + 1
+                                )
+                            }
                     }
                 }
+            )
+        }
 
-                VerticalPager(state = pagerState) { page ->
-                    val wishIdentifier = wishes.value.keys.elementAt(page)
-                    val wishContent = wishes.value.values.elementAt(page)
-                    WishCard(
-                        wish = wishContent,
-                        onStartClick = {
-                            onDetailScreen(wishIdentifier)
-                        },
-                        onLikeClick = {
-                            scope.launch {
-                                viewModel.getLikes(wishIdentifier).single()
-                                    .let { currentCount ->
-                                        if (currentCount == -1) snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.fail_like_update),
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        else viewModel.updateLikeCount(
-                                            wishIdentifier,
-                                            currentCount + 1
-                                        )
-                                    }
-                            }
-                        }
-                    )
-                }
-
-                if (isLoading.value) {
-                    HomeLoadingScreen(modifier)
-                }
-            }
+        if (isLoading.value) {
+            HomeLoadingScreen(modifier)
         }
 
         SnackbarHost(

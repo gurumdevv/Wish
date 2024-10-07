@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -63,15 +64,26 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostFeaturesScreen(viewModel: PostViewModel, onPostExamination: () -> Unit) {
-    PostFeaturesContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel,
-        onFinishClick = onPostExamination
-    )
+fun PostFeaturesScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: PostViewModel,
+    onPostExamination: () -> Unit
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        PostFeaturesContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            onFinishClick = onPostExamination
+        )
+    }
 }
 
 @Composable

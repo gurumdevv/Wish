@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,13 +31,22 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.URL
 
 @Composable
-fun TermsAndConditionScreen() {
-    TermsAndConditionContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp)
-    )
+fun TermsAndConditionScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        TermsAndConditionContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp)
+        )
+    }
 }
 
 @Composable

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,20 +36,26 @@ import coil.request.ImageRequest
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomTopAppBar
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.toDp
 
 @Composable
-fun ChatsScreen(viewModel: ChatsViewModel, onChatRoom: (ChatRoom, String, String) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-    ) {
-        CustomTopAppBar(stringResource(R.string.chats))
+fun ChatsScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: ChatsViewModel,
+    onChatRoom: (ChatRoom, String, String) -> Unit
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
         ChatsContent(
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
             viewModel = viewModel,
             onChatRoom = onChatRoom
         )

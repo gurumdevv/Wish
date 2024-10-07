@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,15 +40,26 @@ import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostExaminationScreen(viewModel: PostViewModel, onWish: () -> Unit) {
-    PostExaminationContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel,
-        onWish = onWish
-    )
+fun PostExaminationScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: PostViewModel,
+    onWish: () -> Unit
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        PostExaminationContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            onWish = onWish
+        )
+    }
 }
 
 @Composable
@@ -125,20 +137,20 @@ fun PostExaminationContent(
         ) { data ->
             CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
         }
-    }
 
-    LaunchedEffect(viewModel.isPostUploaded.intValue) {
-        when (viewModel.isPostUploaded.intValue) {
-            UploadState.SUCCESS.ordinal -> {
-                onWish()
-            }
+        LaunchedEffect(viewModel.isPostUploaded.intValue) {
+            when (viewModel.isPostUploaded.intValue) {
+                UploadState.SUCCESS.ordinal -> {
+                    onWish()
+                }
 
-            UploadState.FAILED.ordinal -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.upload_fail),
-                        duration = SnackbarDuration.Short
-                    )
+                UploadState.FAILED.ordinal -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = context.getString(R.string.upload_fail),
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }

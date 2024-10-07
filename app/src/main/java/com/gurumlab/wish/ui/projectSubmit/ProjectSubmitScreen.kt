@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -35,21 +36,29 @@ import com.gurumlab.wish.ui.util.CustomWideButton
 
 @Composable
 fun ProjectSubmitScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     viewModel: ProjectSubmitViewModel,
     wishId: String,
     minimizedWish: MinimizedWish,
     onComplete: () -> Unit
 ) {
-    ProjectSubmitContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel,
-        minimizedWish = minimizedWish,
-        wishId = wishId,
-        onComplete = onComplete
-    )
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        ProjectSubmitContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            minimizedWish = minimizedWish,
+            wishId = wishId,
+            onComplete = onComplete
+        )
+    }
 }
 
 @Composable

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.google.gson.Gson
 import com.gurumlab.wish.data.model.ChatRoom
@@ -71,26 +74,41 @@ enum class WishScreen {
 
 @Composable
 fun WishNavHost(
-    navController: NavHostController,
     startDestination: String
 ) {
+    val navController = rememberNavController()
+    val navigationActions = remember(navController) { NavigationActions(navController) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val selectedDestination = navBackStackEntry?.destination?.route ?: WishScreen.HOME.name
+
+    val bottomNavigationBar: @Composable () -> Unit = {
+        BottomNavigationBar(
+            currentDestination = selectedDestination,
+            navigateToDestination = navigationActions::navigateTo
+        )
+    }
+
+    val onNavUp: () -> Unit = {
+        navController.navigateUp()
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
         composable(route = WishScreen.HOME.name) {
-            HomeRoute { wishId ->
+            HomeRoute(bottomNavigationBar) { wishId ->
                 navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
             }
         }
         composable(route = WishScreen.WISHES.name) {
-            WishesRoute { wishId ->
+            WishesRoute(bottomNavigationBar) { wishId ->
                 navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
             }
         }
         navigation(startDestination = WishScreen.CHATS.name, route = WishScreen.MESSAGE.name) {
             composable(route = WishScreen.CHATS.name) {
-                ChatsRoute { chatRoom, name, imageUrl ->
+                ChatsRoute(bottomNavigationBar) { chatRoom, name, imageUrl ->
                     navController.navigate(
                         WishScreen.CHAT_ROOM.name
                                 + "/${Gson().toJson(chatRoom)}"
@@ -135,6 +153,7 @@ fun WishNavHost(
                     chatRoom = chatRoom,
                     otherUserName = name,
                     otherUserImageUrl = imageUrl,
+                    onNavUp = onNavUp,
                     onRepository = { completedWishId ->
                         navController.navigate(
                             WishScreen.REPOSITORY_REDIRECT.name + "/${completedWishId}"
@@ -165,7 +184,7 @@ fun WishNavHost(
                 val viewModel =
                     backStackEntry.sharedViewModel<SubmissionViewModel>(navController = navController)
                 val completedWishId = backStackEntry.arguments?.getString("completedWishId") ?: ""
-                DonationRoute(viewModel, completedWishId) {
+                DonationRoute(viewModel, completedWishId, onNavUp) {
                     navController.navigate(WishScreen.WISHES.name) {
                         popUpTo(WishScreen.MESSAGE.name) {
                             inclusive = true
@@ -215,6 +234,7 @@ fun WishNavHost(
             val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
             DetailRoute(
                 wishId = wishId,
+                onNavUp = onNavUp,
                 onProgressScreen = { minimizedWishObject, wishIdString ->
                     navController.navigate(
                         WishScreen.PROGRESS_FOR_DEVELOPER.name
@@ -243,6 +263,7 @@ fun WishNavHost(
             ProgressForDeveloperRoute(
                 minimizedWish = minimizedWish,
                 wishId = wishId,
+                onNavUp = onNavUp,
                 onSubmitScreen = { minimizedWishObject, wishIdString ->
                     navController.navigate(
                         WishScreen.PROJECT_SUBMIT.name + "/${Gson().toJson(minimizedWishObject)}" + "/${wishIdString}"
@@ -266,7 +287,7 @@ fun WishNavHost(
             val minimizedWishJson = backStackEntry.arguments?.getString("minimizedWish")
             val minimizedWish = Gson().fromJson(minimizedWishJson, MinimizedWish::class.java)
             val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
-            ProjectSubmitRoute(wishId, minimizedWish) {
+            ProjectSubmitRoute(wishId, minimizedWish, onNavUp) {
                 navController.navigate(WishScreen.WISHES.name) {
                     popUpTo(WishScreen.DETAIL.name + "/{wishId}") {
                         inclusive = true
@@ -279,6 +300,7 @@ fun WishNavHost(
             composable(route = WishScreen.SETTINGS.name) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
                 SettingsRoute(
+                    bottomNavigationBar = bottomNavigationBar,
                     viewModel = viewModel,
                     onAccountSetting = {
                         navController.navigate(WishScreen.ACCOUNT_SETTING.name)
@@ -318,7 +340,7 @@ fun WishNavHost(
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
-                AccountSettingRoute(viewModel) {
+                AccountSettingRoute(viewModel, onNavUp) {
                     navController.navigate(WishScreen.LOGIN.name) {
                         popUpTo(WishScreen.HOME.name) {
                             inclusive = true
@@ -343,7 +365,7 @@ fun WishNavHost(
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
-                MyProjectSettingRoute(viewModel)
+                MyProjectSettingRoute(viewModel, onNavUp)
             }
             composable(
                 route = WishScreen.APPROACHING_PROJECT_SETTING.name,
@@ -361,7 +383,7 @@ fun WishNavHost(
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
-                ApproachingProjectSettingRoute(viewModel)
+                ApproachingProjectSettingRoute(viewModel, onNavUp)
             }
             composable(
                 route = WishScreen.TERMS_AND_CONDITION.name,
@@ -378,13 +400,13 @@ fun WishNavHost(
                     )
                 }
             ) {
-                TermsAndConditionRoute()
+                TermsAndConditionRoute(onNavUp)
             }
         }
         navigation(startDestination = WishScreen.POST_START.name, route = WishScreen.POST.name) {
             composable(route = WishScreen.POST_START.name) {
                 val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
-                PostStartRoute(viewModel) {
+                PostStartRoute(viewModel, onNavUp) {
                     navController.navigate(WishScreen.POST_DESCRIPTION.name)
                 }
             }
@@ -392,7 +414,7 @@ fun WishNavHost(
                 route = WishScreen.POST_DESCRIPTION.name
             ) {
                 val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
-                PostDescriptionRoute(viewModel) {
+                PostDescriptionRoute(viewModel, onNavUp) {
                     navController.navigate(WishScreen.POST_FEATURES.name)
                 }
             }
@@ -400,7 +422,7 @@ fun WishNavHost(
                 route = WishScreen.POST_FEATURES.name
             ) {
                 val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
-                PostFeaturesRoute(viewModel) {
+                PostFeaturesRoute(viewModel, onNavUp) {
                     navController.navigate(WishScreen.POST_EXAMINATION.name)
                 }
             }
@@ -408,7 +430,7 @@ fun WishNavHost(
                 route = WishScreen.POST_EXAMINATION.name
             ) {
                 val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
-                PostExaminationRoute(viewModel) {
+                PostExaminationRoute(viewModel, onNavUp) {
                     navController.navigate(WishScreen.WISHES.name) {
                         popUpTo(WishScreen.POST.name) {
                             inclusive = true
@@ -425,7 +447,7 @@ fun WishNavHost(
                 }
             }
             composable(route = WishScreen.POLICY_AGREEMENT.name) {
-                PolicyAgreementRoute {
+                PolicyAgreementRoute(onNavUp) {
                     navController.navigate(WishScreen.HOME.name) {
                         popUpTo(WishScreen.LOGIN.name) {
                             inclusive = true

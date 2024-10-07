@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,20 +34,30 @@ import com.gurumlab.wish.ui.util.DateTimeConverter
 
 @Composable
 fun DonationScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     viewModel: SubmissionViewModel,
     completedWishId: String,
     onClosed: () -> Unit
 ) {
-    viewModel.initializeData(completedWishId)
+    LaunchedEffect(Unit) {
+        viewModel.initializeData(completedWishId)
+    }
 
-    DonationContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(horizontal = 24.dp),
-        viewModel = viewModel,
-        onClick = onClosed
-    )
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        DonationContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp),
+            viewModel = viewModel,
+            onClick = onClosed
+        )
+    }
 }
 
 @Composable
@@ -57,7 +69,7 @@ fun DonationContent(
     val completedWish = viewModel.completedWish.collectAsStateWithLifecycle()
 
     if (completedWish.value == null) {
-        DonationLoadingScreen(modifier = Modifier.fillMaxSize())
+        DonationLoadingScreen(modifier = modifier)
     } else {
         Column(
             modifier = modifier

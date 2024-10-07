@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -56,15 +57,26 @@ import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.URL
 
 @Composable
-fun PolicyAgreementScreen(viewModel: LoginViewModel, onHomeScreen: () -> Unit) {
-    PolicyAgreementContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel,
-        onHomeScreen = onHomeScreen
-    )
+fun PolicyAgreementScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: LoginViewModel,
+    onHomeScreen: () -> Unit
+) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        PolicyAgreementContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            onHomeScreen = onHomeScreen
+        )
+    }
 }
 
 @Composable

@@ -8,33 +8,39 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomTopAppBar
 
 @Composable
 fun SettingsScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     viewModel: SettingsViewModel,
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
     onTermsAndCondition: () -> Unit
 ) {
-    viewModel.resetUiState()
+    LaunchedEffect(Unit) {
+        viewModel.resetUiState()
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-    ) {
-        CustomTopAppBar(stringResource(R.string.settings_top_bar))
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
         SettingsContent(
             modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
                 .padding(start = 24.dp, end = 24.dp),
             viewModel = viewModel,
             onAccountSetting = onAccountSetting,

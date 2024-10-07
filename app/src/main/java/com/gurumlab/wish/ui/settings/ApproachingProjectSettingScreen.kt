@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,16 +47,28 @@ import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.toDp
 
 @Composable
-fun ApproachingProjectSettingScreen(viewModel: SettingsViewModel) {
-    viewModel.loadApproachingWishes()
+fun ApproachingProjectSettingScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: SettingsViewModel
+) {
+    LaunchedEffect(Unit) {
+        viewModel.loadApproachingWishes()
+    }
 
-    ApproachingProjectSettingContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel
-    )
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        ApproachingProjectSettingContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel
+        )
+    }
 }
 
 @Composable
@@ -69,10 +83,10 @@ fun ApproachingProjectSettingContent(
     val isException = viewModel.isException.collectAsStateWithLifecycle()
 
     if (isLoading.value) {
-        ApproachingProjectSettingLoadingScreen()
+        ApproachingProjectSettingLoadingScreen(modifier)
     } else {
         if (isException.value) {
-            ApproachingProjectSettingExceptionScreen()
+            ApproachingProjectSettingExceptionScreen(modifier)
         } else {
             LazyColumn(
                 modifier = modifier
@@ -242,11 +256,11 @@ fun ApproachingProjectItem(wish: Wish) {
 }
 
 @Composable
-fun ApproachingProjectSettingLoadingScreen() {
+fun ApproachingProjectSettingLoadingScreen(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 24.dp, end = 24.dp)
+        modifier = modifier
     ) {
         MyProjectSettingTitle(textRsc = R.string.approaching_project_setting, fontSize = 24)
         CustomLottieLoader(
@@ -259,11 +273,11 @@ fun ApproachingProjectSettingLoadingScreen() {
 }
 
 @Composable
-fun ApproachingProjectSettingExceptionScreen() {
+fun ApproachingProjectSettingExceptionScreen(
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 24.dp, end = 24.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

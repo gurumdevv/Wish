@@ -2,6 +2,7 @@ package com.gurumlab.wish.ui.login
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -34,19 +36,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
+import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultScrimColor
 import com.gurumlab.wish.ui.util.CustomGifImage
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     onPolicyAgreementRoute: () -> Unit
 ) {
-    LoginContent(
-        modifier = Modifier
-            .fillMaxSize(),
-        onPolicyAgreementRoute = onPolicyAgreementRoute
-    )
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        LoginContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding),
+            onPolicyAgreementRoute = onPolicyAgreementRoute
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,60 +111,60 @@ fun LoginContent(
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
-    }
 
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet = false
-            },
-            sheetState = sheetState,
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            scrimColor = defaultScrimColor
-        ) {
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .padding(start = 16.dp, end = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ),
-                shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.dp, Color.Black),
-                onClick = {
-                    scope.launch {
-                        sheetState.hide()
-                    }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            showBottomSheet = false
-                        }
-                        onPolicyAgreementRoute()
-                    }
-                }) {
-                Box(
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState,
+                containerColor = Color.White,
+                contentColor = Color.Black,
+                scrimColor = defaultScrimColor
+            ) {
+                Button(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                ) {
-                    Image(
+                        .height(40.dp)
+                        .padding(start = 16.dp, end = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, Color.Black),
+                    onClick = {
+                        scope.launch {
+                            sheetState.hide()
+                        }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                            onPolicyAgreementRoute()
+                        }
+                    }) {
+                    Box(
                         modifier = Modifier
-                            .size(32.dp)
-                            .align(Alignment.CenterStart),
-                        painter = painterResource(id = R.drawable.ic_google),
-                        contentDescription = null
-                    )
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.sign_in_google),
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    )
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .align(Alignment.CenterStart),
+                            painter = painterResource(id = R.drawable.ic_google),
+                            contentDescription = null
+                        )
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = stringResource(R.string.sign_in_google),
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(24.dp))
             }
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

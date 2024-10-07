@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -64,6 +65,8 @@ import com.gurumlab.wish.ui.theme.defaultSubmissionCheckButtonColor
 
 @Composable
 fun ChatRoomScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     viewModel: ChatRoomViewModel,
     chatRoom: ChatRoom,
     otherUserName: String,
@@ -79,18 +82,24 @@ fun ChatRoomScreen(
         )
     }
 
-    ChatRoomContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel,
-        currentUserUid = Firebase.auth.currentUser?.uid ?: "",
-        otherUserName = otherUserName,
-        otherUserImageUrl = otherUserImageUrl,
-        onRepository = onRepository,
-        onDonation = onDonation
-    )
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        ChatRoomContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel,
+            currentUserUid = Firebase.auth.currentUser?.uid ?: "",
+            otherUserName = otherUserName,
+            otherUserImageUrl = otherUserImageUrl,
+            onRepository = onRepository,
+            onDonation = onDonation
+        )
+    }
 }
 
 @Composable

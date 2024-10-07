@@ -19,10 +19,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,16 +56,28 @@ import com.gurumlab.wish.ui.util.toDp
 import kotlinx.coroutines.launch
 
 @Composable
-fun MyProjectSettingScreen(viewModel: SettingsViewModel) {
-    viewModel.loadMyWishes()
+fun MyProjectSettingScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    viewModel: SettingsViewModel
+) {
+    LaunchedEffect(Unit) {
+        viewModel.loadMyWishes()
+    }
 
-    MyProjectSettingContent(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(start = 24.dp, end = 24.dp),
-        viewModel = viewModel
-    )
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
+        MyProjectSettingContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp),
+            viewModel = viewModel
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,10 +97,10 @@ fun MyProjectSettingContent(
     val isException = viewModel.isException.collectAsStateWithLifecycle()
 
     if (isLoading.value) {
-        MyProjectSettingLoadingScreen()
+        MyProjectSettingLoadingScreen(modifier)
     } else {
         if (isException.value) {
-            MyProjectSettingExceptionScreen()
+            MyProjectSettingExceptionScreen(modifier)
         } else {
             LazyColumn(
                 modifier = modifier
@@ -338,11 +352,11 @@ fun ModalBottomSheetItem(
 }
 
 @Composable
-fun MyProjectSettingLoadingScreen() {
+fun MyProjectSettingLoadingScreen(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 24.dp, end = 24.dp)
+        modifier = modifier
     ) {
         MyProjectSettingTitle(textRsc = R.string.my_project_setting, fontSize = 24)
         CustomLottieLoader(
@@ -355,11 +369,11 @@ fun MyProjectSettingLoadingScreen() {
 }
 
 @Composable
-fun MyProjectSettingExceptionScreen() {
+fun MyProjectSettingExceptionScreen(
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 24.dp, end = 24.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

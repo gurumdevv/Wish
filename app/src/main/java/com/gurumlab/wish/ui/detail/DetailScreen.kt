@@ -2,15 +2,15 @@ package com.gurumlab.wish.ui.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.MinimizedWish
@@ -21,6 +21,8 @@ import com.gurumlab.wish.ui.util.CustomLoadingScreen
 
 @Composable
 fun DetailScreen(
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     wishId: String,
     viewModel: DetailViewModel,
     onProgressScreen: (MinimizedWish, String) -> Unit,
@@ -30,12 +32,15 @@ fun DetailScreen(
         viewModel.initializeDetail(wishId)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-    ) {
+    Scaffold(
+        topBar = topBar,
+        bottomBar = bottomBar
+    ) { innerPadding ->
         DetailContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding),
             wishId = wishId,
             viewModel = viewModel,
             onProgressScreen = onProgressScreen,
@@ -46,6 +51,7 @@ fun DetailScreen(
 
 @Composable
 fun DetailContent(
+    modifier: Modifier,
     wishId: String,
     viewModel: DetailViewModel,
     onProgressScreen: (MinimizedWish, String) -> Unit,
@@ -67,12 +73,11 @@ fun DetailContent(
     }
 
     if (isLoading.value) {
-        CustomLoadingScreen(
-            modifier = Modifier.background(Color.Black)
-        )
+        CustomLoadingScreen(modifier = modifier)
     } else {
         if (isFailed.value) {
             CustomExceptionScreen(
+                modifier = modifier,
                 titleRsc = R.string.cannot_load_data,
                 descriptionRsc = R.string.retry_load_wish,
                 onClick = { viewModel.retryLoadWish(wishId) }
@@ -106,7 +111,7 @@ fun DetailContent(
                 }
 
                 Box(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = modifier
                 ) {
                     ProjectDescriptionArea(scrollState = scrollState, wish = loadedWish)
                     DetailScreenButtonArea(
