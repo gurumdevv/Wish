@@ -1,5 +1,8 @@
 package com.gurumlab.wish.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -97,7 +100,31 @@ fun WishNavHost(
                 }
             }
             composable(
-                route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}"
+                route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}",
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        WishScreen.DETAIL.name + "/{wishId}" -> {
+                            fadeOut(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        WishScreen.DONATION.name + "/{completedWishId}" -> {
+                            fadeOut(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Down,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
+                }
             ) { backStackEntry ->
                 val chatRoomJson = backStackEntry.arguments?.getString("chatRoom")
                 val chatRoom = Gson().fromJson(chatRoomJson, ChatRoom::class.java)
@@ -121,7 +148,19 @@ fun WishNavHost(
                 )
             }
             composable(
-                route = WishScreen.DONATION.name + "/{completedWishId}"
+                route = WishScreen.DONATION.name + "/{completedWishId}",
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(500)
+                    )
+                }
             ) { backStackEntry ->
                 val viewModel =
                     backStackEntry.sharedViewModel<SubmissionViewModel>(navController = navController)
@@ -147,7 +186,31 @@ fun WishNavHost(
             }
         }
         composable(
-            route = WishScreen.DETAIL.name + "/{wishId}"
+            route = WishScreen.DETAIL.name + "/{wishId}",
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(500)
+                )
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}" + "/{wishId}" -> {
+                        fadeOut(animationSpec = tween(durationMillis = 200))
+                    }
+
+                    WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}" -> {
+                        fadeOut(animationSpec = tween(durationMillis = 200))
+                    }
+
+                    else -> {
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Down,
+                            animationSpec = tween(500)
+                        )
+                    }
+                }
+            }
         ) { backStackEntry ->
             val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
             DetailRoute(
@@ -232,7 +295,27 @@ fun WishNavHost(
                 )
             }
             composable(
-                route = WishScreen.ACCOUNT_SETTING.name
+                route = WishScreen.ACCOUNT_SETTING.name,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        WishScreen.START.name -> {
+                            fadeOut(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Right,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
+                }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
                 AccountSettingRoute(viewModel) {
@@ -245,19 +328,55 @@ fun WishNavHost(
                 }
             }
             composable(
-                route = WishScreen.MY_PROJECT_SETTING.name
+                route = WishScreen.MY_PROJECT_SETTING.name,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
                 MyProjectSettingRoute(viewModel)
             }
             composable(
-                route = WishScreen.APPROACHING_PROJECT_SETTING.name
+                route = WishScreen.APPROACHING_PROJECT_SETTING.name,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
                 ApproachingProjectSettingRoute(viewModel)
             }
             composable(
-                route = WishScreen.TERMS_AND_CONDITION.name
+                route = WishScreen.TERMS_AND_CONDITION.name,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                }
             ) {
                 TermsAndConditionRoute()
             }
