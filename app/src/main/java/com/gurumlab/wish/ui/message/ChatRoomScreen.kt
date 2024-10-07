@@ -67,7 +67,9 @@ fun ChatRoomScreen(
     viewModel: ChatRoomViewModel,
     chatRoom: ChatRoom,
     otherUserName: String,
-    otherUserImageUrl: String
+    otherUserImageUrl: String,
+    onRepository: (String) -> Unit,
+    onDonation: (String) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.initializeChatRoom(
@@ -85,7 +87,9 @@ fun ChatRoomScreen(
         viewModel = viewModel,
         currentUserUid = Firebase.auth.currentUser?.uid ?: "",
         otherUserName = otherUserName,
-        otherUserImageUrl = otherUserImageUrl
+        otherUserImageUrl = otherUserImageUrl,
+        onRepository = onRepository,
+        onDonation = onDonation
     )
 }
 
@@ -95,7 +99,9 @@ fun ChatRoomContent(
     viewModel: ChatRoomViewModel,
     currentUserUid: String,
     otherUserName: String,
-    otherUserImageUrl: String
+    otherUserImageUrl: String,
+    onRepository: (String) -> Unit,
+    onDonation: (String) -> Unit
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -112,7 +118,9 @@ fun ChatRoomContent(
             otherUserName = otherUserName,
             otherUserImageUrl = otherUserImageUrl,
             context = context,
-            screenWidth = screenWidth
+            screenWidth = screenWidth,
+            onRepository = onRepository,
+            onDonation = onDonation
         )
         Spacer(modifier = Modifier.height(16.dp))
         ChatInput(
@@ -194,7 +202,9 @@ fun ChatList(
     otherUserName: String,
     otherUserImageUrl: String,
     context: Context,
-    screenWidth: Dp
+    screenWidth: Dp,
+    onRepository: (String) -> Unit,
+    onDonation: (String) -> Unit
 ) {
     LazyColumn(modifier) {
         items(chatList.size) { index ->
@@ -220,17 +230,15 @@ fun ChatList(
                         R.string.receive_submission_from_developer,
                         R.string.btn_check_result,
                         SubmissionType.CHECK,
-                        screenWidth,
-                        onClick = {}
-                    )
+                        screenWidth
+                    ) { onRepository(currentItem.message) }
                     Spacer(modifier = Modifier.height(8.dp))
                     ChatItemWithButton(
                         R.string.please_donate_to_developer,
                         R.string.btn_donation,
                         SubmissionType.DONATION,
-                        screenWidth,
-                        onClick = {}
-                    )
+                        screenWidth
+                    ) { onDonation(currentItem.message) }
                 } else {
                     ChatItem(
                         text = currentItem.message,

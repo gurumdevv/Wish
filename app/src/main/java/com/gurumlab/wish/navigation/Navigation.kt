@@ -18,6 +18,9 @@ import com.gurumlab.wish.ui.login.LoginRoute
 import com.gurumlab.wish.ui.login.PolicyAgreementRoute
 import com.gurumlab.wish.ui.message.ChatRoomRoute
 import com.gurumlab.wish.ui.message.ChatsRoute
+import com.gurumlab.wish.ui.message.DonationRoute
+import com.gurumlab.wish.ui.message.RepositoryRedirectRoute
+import com.gurumlab.wish.ui.message.SubmissionViewModel
 import com.gurumlab.wish.ui.message.moveToChatRoom
 import com.gurumlab.wish.ui.post.PostDescriptionRoute
 import com.gurumlab.wish.ui.post.PostExaminationRoute
@@ -58,7 +61,9 @@ enum class WishScreen {
     START,
     POLICY_AGREEMENT,
     CHATS,
-    CHAT_ROOM
+    CHAT_ROOM,
+    DONATION,
+    REPOSITORY_REDIRECT
 }
 
 @Composable
@@ -102,8 +107,43 @@ fun WishNavHost(
                 ChatRoomRoute(
                     chatRoom = chatRoom,
                     otherUserName = name,
-                    otherUserImageUrl = imageUrl
+                    otherUserImageUrl = imageUrl,
+                    onRepository = { completedWishId ->
+                        navController.navigate(
+                            WishScreen.REPOSITORY_REDIRECT.name + "/${completedWishId}"
+                        )
+                    },
+                    onDonation = { completedWishId ->
+                        navController.navigate(
+                            WishScreen.DONATION.name + "/${completedWishId}"
+                        )
+                    }
                 )
+            }
+            composable(
+                route = WishScreen.DONATION.name + "/{completedWishId}"
+            ) { backStackEntry ->
+                val viewModel =
+                    backStackEntry.sharedViewModel<SubmissionViewModel>(navController = navController)
+                val completedWishId = backStackEntry.arguments?.getString("completedWishId") ?: ""
+                DonationRoute(viewModel, completedWishId) {
+                    navController.navigate(WishScreen.WISHES.name) {
+                        popUpTo(WishScreen.MESSAGE.name) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            }
+            composable(
+                route = WishScreen.REPOSITORY_REDIRECT.name + "/{completedWishId}"
+            ) { backStackEntry ->
+                val viewModel =
+                    backStackEntry.sharedViewModel<SubmissionViewModel>(navController = navController)
+                val completedWishId = backStackEntry.arguments?.getString("completedWishId") ?: ""
+                RepositoryRedirectRoute(viewModel, completedWishId) {
+                    navController.navigateUp()
+                }
             }
         }
         composable(

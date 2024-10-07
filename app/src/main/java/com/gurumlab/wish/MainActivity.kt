@@ -87,7 +87,9 @@ fun MainScreen(
         "POST_EXAMINATION",
         "START",
         "POLICY_AGREEMENT",
-        "CHAT_ROOM"
+        "CHAT_ROOM",
+        "DONATION",
+        "REPOSITORY_REDIRECT"
     )
 
     val isSpecificScreen = selectedDestination.let {

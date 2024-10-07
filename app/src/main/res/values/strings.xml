@@ -122,4 +122,10 @@
     <string name="receive_submission_from_developer">개발자님이 결과물을 발송했습니다.</string>
     <string name="please_donate_to_developer">소망을 이루어주신 개발자님께 후원 부탁드립니다!</string>
     <string name="btn_donation">후원하기</string>
+    <string name="thanks_explanation_donation">고생하신 %1$s님께 감사한 마음을 전하세요!</string>
+    <string name="acoount_number">계좌번호</string>
+    <string name="acoount_owner_name">예금주 성명</string>
+    <string name="close">닫기</string>
+    <string name="invalid_url">주소가 유효하지 않습니다.</string>
+    <string name="moving">이동 중...</string>
 </resources>
