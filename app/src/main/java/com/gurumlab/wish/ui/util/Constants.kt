@@ -9,4 +9,8 @@ object Constants {
     const val LAST_MESSAGE = "lastMessage"
     const val NOT_READ_MESSAGE_COUNT = "notReadMessageCount"
     const val LAST_SENT_AT = "lastMessageSentAt"
+    const val USER = "user"
+    const val EMAIL = "email"
+    const val DEVELOPER_ID = "developerId"
+    const val POSTER_ID = "posterId"
 }

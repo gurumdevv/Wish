@@ -11,6 +11,7 @@ import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
 import com.gurumlab.wish.data.source.remote.onException
 import com.gurumlab.wish.data.source.remote.onSuccess
+import com.gurumlab.wish.ui.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -43,7 +44,7 @@ class SettingsRepository @Inject constructor(
     fun deleteAccount(uid: String): Flow<Boolean> = flow {
         val user = Firebase.auth.currentUser!!
         val response = apiClient.getPostsByPosterId(
-            orderBy = "\"posterId\"",
+            orderBy = "\"${Constants.POSTER_ID}\"",
             equalTo = "\"${uid}\""
         )
         response.onSuccess {
@@ -56,7 +57,7 @@ class SettingsRepository @Inject constructor(
                     break
                 }
             }
-            Log.d("deleteAccount", "isDeleteWishSuccess: $isDeleteSuccess")
+
             if (isDeleteSuccess) emit(handleUserDeletion(user))
             else emit(false)
         }.onError { _, _ ->
@@ -84,7 +85,7 @@ class SettingsRepository @Inject constructor(
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
         val response =
-            apiClient.getPostsByDeveloperId("\"${orderBy}\"", "\"${equalTo}\"")
+            apiClient.getPostsByUserId("\"${orderBy}\"", "\"${equalTo}\"")
         response.onSuccess {
             emit(it)
         }.onError { code, message ->

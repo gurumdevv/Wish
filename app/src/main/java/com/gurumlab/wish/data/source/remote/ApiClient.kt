@@ -88,7 +88,7 @@ interface ApiClient {
     ): ApiResponse<Map<String, Wish>>
 
     @GET("posts.json")
-    suspend fun getPostsByDeveloperId(
+    suspend fun getPostsByUserId(
         @Query("orderBy") orderBy: String,
         @Query("equalTo") equalTo: String
     ): ApiResponse<Map<String, Wish>>

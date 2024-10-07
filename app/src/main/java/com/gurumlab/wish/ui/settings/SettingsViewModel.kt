@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.repository.SettingsRepository
+import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,6 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository
 ) : ViewModel() {
-
 
     private var _isLogOut = mutableStateOf(false)
     val isLogout: State<Boolean> = _isLogOut
@@ -37,8 +37,8 @@ class SettingsViewModel @Inject constructor(
 
     fun getUserInfo(): UserInfo {
         val userInfo = repository.getUserInfo()
-        val name = userInfo?.displayName ?: "User"
-        val email = userInfo?.email ?: "Email"
+        val name = userInfo?.displayName ?: Constants.USER
+        val email = userInfo?.email ?: Constants.EMAIL
         val imageUrl = userInfo?.photoUrl?.toString() ?: ""
         return UserInfo(name, email, imageUrl)
     }
@@ -86,7 +86,7 @@ class SettingsViewModel @Inject constructor(
 
     fun loadApproachingWishes() {
         viewModelScope.launch {
-            loadWishes(orderBy = "developerId") { wishes ->
+            loadWishes(orderBy = Constants.DEVELOPER_ID) { wishes ->
                 _approachingWishes.value = wishes
             }
         }
@@ -94,7 +94,7 @@ class SettingsViewModel @Inject constructor(
 
     fun loadMyWishes() {
         viewModelScope.launch {
-            loadWishes(orderBy = "posterId") { wishes ->
+            loadWishes(orderBy = Constants.POSTER_ID) { wishes ->
                 _myWishes.value = wishes
             }
         }

@@ -50,8 +50,6 @@ fun WishesContent(
     val isException = viewModel.isException.collectAsStateWithLifecycle()
 
     Column(modifier = modifier) {
-//        CustomTopAppBar(text = stringResource(R.string.wishes_top_bar))
-
         if (isLoading.value) {
             WishesLoadingScreen()
         } else {
