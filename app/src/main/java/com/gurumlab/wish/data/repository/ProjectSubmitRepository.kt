@@ -41,4 +41,14 @@ class ProjectSubmitRepository @Inject constructor(
             return false
         }
     }
+
+    suspend fun updateCompletedDate(postId: String, completedDate: Int): Boolean{
+        try {
+            apiClient.updateCompletedDate(postId, completedDate)
+            return true
+        } catch (e: Exception) {
+            Log.d("updateCompletedDate", "Error updating completed date: ${e.message}")
+            return false
+        }
+    }
 }

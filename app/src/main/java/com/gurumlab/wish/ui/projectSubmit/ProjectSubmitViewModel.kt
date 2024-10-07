@@ -15,6 +15,7 @@ import com.gurumlab.wish.data.model.CompletedWish
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.repository.ProjectSubmitRepository
 import com.gurumlab.wish.ui.util.Constants
+import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,8 +41,10 @@ class ProjectSubmitViewModel @Inject constructor(
 
     private val _isSubmitSuccess = MutableStateFlow(false)
     val isSubmitSuccess = _isSubmitSuccess.asStateFlow()
-    private val _isUpdateSuccess = MutableStateFlow(false)
-    val isUpdateSuccess = _isUpdateSuccess.asStateFlow()
+    private val _isStatusUpdateSuccess = MutableStateFlow(false)
+    val isStatusUpdateSuccess = _isStatusUpdateSuccess.asStateFlow()
+    private val _isCompletedDateUpdateSuccess = MutableStateFlow(false)
+    val isCompletedDateUpdateSuccess = _isCompletedDateUpdateSuccess.asStateFlow()
 
     fun submitWish(
         wishId: String,
@@ -85,6 +88,7 @@ class ProjectSubmitViewModel @Inject constructor(
                 ) { isSuccess ->
                     _isSubmitSuccess.value = isSuccess
                     if (isSuccess) {
+                        updateCompletedDate(wishId)
                         updateWishStatus(wishId)
                     }
                 }
@@ -146,7 +150,14 @@ class ProjectSubmitViewModel @Inject constructor(
 
     private fun updateWishStatus(wishId: String) {
         viewModelScope.launch {
-            _isUpdateSuccess.value = repository.updateWishStatus(wishId, 2)
+            _isStatusUpdateSuccess.value = repository.updateWishStatus(wishId, 2)
+        }
+    }
+
+    private fun updateCompletedDate(wishId: String) {
+        viewModelScope.launch {
+            _isCompletedDateUpdateSuccess.value =
+                repository.updateCompletedDate(wishId, DateTimeConverter.getCurrentDate())
         }
     }
 

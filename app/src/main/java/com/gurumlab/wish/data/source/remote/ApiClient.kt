@@ -42,6 +42,30 @@ interface ApiClient {
         @Body status: Int
     )
 
+    @PUT("posts/{postId}/completedDate.json")
+    suspend fun updateCompletedDate(
+        @Path("postId") postId: String,
+        @Body completedDate: Int
+    )
+
+    @PUT("posts/{postId}/startedDate.json")
+    suspend fun updateStartedDate(
+        @Path("postId") postId: String,
+        @Body startedDate: Int
+    )
+
+    @PUT("posts/{postId}/developerId.json")
+    suspend fun updateDeveloperId(
+        @Path("postId") postId: String,
+        @Body developerId: String
+    )
+
+    @PUT("posts/{postId}/developerName.json")
+    suspend fun updateDeveloperName(
+        @Path("postId") postId: String,
+        @Body developerName: String
+    )
+
     @GET("posts/{postIdentifier}/likes.json")
     suspend fun getLikeCount(
         @Path("postIdentifier") postIdentifier: String
