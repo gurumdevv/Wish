@@ -350,7 +350,8 @@ fun PolicyAgreementButton(
             disabledContainerColor = Gray00,
             disabledContentColor = Gray02
         ),
-        onClick = { onClick() }) {
+        onClick = onClick
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,

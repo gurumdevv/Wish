@@ -143,39 +143,33 @@ class LoginViewModel @Inject constructor(
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(firebaseCredential)
             .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val user = FirebaseAuth.getInstance().currentUser
-                    if (user == null) {
-                        _isOnGoingSignIn.value = false
-                        _isLoginError.value = true
-                    } else {
-                        user.getIdToken(true)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    val firebaseIdToken = task.result.token
-                                    if (firebaseIdToken.isNullOrBlank() || user.uid.isBlank()) {
-                                        _isOnGoingSignIn.value = false
-                                        _isLoginError.value = true
-                                    } else {
-                                        viewModelScope.launch {
-                                            repository.setUid(user.uid)
-                                            registerUserInfo(user.uid) { isSuccess ->
-                                                if (isSuccess) updateUI(user)
-                                                else updateFailState()
-                                            }
+                val user = FirebaseAuth.getInstance().currentUser
+                if (user == null) {
+                    updateFailState()
+                } else {
+                    user.getIdToken(true)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val firebaseIdToken = task.result.token
+                                if (firebaseIdToken.isNullOrBlank() || user.uid.isBlank()) {
+                                    updateFailState()
+                                } else {
+                                    viewModelScope.launch {
+                                        repository.setUid(user.uid)
+                                        registerUserInfo(user.uid) { isSuccess ->
+                                            if (isSuccess) updateUI(user)
+                                            else updateFailState()
                                         }
                                     }
-                                } else {
-                                    _isOnGoingSignIn.value = false
-                                    _isLoginError.value = true
                                 }
+                            } else {
+                                updateFailState()
                             }
-                    }
-                } else {
-                    Log.d("LoginViewModel", "Firebase authentication failed: ${it.exception}")
-                    _isOnGoingSignIn.value = false
-                    _isLoginError.value = true
+                        }
                 }
+            }.addOnFailureListener {
+                Log.d("LoginViewModel", "Firebase authentication failed: ${it.message}")
+                updateFailState()
             }
     }
 
@@ -194,7 +188,7 @@ class LoginViewModel @Inject constructor(
             }
             callback(true)
         }.addOnFailureListener {
-            Log.d("LoginViewModel", "Firebase authentication failed: ${it.message}")
+            Log.d("LoginViewModel", "Firebase register userInfo failed: ${it.message}")
             callback(false)
         }
     }

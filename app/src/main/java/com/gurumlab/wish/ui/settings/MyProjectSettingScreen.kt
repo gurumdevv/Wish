@@ -26,6 +26,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -182,7 +183,7 @@ fun MyProjectSettingTitle(
 
 @Composable
 fun MyProjectStatistics(successWishCount: Int, postedWishCount: Int) {
-    var heightPx by remember { mutableStateOf(0) }
+    var heightPx by remember { mutableIntStateOf(0) }
 
     Row(
         modifier = Modifier.fillMaxWidth()
