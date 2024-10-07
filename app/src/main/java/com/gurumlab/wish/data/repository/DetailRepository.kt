@@ -1,5 +1,6 @@
 package com.gurumlab.wish.data.repository
 
+import android.util.Log
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -37,4 +38,35 @@ class DetailRepository @Inject constructor(
     }.onCompletion {
         onCompletion()
     }.flowOn(Dispatchers.IO)
+
+
+    suspend fun updateStartedDate(postId: String, startedDate: Int): Boolean {
+        try {
+            apiClient.updateStartedDate(postId, startedDate)
+            return true
+        } catch (e: Exception) {
+            Log.d("updateStartedDate", "Error updating started date: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun updateDeveloperName(postId: String, developerName: String): Boolean {
+        try {
+            apiClient.updateDeveloperName(postId, developerName)
+            return true
+        } catch (e: Exception) {
+            Log.d("updateDeveloperName", "Error updating developer name: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun updateDeveloperId(postId: String, developerId: String): Boolean {
+        try {
+            apiClient.updateDeveloperId(postId, developerId)
+            return true
+        } catch (e: Exception) {
+            Log.d("updateDeveloperId", "Error updating developer id: ${e.message}")
+            return false
+        }
+    }
 }

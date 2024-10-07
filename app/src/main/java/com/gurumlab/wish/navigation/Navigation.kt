@@ -205,7 +205,7 @@ fun WishNavHost(
             val wishId = backStackEntry.arguments?.getString("wishId") ?: ""
             ProjectSubmitRoute(wishId, minimizedWish) {
                 navController.navigate(WishScreen.WISHES.name) {
-                    popUpTo(WishScreen.DETAIL.name + "/{minimizedWish}/{wishId}") {
+                    popUpTo(WishScreen.DETAIL.name + "/{wishId}") {
                         inclusive = true
                     }
                     launchSingleTop = true

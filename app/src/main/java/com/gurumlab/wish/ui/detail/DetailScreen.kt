@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.MinimizedWish
+import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomLoadingScreen
@@ -24,10 +26,12 @@ fun DetailScreen(
     onProgressScreen: (MinimizedWish, String) -> Unit,
     onMessageScreen: (MinimizedWish) -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.initializeDetail(wishId)
+    }
 
     Column(
-        modifier =
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
@@ -49,11 +53,17 @@ fun DetailContent(
 ) {
     val scrollState = rememberScrollState()
     val wish = viewModel.wish.collectAsStateWithLifecycle(initialValue = null)
+    val isStartedDateUpdateSuccess =
+        viewModel.isStartedDateUpdateSuccess.collectAsStateWithLifecycle()
+    val isDeveloperIdUpdateSuccess =
+        viewModel.isDeveloperIdUpdateSuccess.collectAsStateWithLifecycle()
+    val isDeveloperNameUpdateSuccess =
+        viewModel.isDeveloperNameUpdateSuccess.collectAsStateWithLifecycle()
     val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
     val isFailed = viewModel.isFailed.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel.retryCount) {
-        viewModel.loadWish(wishId)
+    LaunchedEffect(viewModel.retryCount.value) {
+        if (viewModel.retryCount.value > 0) viewModel.initializeDetail(wishId)
     }
 
     if (isLoading.value) {
@@ -69,19 +79,65 @@ fun DetailContent(
             )
         } else {
             wish.value?.let { loadedWish ->
+                val minimizedWish = remember {
+                    getMinimizedWish(
+                        loadedWish,
+                        viewModel.currentDate,
+                        viewModel.currentUserUid,
+                        viewModel.currentUserName
+                    )
+                }
+                val onUpdateWish: () -> Unit = remember {
+                    {
+                        viewModel.updateStartedDate(wishId, viewModel.currentDate)
+                        viewModel.updateDeveloperName(wishId, viewModel.currentUserName)
+                        viewModel.updateDeveloperId(wishId, viewModel.currentUserUid)
+                    }
+                }
+
+                LaunchedEffect(
+                    isStartedDateUpdateSuccess.value,
+                    isDeveloperIdUpdateSuccess.value,
+                    isDeveloperNameUpdateSuccess.value
+                ) {
+                    if (isStartedDateUpdateSuccess.value && isDeveloperIdUpdateSuccess.value && isDeveloperNameUpdateSuccess.value) {
+                        onProgressScreen(minimizedWish, wishId)
+                    }
+                }
+
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     ProjectDescriptionArea(scrollState = scrollState, wish = loadedWish)
                     DetailScreenButtonArea(
                         modifier = Modifier.align(Alignment.BottomCenter),
-                        wish = loadedWish,
-                        wishId = wishId,
-                        onProgressScreen = onProgressScreen,
+                        minimizedWish = minimizedWish,
+                        onUpdateWish = onUpdateWish,
                         onMessageScreen = onMessageScreen
                     )
                 }
             }
         }
     }
+}
+
+fun getMinimizedWish(
+    wish: Wish,
+    startedDate: Int,
+    currentUserUid: String,
+    currentUserName: String
+): MinimizedWish {
+    return MinimizedWish(
+        postId = wish.postId,
+        createdDate = wish.createdDate,
+        startedDate = startedDate,
+        completedDate = wish.completedDate,
+        posterId = wish.posterId,
+        developerId = currentUserUid,
+        posterName = wish.posterName,
+        developerName = currentUserName,
+        title = wish.title,
+        simpleDescription = wish.simpleDescription,
+        comment = wish.comment
+    )
 }

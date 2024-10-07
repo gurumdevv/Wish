@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.progressForDeveloper
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.gurumlab.wish.data.model.MinimizedWish
-import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 
 @Composable
@@ -20,8 +18,6 @@ fun ProgressForDeveloperScreen(
     onSubmitScreen: (MinimizedWish, String) -> Unit,
     onMessageScreen: (MinimizedWish) -> Unit
 ) {
-    val scrollState = rememberScrollState()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -30,7 +26,6 @@ fun ProgressForDeveloperScreen(
         ProgressForDeveloperContent(
             minimizedWish = minimizedWish,
             wishId = wishId,
-            scrollState = scrollState,
             onSubmitScreen = onSubmitScreen,
             onMessageScreen = onMessageScreen
         )
@@ -41,10 +36,11 @@ fun ProgressForDeveloperScreen(
 fun ProgressForDeveloperContent(
     minimizedWish: MinimizedWish,
     wishId: String,
-    scrollState: ScrollState,
     onSubmitScreen: (MinimizedWish, String) -> Unit,
     onMessageScreen: (MinimizedWish) -> Unit
 ) {
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {

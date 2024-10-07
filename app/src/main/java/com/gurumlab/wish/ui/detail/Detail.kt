@@ -119,25 +119,10 @@ fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
 @Composable
 fun DetailScreenButtonArea(
     modifier: Modifier = Modifier,
-    wish: Wish,
-    wishId: String,
-    onProgressScreen: (MinimizedWish, String) -> Unit,
+    minimizedWish: MinimizedWish,
+    onUpdateWish: () -> Unit,
     onMessageScreen: (MinimizedWish) -> Unit,
 ) {
-    val minimizedWish = MinimizedWish(
-        postId = wish.postId,
-        createdDate = wish.createdDate,
-        startedDate = wish.startedDate,
-        completedDate = wish.completedDate,
-        posterId = wish.posterId,
-        developerId = wish.developerId,
-        posterName = wish.posterName,
-        developerName = wish.developerName,
-        title = wish.title,
-        simpleDescription = wish.simpleDescription,
-        comment = wish.comment
-    )
-
     Column(
         modifier
             .fillMaxWidth()
@@ -155,7 +140,7 @@ fun DetailScreenButtonArea(
                 icon = R.drawable.ic_magic,
                 description = stringResource(R.string.btn_begin),
                 onClick = {
-                    onProgressScreen(minimizedWish, wishId)
+                    onUpdateWish()
                 })
             CustomIconButton(
                 text = stringResource(R.string.btn_message),
