@@ -125,7 +125,7 @@ fun CustomWideButton(
             containerColor = defaultBoxColor,
             contentColor = Color.White
         ),
-        onClick = { onClick() }
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier

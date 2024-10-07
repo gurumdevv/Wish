@@ -150,8 +150,10 @@ fun PolicyAgreementContent(
             CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
         }
 
-        if (viewModel.isLoginSuccess.value) {
-            onHomeScreen()
+        LaunchedEffect(viewModel.isLoginSuccess.value) {
+            if (viewModel.isLoginSuccess.value) {
+                onHomeScreen()
+            }
         }
 
         LaunchedEffect(viewModel.isLoginError.value) {
