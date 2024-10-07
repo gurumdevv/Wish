@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.HomeRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +33,9 @@ class HomeViewModel @Inject constructor(
     private val _isException: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isException: StateFlow<Boolean> = _isException
 
+    private val _isEmpty: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isEmpty: StateFlow<Boolean> = _isEmpty
+
     init {
         loadWishes()
     }
@@ -59,7 +63,11 @@ class HomeViewModel @Inject constructor(
                 }
             )
 
-            response.collect { _wishes.value = it }
+            response.collect { loadedWishes ->
+                _wishes.value =
+                    loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+                if (wishes.value == emptyMap<String, Wish>()) _isEmpty.value = true
+            }
         }
     }
 

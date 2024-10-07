@@ -63,12 +63,13 @@ fun HomeContent(
     val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
     val isError = viewModel.isError.collectAsStateWithLifecycle()
     val isException = viewModel.isException.collectAsStateWithLifecycle()
+    val isEmpty = viewModel.isEmpty.collectAsStateWithLifecycle()
 
     Box(modifier = modifier) {
-        if (isError.value) {
-            HomeErrorScreen(modifier)
+        if (isError.value || isEmpty.value) {
+            HomeErrorScreen()
         } else if (isException.value) {
-            CustomExceptionScreen(modifier) {
+            CustomExceptionScreen {
                 viewModel.loadWishes()
             }
         }
@@ -100,7 +101,7 @@ fun HomeContent(
         }
 
         if (isLoading.value) {
-            HomeLoadingScreen(modifier)
+            HomeLoadingScreen()
         }
 
         SnackbarHost(

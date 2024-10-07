@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.WishesRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,7 +63,10 @@ class WishesViewModel @Inject constructor(
                 }
             )
 
-            response.collect { _wishes.value = it }
+            response.collect { loadedWishes ->
+                _wishes.value =
+                    loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+            }
         }
     }
 
@@ -78,7 +82,10 @@ class WishesViewModel @Inject constructor(
                 }
             )
 
-            response.collect { _wishesSortedByLikes.value = it }
+            response.collect { loadedWishes ->
+                _wishesSortedByLikes.value =
+                    loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+            }
         }
     }
 }

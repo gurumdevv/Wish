@@ -5,6 +5,7 @@ import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
 import com.gurumlab.wish.data.source.remote.onException
 import com.gurumlab.wish.data.source.remote.onSuccess
+import com.gurumlab.wish.ui.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -24,7 +25,7 @@ class WishesRepository @Inject constructor(
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
-        val response = apiClient.getPostsByDate("\"createdDate\"", date, limit)
+        val response = apiClient.getPostsByDate("\"${Constants.CREATED_DATE}\"", date, limit)
         response.onSuccess {
             emit(it)
             onSuccess()

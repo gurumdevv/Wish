@@ -13,4 +13,5 @@ object Constants {
     const val EMAIL = "email"
     const val DEVELOPER_ID = "developerId"
     const val POSTER_ID = "posterId"
+    const val CREATED_DATE = "createdDate"
 }
