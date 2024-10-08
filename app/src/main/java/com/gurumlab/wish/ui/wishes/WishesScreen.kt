@@ -1,7 +1,7 @@
 package com.gurumlab.wish.ui.wishes
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 
@@ -45,43 +46,88 @@ fun WishesContent(
 ) {
     val wishes = viewModel.wishes.collectAsStateWithLifecycle()
     val wishesSortedByLikes = viewModel.wishesSortedByLikes.collectAsStateWithLifecycle()
-    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
+    val isWishesLoading = viewModel.isWishesLoading.collectAsStateWithLifecycle()
+    val isWishesSortedByLikesLoading =
+        viewModel.isWishesSortedByLikesLoading.collectAsStateWithLifecycle()
     val isError = viewModel.isError.collectAsStateWithLifecycle()
     val isException = viewModel.isException.collectAsStateWithLifecycle()
 
-    Column(modifier = modifier) {
-        if (isLoading.value) {
-            WishesLoadingScreen()
-        } else {
-            if (isException.value) {
+    Box(modifier = modifier) {
+        when {
+            isException.value -> {
                 CustomExceptionScreen {
                     viewModel.loadWishes()
                     viewModel.loadWishesSortedByLikes()
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    item {
-                        WishesBanner(wishes.value)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        WishesSortByLikesTitle()
-                        Spacer(modifier = Modifier.height(16.dp))
-                        WishesSortByLikes(wishesSortedByLikes.value, onDetailScreen)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        WishesRandomTitle()
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+            }
 
-                    items(wishes.value.keys.size) { index ->
-                        WishesRandomItem(
-                            wish = wishes.value.values.elementAt(index),
-                            wishId = wishes.value.keys.elementAt(index),
-                            onDetailScreen = onDetailScreen
-                        )
-                    }
-                }
+            else -> {
+                WishesLazyColumn(
+                    wishes = wishes.value,
+                    wishesSortedByLikes = wishesSortedByLikes.value,
+                    isWishesLoading = isWishesLoading.value,
+                    isWishesSortedByLikesLoading = isWishesSortedByLikesLoading.value,
+                    onDetailScreen = onDetailScreen
+                )
             }
         }
+    }
+}
+
+@Composable
+fun WishesLazyColumn(
+    wishes: Map<String, Wish>,
+    wishesSortedByLikes: Map<String, Wish>,
+    isWishesLoading: Boolean,
+    isWishesSortedByLikesLoading: Boolean,
+    onDetailScreen: (wishId: String) -> Unit
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            WishesBannerSection(isLoading = isWishesLoading, wishes = wishes)
+            Spacer(modifier = Modifier.height(16.dp))
+            WishesSortByLikesSection(
+                isLoading = isWishesSortedByLikesLoading,
+                wishesSortedByLikes = wishesSortedByLikes,
+                onDetailScreen = onDetailScreen
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            WishesRandomTitle()
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        if (isWishesLoading) {
+            items(15) { ShimmerWishesRandomItem() }
+        } else {
+            items(wishes.keys.size) { index ->
+                WishesRandomItem(
+                    wish = wishes.values.elementAt(index),
+                    wishId = wishes.keys.elementAt(index),
+                    onDetailScreen = onDetailScreen
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WishesBannerSection(isLoading: Boolean, wishes: Map<String, Wish>) {
+    if (isLoading) {
+        ShimmerWishesBanner()
+    } else {
+        WishesBanner(wishes)
+    }
+}
+
+@Composable
+fun WishesSortByLikesSection(
+    isLoading: Boolean,
+    wishesSortedByLikes: Map<String, Wish>,
+    onDetailScreen: (wishId: String) -> Unit
+) {
+    if (isLoading) {
+        ShimmerWishesSortByLikes()
+    } else {
+        WishesSortByLikes(wishesSortedByLikes, onDetailScreen)
     }
 }

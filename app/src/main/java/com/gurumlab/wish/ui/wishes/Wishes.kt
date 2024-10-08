@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.util.URL
 import com.valentinilk.shimmer.ShimmerBounds
@@ -41,27 +42,11 @@ import kotlin.random.Random
 
 @Composable
 fun WishesBanner(wishes: Map<String, Wish>) {
-    val defaultWish = Wish(
-        postId = "",
-        createdDate = 0,
-        startedDate = 0,
-        completedDate = 0,
-        posterId = "",
-        developerId = "",
-        posterName = "",
-        developerName = "",
+    val defaultWish = getDefaultWish(
         title = stringResource(R.string.wish),
-        representativeImage = URL.DEFAULT_WISH_PHOTO,
-        status = 0,
-        likes = 0,
-        oneLineDescription = "",
-        simpleDescription = "",
-        detailDescription = emptyList(),
-        features = emptyList(),
         comment = stringResource(R.string.please_wishes_come_true)
     )
-
-    val successfulWishes = wishes.values.filter { it.status == 2 }
+    val successfulWishes = wishes.values.filter { it.status == WishStatus.COMPLETED.ordinal }
     val wishesCount = successfulWishes.size
     val randomNumber = if (wishesCount > 0) Random.nextInt(wishesCount) else 0
     val selectedWish =
@@ -328,21 +313,24 @@ fun ShimmerWishesRandomItem() {
     }
 }
 
-@Composable
-fun WishesLoadingScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        ShimmerWishesBanner()
-        Spacer(modifier = Modifier.height(16.dp))
-        WishesSortByLikesTitle()
-        Spacer(modifier = Modifier.height(16.dp))
-        ShimmerWishesSortByLikes()
-        Spacer(modifier = Modifier.height(16.dp))
-        WishesRandomTitle()
-        Spacer(modifier = Modifier.height(16.dp))
-        repeat(15) {
-            ShimmerWishesRandomItem()
-        }
-    }
+fun getDefaultWish(title: String, comment: String): Wish {
+    return Wish(
+        postId = "",
+        createdDate = 0,
+        startedDate = 0,
+        completedDate = 0,
+        posterId = "",
+        developerId = "",
+        posterName = "",
+        developerName = "",
+        title = title,
+        representativeImage = URL.DEFAULT_WISH_PHOTO,
+        status = 0,
+        likes = 0,
+        oneLineDescription = "",
+        simpleDescription = "",
+        detailDescription = emptyList(),
+        features = emptyList(),
+        comment = comment
+    )
 }
