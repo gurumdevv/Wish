@@ -7,9 +7,11 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.WishesRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
+import com.gurumlab.wish.ui.util.NumericConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,100 +20,97 @@ class WishesViewModel @Inject constructor(
     private val repository: WishesRepository
 ) : ViewModel() {
 
-    private val _wishes: MutableStateFlow<Map<String, Wish>> = MutableStateFlow(emptyMap())
-    val wishes: StateFlow<Map<String, Wish>> = _wishes
-
-    private val _wishesSortedByLikes: MutableStateFlow<Map<String, Wish>> =
-        MutableStateFlow(emptyMap())
-    val wishesSortedByLikes: StateFlow<Map<String, Wish>> = _wishesSortedByLikes
-
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _isError: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isError: StateFlow<Boolean> = _isError
-
-    private val _isException: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isException: StateFlow<Boolean> = _isException
+    private val _uiState = MutableStateFlow(WishesUiState())
+    val uiState: StateFlow<WishesUiState> = _uiState
 
     init {
-        _isLoading.value = true
         loadWishes()
         loadWishesSortedByLikes()
     }
 
+
     fun loadWishes() {
-        viewModelScope.launch {
-            val idToken = repository.getFirebaseIdToken()
-            if (idToken.isBlank()) {
-                _isLoading.value = false
-                _isError.value = false
-                _isException.value = true
-                return@launch
-            }
-
-            val response = repository.getPostsByDate(
-                idToken = idToken,
-                date = DateTimeConverter.getDateMinusDays(10),
-                limit = 50,
-                onCompletion = {
-                    _isLoading.value = false
-                },
-                onSuccess = {
-                    _isError.value = false
-                    _isException.value = false
-                },
-                onError = { message ->
-                    _isError.value = true
-                    _isException.value = false
-                    Log.d("WishesViewModel", "onError called $message")
-                },
-                onException = { message ->
-                    _isError.value = false
-                    _isException.value = true
-                    Log.d("WishesViewModel", "onException called $message")
-                }
-            )
-
-            response.collect { loadedWishes ->
-                _wishes.value =
-                    loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
-            }
-        }
+        _uiState.update { it.copy(isWishesLoading = true) }
+        loadWishesData(
+            isSortedByLikes = false,
+            isLoadingUpdate = { isLoading -> _uiState.value.copy(isWishesLoading = isLoading) },
+            wishesUpdate = { wishes -> _uiState.value.copy(wishes = wishes) }
+        )
     }
 
     fun loadWishesSortedByLikes() {
+        _uiState.update { it.copy(isWishesSortedByLikesLoading = true) }
+        loadWishesData(
+            isSortedByLikes = true,
+            isLoadingUpdate = { isLoading -> _uiState.value.copy(isWishesSortedByLikesLoading = isLoading) },
+            wishesUpdate = { wishes -> _uiState.value.copy(wishesSortedByLikes = wishes) }
+        )
+    }
+
+    private fun loadWishesData(
+        isSortedByLikes: Boolean,
+        isLoadingUpdate: (Boolean) -> WishesUiState,
+        wishesUpdate: (Map<String, Wish>) -> WishesUiState
+    ) {
         viewModelScope.launch {
             val idToken = repository.getFirebaseIdToken()
             if (idToken.isBlank()) {
-                _isLoading.value = false
-                _isError.value = false
-                _isException.value = true
+                _uiState.update {
+                    it.copy(
+                        isWishesLoading = false,
+                        isError = false,
+                        isException = true
+                    )
+                }
                 return@launch
             }
 
-            val response = repository.getPostsByLikes(
-                idToken = idToken,
-                onSuccess = {
-                    _isError.value = false
-                    _isException.value = false
-                },
-                onError = { message ->
-                    _isError.value = true
-                    _isException.value = false
-                    Log.d("WishesViewModel", "onError called $message")
-                },
-                onException = { message ->
-                    _isError.value = false
-                    _isException.value = true
-                    Log.d("WishesViewModel", "onException called $message")
-                }
-            )
+            val onSuccess = {
+                _uiState.update { it.copy(isError = false, isException = false) }
+            }
+            val onError: (message: String?) -> Unit = { message ->
+                _uiState.update { it.copy(isError = true, isException = false) }
+                Log.d("WishesViewModel", "onError called $message")
+            }
+            val onException: (message: String?) -> Unit = { message ->
+                _uiState.update { it.copy(isError = false, isException = true) }
+                Log.d("WishesViewModel", "onException called $message")
+            }
+
+            val response = if (isSortedByLikes) {
+                repository.getPostsByLikes(
+                    idToken = idToken,
+                    onCompletion = { _uiState.update { isLoadingUpdate(false) } },
+                    onSuccess = onSuccess,
+                    onError = onError,
+                    onException = onException
+                )
+            } else {
+                repository.getPostsByDate(
+                    idToken = idToken,
+                    date = DateTimeConverter.getDateMinusDays(NumericConstants.DEFAULT_POST_LOAD_DAY_LIMIT),
+                    limit = NumericConstants.DEFAULT_POST_LOAD_COUNT_LIMIT,
+                    onCompletion = { _uiState.update { isLoadingUpdate(false) } },
+                    onSuccess = onSuccess,
+                    onError = onError,
+                    onException = onException
+                )
+            }
 
             response.collect { loadedWishes ->
-                _wishesSortedByLikes.value =
+                val filteredWishes =
                     loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+                _uiState.update { wishesUpdate(filteredWishes) }
             }
         }
     }
 }
+
+data class WishesUiState(
+    val wishes: Map<String, Wish> = emptyMap(),
+    val wishesSortedByLikes: Map<String, Wish> = emptyMap(),
+    val isWishesLoading: Boolean = true,
+    val isWishesSortedByLikesLoading: Boolean = true,
+    val isError: Boolean = false,
+    val isException: Boolean = false
+)

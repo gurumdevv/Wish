@@ -7,6 +7,7 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.HomeRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
+import com.gurumlab.wish.ui.util.NumericConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,15 +23,15 @@ class HomeViewModel @Inject constructor(
     private val repository: HomeRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(WishesUiState())
-    val uiState: StateFlow<WishesUiState> = _uiState
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState
 
     init {
-        _uiState.update { it.copy(isLoading = true) }
         loadWishes()
     }
 
     fun loadWishes() {
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val idToken = getIdTokenOrHandleError()
             if (idToken.isNullOrBlank()) {
@@ -40,7 +41,7 @@ class HomeViewModel @Inject constructor(
 
             val response = repository.getPostsByDate(
                 idToken = idToken,
-                date = DateTimeConverter.getDateMinusDays(6),
+                date = DateTimeConverter.getDateMinusDays(NumericConstants.DEFAULT_POST_LOAD_DAY_LIMIT),
                 onCompletion = {
                     _uiState.update { it.copy(isLoading = false) }
                 },
@@ -118,7 +119,7 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class WishesUiState(
+data class HomeUiState(
     val wishes: Map<String, Wish> = emptyMap(),
     val isLoading: Boolean = true,
     val isError: Boolean = false,

@@ -44,17 +44,12 @@ fun WishesContent(
     viewModel: WishesViewModel,
     onDetailScreen: (wishId: String) -> Unit
 ) {
-    val wishes = viewModel.wishes.collectAsStateWithLifecycle()
-    val wishesSortedByLikes = viewModel.wishesSortedByLikes.collectAsStateWithLifecycle()
-    val isWishesLoading = viewModel.isWishesLoading.collectAsStateWithLifecycle()
-    val isWishesSortedByLikesLoading =
-        viewModel.isWishesSortedByLikesLoading.collectAsStateWithLifecycle()
-    val isError = viewModel.isError.collectAsStateWithLifecycle()
-    val isException = viewModel.isException.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val currentUiState = uiState.value
 
     Box(modifier = modifier) {
         when {
-            isException.value -> {
+            currentUiState.isException -> {
                 CustomExceptionScreen {
                     viewModel.loadWishes()
                     viewModel.loadWishesSortedByLikes()
@@ -63,10 +58,10 @@ fun WishesContent(
 
             else -> {
                 WishesLazyColumn(
-                    wishes = wishes.value,
-                    wishesSortedByLikes = wishesSortedByLikes.value,
-                    isWishesLoading = isWishesLoading.value,
-                    isWishesSortedByLikesLoading = isWishesSortedByLikesLoading.value,
+                    wishes = currentUiState.wishes,
+                    wishesSortedByLikes = currentUiState.wishesSortedByLikes,
+                    isWishesLoading = currentUiState.isWishesLoading,
+                    isWishesSortedByLikesLoading = currentUiState.isWishesSortedByLikesLoading,
                     onDetailScreen = onDetailScreen
                 )
             }

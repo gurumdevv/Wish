@@ -51,6 +51,7 @@ class WishesRepository @Inject constructor(
 
     fun getPostsByLikes(
         idToken: String,
+        onCompletion: () -> Unit,
         onSuccess: () -> Unit,
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
@@ -67,6 +68,8 @@ class WishesRepository @Inject constructor(
             emit(emptyMap())
             onException(it.message)
         }
+    }.onCompletion {
+        onCompletion()
     }.flowOn(Dispatchers.IO)
 
     suspend fun getFirebaseIdToken(): String {
