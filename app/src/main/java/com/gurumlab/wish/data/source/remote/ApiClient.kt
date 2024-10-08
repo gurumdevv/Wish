@@ -21,7 +21,8 @@ interface ApiClient {
     suspend fun getPostsByDate(
         @Query("orderBy") orderBy: String,
         @Query("startAt") startAt: Int,
-        @Query("limitToLast") limitToLast: Int
+        @Query("limitToLast") limitToLast: Int,
+        @Query("auth") idToken: String
     ): ApiResponse<Map<String, Wish>>
 
     @GET("posts.json")
@@ -33,7 +34,8 @@ interface ApiClient {
     @PUT("posts/{postId}/likes.json")
     suspend fun updateLikeCount(
         @Path("postId") postId: String,
-        @Body likeCount: Int
+        @Body likeCount: Int,
+        @Query("auth") idToken: String
     )
 
     @PUT("posts/{postId}/status.json")
@@ -68,7 +70,8 @@ interface ApiClient {
 
     @GET("posts/{postIdentifier}/likes.json")
     suspend fun getLikeCount(
-        @Path("postIdentifier") postIdentifier: String
+        @Path("postIdentifier") postIdentifier: String,
+        @Query("auth") idToken: String
     ): ApiResponse<Int>
 
     @POST("posts.json")

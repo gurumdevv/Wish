@@ -1,6 +1,7 @@
 package com.gurumlab.wish.data.repository
 
 import android.util.Log
+import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -14,17 +15,24 @@ import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class HomeRepository @Inject constructor(
-    private val apiClient: ApiClient
+    private val apiClient: ApiClient,
+    private val authManager: FirebaseAuthManager
 ) {
 
     fun getPostsByDate(
+        idToken: String,
         date: Int,
         onCompletion: () -> Unit,
         onSuccess: () -> Unit,
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
-        val response = apiClient.getPostsByDate("\"createdDate\"", date, 30)
+        val response = apiClient.getPostsByDate(
+            orderBy = "\"createdDate\"",
+            startAt = date,
+            limitToLast = 30,
+            idToken = idToken
+        )
         response.onSuccess {
             emit(it)
             onSuccess()
@@ -40,11 +48,12 @@ class HomeRepository @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     fun getPostsLikes(
+        idToken: String,
         identifier: String,
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Int> = flow {
-        val response = apiClient.getLikeCount(identifier)
+        val response = apiClient.getLikeCount(postIdentifier = identifier, idToken = idToken)
         response.onSuccess {
             emit(it)
         }.onError { code, message ->
@@ -57,13 +66,20 @@ class HomeRepository @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     suspend fun updateLikeCount(
+        idToken: String,
         postId: String,
         count: Int
-    ) {
+    ): Boolean {
         try {
-            apiClient.updateLikeCount(postId, count)
+            apiClient.updateLikeCount(postId = postId, likeCount = count, idToken = idToken)
+            return true
         } catch (e: Exception) {
             Log.d("updateLikeCount", "Error updating like count: ${e.message}")
+            return false
         }
+    }
+
+    suspend fun getFirebaseIdToken(): String {
+        return authManager.getFirebaseIdToken()
     }
 }
