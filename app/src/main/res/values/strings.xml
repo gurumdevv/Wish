@@ -127,5 +127,6 @@
     <string name="acoount_owner_name">예금주 성명</string>
     <string name="close">닫기</string>
     <string name="invalid_url">주소가 유효하지 않습니다.</string>
-    <string name="moving">이동 중...</string>
+    <string name="moving">이동 중…</string>
+    <string name="error_text_field">올바르지 않음</string>
 </resources>

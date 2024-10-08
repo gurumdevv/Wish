@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,6 +62,7 @@ import com.gurumlab.wish.ui.theme.defaultMyMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultOtherMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 import com.gurumlab.wish.ui.theme.defaultSubmissionCheckButtonColor
+import com.gurumlab.wish.ui.util.CustomTextField
 
 @Composable
 fun ChatRoomScreen(
@@ -152,10 +153,12 @@ fun ChatInput(
     onSendClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
         verticalAlignment = Alignment.Bottom
     ) {
-        TextField(
+        CustomTextField(
             modifier = Modifier.weight(1f),
             value = text,
             onValueChange = onTextChange,
@@ -179,7 +182,8 @@ fun ChatInput(
             textStyle = TextStyle(fontSize = 16.sp),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Send
-            )
+            ),
+            contentPadding = PaddingValues(14.dp)
         )
         Spacer(modifier = Modifier.width(10.dp))
         IconButton(
