@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,58 +22,59 @@ class HomeViewModel @Inject constructor(
     private val repository: HomeRepository
 ) : ViewModel() {
 
-    private val _wishes: MutableStateFlow<Map<String, Wish>> = MutableStateFlow(emptyMap())
-    val wishes: StateFlow<Map<String, Wish>> = _wishes
-
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _isError: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isError: StateFlow<Boolean> = _isError
-
-    private val _isException: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isException: StateFlow<Boolean> = _isException
-
-    private val _isEmpty: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isEmpty: StateFlow<Boolean> = _isEmpty
+    private val _uiState = MutableStateFlow(WishesUiState())
+    val uiState: StateFlow<WishesUiState> = _uiState
 
     init {
+        _uiState.update { it.copy(isLoading = true) }
         loadWishes()
     }
 
     fun loadWishes() {
         viewModelScope.launch {
+            val idToken = getIdTokenOrHandleError()
+            if (idToken.isNullOrBlank()) {
+                _uiState.update { it.copy(isLoading = false, isError = false, isException = true) }
+                return@launch
+            }
+
             val response = repository.getPostsByDate(
+                idToken = idToken,
                 date = DateTimeConverter.getDateMinusDays(6),
                 onCompletion = {
-                    _isLoading.value = false
+                    _uiState.update { it.copy(isLoading = false) }
                 },
                 onSuccess = {
-                    _isError.value = false
-                    _isException.value = false
+                    _uiState.update { it.copy(isError = false, isException = false) }
                 },
                 onError = { message ->
-                    _isError.value = true
-                    _isException.value = false
+                    _uiState.update { it.copy(isError = true, isException = false) }
                     Log.d("HomeViewModel", "onError called $message")
                 },
                 onException = { message ->
-                    _isError.value = false
-                    _isException.value = true
+                    _uiState.update { it.copy(isError = false, isException = true) }
                     Log.d("HomeViewModel", "onException called $message")
                 }
             )
 
             response.collect { loadedWishes ->
-                _wishes.value =
+                val filteredWishes =
                     loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
-                if (wishes.value == emptyMap<String, Wish>()) _isEmpty.value = true
+                _uiState.update {
+                    it.copy(
+                        wishes = filteredWishes,
+                        isEmpty = filteredWishes.isEmpty()
+                    )
+                }
             }
         }
     }
 
     fun getLikes(identifier: String): Flow<Int> = flow {
+        val idToken = getIdTokenOrHandleError() ?: return@flow emit(-1)
+
         val response = repository.getPostsLikes(
+            idToken = idToken,
             identifier = identifier,
             onError = { message ->
                 Log.d("HomeViewModel", "onError called $message")
@@ -87,7 +89,40 @@ class HomeViewModel @Inject constructor(
 
     fun updateLikeCount(identifier: String, count: Int) {
         viewModelScope.launch {
-            repository.updateLikeCount(identifier, count)
+            val isSuccess = performUpdateLikeCount(identifier, count)
+            if (!isSuccess) {
+                _uiState.update { it.copy(isFailUpdateLikeCount = true) }
+                resetIsFailUpdateLikeCount()
+            }
         }
     }
+
+    private suspend fun performUpdateLikeCount(identifier: String, count: Int): Boolean {
+        val idToken = repository.getFirebaseIdToken()
+        if (idToken.isBlank()) {
+            return false
+        }
+        return repository.updateLikeCount(idToken, identifier, count)
+    }
+
+    private fun resetIsFailUpdateLikeCount() {
+        _uiState.update { it.copy(isFailUpdateLikeCount = false) }
+    }
+
+    private suspend fun getIdTokenOrHandleError(): String? {
+        val idToken = repository.getFirebaseIdToken()
+        if (idToken.isBlank()) {
+            return null
+        }
+        return idToken
+    }
 }
+
+data class WishesUiState(
+    val wishes: Map<String, Wish> = emptyMap(),
+    val isLoading: Boolean = true,
+    val isError: Boolean = false,
+    val isException: Boolean = false,
+    val isEmpty: Boolean = false,
+    val isFailUpdateLikeCount: Boolean = false
+)

@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.home
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,12 +14,14 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
@@ -29,86 +32,121 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
     viewModel: HomeViewModel,
-    onDetailScreen: (wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
     ) { innerPadding ->
         HomeContent(
+            viewModel = viewModel,
+            onDetailScreen = onDetailScreen,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
-                .padding(innerPadding),
-            viewModel = viewModel,
-            onDetailScreen = onDetailScreen
+                .padding(innerPadding)
         )
     }
 }
 
 @Composable
 fun HomeContent(
-    modifier: Modifier = Modifier,
     viewModel: HomeViewModel,
-    onDetailScreen: (wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val wishes = viewModel.wishes.collectAsStateWithLifecycle()
-    val pagerState = rememberPagerState(pageCount = { wishes.value.keys.size })
-    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
-    val isError = viewModel.isError.collectAsStateWithLifecycle()
-    val isException = viewModel.isException.collectAsStateWithLifecycle()
-    val isEmpty = viewModel.isEmpty.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val currentUiState = uiState.value
+    val pagerState = rememberPagerState(pageCount = { currentUiState.wishes.keys.size })
 
     Box(modifier = modifier) {
-        if (isError.value || isEmpty.value) {
-            HomeErrorScreen()
-        } else if (isException.value) {
-            CustomExceptionScreen {
-                viewModel.loadWishes()
+        when {
+            currentUiState.isError || currentUiState.isEmpty -> {
+                HomeErrorScreen()
+            }
+
+            currentUiState.isException -> {
+                CustomExceptionScreen {
+                    viewModel.loadWishes()
+                }
+            }
+
+            else -> {
+                VerticalPager(state = pagerState) { page ->
+                    val wishIdentifier = currentUiState.wishes.keys.elementAt(page)
+                    val wishContent = currentUiState.wishes.values.elementAt(page)
+                    WishCard(
+                        wish = wishContent,
+                        onStartClick = { onDetailScreen(wishIdentifier) },
+                        onLikeClick = {
+                            scope.launch {
+                                handleLikeClick(
+                                    viewModel = viewModel,
+                                    wishIdentifier = wishIdentifier,
+                                    context = context,
+                                    snackbarHostState = snackbarHostState
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
 
-        VerticalPager(state = pagerState) { page ->
-            val wishIdentifier = wishes.value.keys.elementAt(page)
-            val wishContent = wishes.value.values.elementAt(page)
-            WishCard(
-                wish = wishContent,
-                onStartClick = {
-                    onDetailScreen(wishIdentifier)
-                },
-                onLikeClick = {
-                    scope.launch {
-                        viewModel.getLikes(wishIdentifier).single()
-                            .let { currentCount ->
-                                if (currentCount == -1) snackbarHostState.showSnackbar(
-                                    message = context.getString(R.string.fail_like_update),
-                                    duration = SnackbarDuration.Short
-                                )
-                                else viewModel.updateLikeCount(
-                                    wishIdentifier,
-                                    currentCount + 1
-                                )
-                            }
-                    }
-                }
-            )
-        }
-
-        if (isLoading.value) {
+        if (currentUiState.isLoading) {
             HomeLoadingScreen()
         }
 
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 24.dp)
         ) { data ->
             CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
         }
     }
+
+    LaunchedEffect(currentUiState.isFailUpdateLikeCount) {
+        if (currentUiState.isFailUpdateLikeCount) {
+            showSnackbar(
+                snackbarHostState = snackbarHostState,
+                message = context.getString(R.string.fail_like_update)
+            )
+        }
+    }
+}
+
+private suspend fun handleLikeClick(
+    viewModel: HomeViewModel,
+    wishIdentifier: String,
+    context: Context,
+    snackbarHostState: SnackbarHostState,
+) {
+    val currentCount = viewModel.getLikes(wishIdentifier).single()
+    if (currentCount == -1) {
+        showSnackbar(
+            snackbarHostState = snackbarHostState,
+            message = context.getString(R.string.fail_like_update)
+        )
+    } else {
+        viewModel.updateLikeCount(wishIdentifier, currentCount + 1)
+    }
+}
+
+private suspend fun showSnackbar(
+    snackbarHostState: SnackbarHostState,
+    message: String,
+    duration: SnackbarDuration = SnackbarDuration.Short
+) {
+    snackbarHostState.showSnackbar(
+        message = message,
+        duration = duration
+    )
 }

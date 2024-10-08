@@ -18,9 +18,9 @@ fun HomeRoute(
         )
     }
     HomeScreen(
-        topBar = topBar,
-        bottomBar = bottomNavigationBar,
         viewModel = viewModel,
-        onDetailScreen = onDetailScreen
+        onDetailScreen = onDetailScreen,
+        topBar = topBar,
+        bottomBar = bottomNavigationBar
     )
 }
