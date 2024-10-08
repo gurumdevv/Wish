@@ -1,5 +1,6 @@
 package com.gurumlab.wish.data.repository
 
+import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -14,10 +15,12 @@ import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class WishesRepository @Inject constructor(
-    private val apiClient: ApiClient
+    private val apiClient: ApiClient,
+    private val authManager: FirebaseAuthManager
 ) {
 
     fun getPostsByDate(
+        idToken: String,
         date: Int,
         limit: Int,
         onCompletion: () -> Unit,
@@ -25,7 +28,13 @@ class WishesRepository @Inject constructor(
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
-        val response = apiClient.getPostsByDate("\"${Constants.CREATED_DATE}\"", date, limit)
+        val response =
+            apiClient.getPostsByDate(
+                orderBy = "\"${Constants.CREATED_DATE}\"",
+                startAt = date,
+                limitToLast = limit,
+                idToken = idToken
+            )
         response.onSuccess {
             emit(it)
             onSuccess()
@@ -41,11 +50,13 @@ class WishesRepository @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     fun getPostsByLikes(
+        idToken: String,
         onSuccess: () -> Unit,
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
-        val response = apiClient.getPostsByLikes("\"likes\"", 10)
+        val response =
+            apiClient.getPostsByLikes(orderBy = "\"likes\"", limitToLast = 10, idToken = idToken)
         response.onSuccess {
             emit(it)
             onSuccess()
@@ -57,4 +68,8 @@ class WishesRepository @Inject constructor(
             onException(it.message)
         }
     }.flowOn(Dispatchers.IO)
+
+    suspend fun getFirebaseIdToken(): String {
+        return authManager.getFirebaseIdToken()
+    }
 }

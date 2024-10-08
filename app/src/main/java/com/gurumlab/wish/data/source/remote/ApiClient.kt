@@ -29,6 +29,7 @@ interface ApiClient {
     suspend fun getPostsByLikes(
         @Query("orderBy") orderBy: String,
         @Query("limitToLast") limitToLast: Int,
+        @Query("auth") idToken: String
     ): ApiResponse<Map<String, Wish>>
 
     @PUT("posts/{postId}/likes.json")

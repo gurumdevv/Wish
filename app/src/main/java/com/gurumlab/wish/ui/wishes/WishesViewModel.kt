@@ -35,13 +35,23 @@ class WishesViewModel @Inject constructor(
     val isException: StateFlow<Boolean> = _isException
 
     init {
+        _isLoading.value = true
         loadWishes()
         loadWishesSortedByLikes()
     }
 
     fun loadWishes() {
         viewModelScope.launch {
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isBlank()) {
+                _isLoading.value = false
+                _isError.value = false
+                _isException.value = true
+                return@launch
+            }
+
             val response = repository.getPostsByDate(
+                idToken = idToken,
                 date = DateTimeConverter.getDateMinusDays(10),
                 limit = 50,
                 onCompletion = {
@@ -72,12 +82,28 @@ class WishesViewModel @Inject constructor(
 
     fun loadWishesSortedByLikes() {
         viewModelScope.launch {
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isBlank()) {
+                _isLoading.value = false
+                _isError.value = false
+                _isException.value = true
+                return@launch
+            }
+
             val response = repository.getPostsByLikes(
-                onSuccess = {},
+                idToken = idToken,
+                onSuccess = {
+                    _isError.value = false
+                    _isException.value = false
+                },
                 onError = { message ->
+                    _isError.value = true
+                    _isException.value = false
                     Log.d("WishesViewModel", "onError called $message")
                 },
                 onException = { message ->
+                    _isError.value = false
+                    _isException.value = true
                     Log.d("WishesViewModel", "onException called $message")
                 }
             )
