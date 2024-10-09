@@ -43,6 +43,21 @@ class LoginViewModel @Inject constructor(
     private var _isLoginError = mutableStateOf(false)
     val isLoginError: State<Boolean> = _isLoginError
 
+    private val _agreementState = mutableStateOf(AgreementState())
+    val agreementState: State<AgreementState> = _agreementState
+
+    fun onAgreementChange(
+        ageChecked: Boolean? = null,
+        termsChecked: Boolean? = null,
+        privacyChecked: Boolean? = null
+    ) {
+        _agreementState.value = _agreementState.value.copy(
+            isAgeChecked = ageChecked ?: _agreementState.value.isAgeChecked,
+            isTermsChecked = termsChecked ?: _agreementState.value.isTermsChecked,
+            isPrivacyChecked = privacyChecked ?: _agreementState.value.isPrivacyChecked
+        )
+    }
+
     private lateinit var signInClient: SignInClient
     private var signInRequest: BeginSignInRequest = getBeginSignInRequest()
 
@@ -68,9 +83,9 @@ class LoginViewModel @Inject constructor(
         ).build()
 
     fun setSignInRequest(
-        context: Context,
         oneTapSignInLauncher: ActivityResultLauncher<IntentSenderRequest>,
-        legacySignInLauncher: ActivityResultLauncher<IntentSenderRequest>
+        legacySignInLauncher: ActivityResultLauncher<IntentSenderRequest>,
+        context: Context
     ) {
         _isOnGoingSignIn.value = true
 
@@ -90,7 +105,7 @@ class LoginViewModel @Inject constructor(
             }
             .addOnFailureListener { e ->
                 Log.d("LoginViewModel", "sign-in fail: ${e.localizedMessage}")
-                requestLegacySignIn(context, legacySignInLauncher)
+                requestLegacySignIn(legacySignInLauncher, context)
             }
             .addOnCanceledListener {
                 Log.d("LoginViewModel", "sign-in cancelled")
@@ -106,8 +121,8 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun requestLegacySignIn(
-        context: Context,
-        launcher: ActivityResultLauncher<IntentSenderRequest>
+        launcher: ActivityResultLauncher<IntentSenderRequest>,
+        context: Context
     ) {
         val lastToken = GoogleSignIn.getLastSignedInAccount(context)?.idToken
         if (lastToken == null) {
@@ -206,4 +221,13 @@ class LoginViewModel @Inject constructor(
         _isOnGoingSignIn.value = false
         _isLoginError.value = true
     }
+}
+
+data class AgreementState(
+    val isAgeChecked: Boolean = false,
+    val isTermsChecked: Boolean = false,
+    val isPrivacyChecked: Boolean = false
+) {
+    val isAllChecked: Boolean
+        get() = isAgeChecked && isTermsChecked && isPrivacyChecked
 }

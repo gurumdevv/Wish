@@ -58,41 +58,36 @@ import com.gurumlab.wish.ui.util.URL
 
 @Composable
 fun PolicyAgreementScreen(
+    viewModel: LoginViewModel,
+    onHomeScreen: () -> Unit,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
-    viewModel: LoginViewModel,
-    onHomeScreen: () -> Unit
 ) {
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
     ) { innerPadding ->
         PolicyAgreementContent(
+            viewModel = viewModel,
+            onHomeScreen = onHomeScreen,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
                 .padding(innerPadding)
-                .padding(start = 24.dp, end = 24.dp),
-            viewModel = viewModel,
-            onHomeScreen = onHomeScreen
+                .padding(start = 24.dp, end = 24.dp)
         )
     }
 }
 
 @Composable
 fun PolicyAgreementContent(
-    modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
     onHomeScreen: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-    var isAllChecked by remember { mutableStateOf(false) }
-    var isAgeChecked by remember { mutableStateOf(false) }
-    var isTermsChecked by remember { mutableStateOf(false) }
-    var isPrivacyChecked by remember { mutableStateOf(false) }
-
-    isAllChecked = isAgeChecked && isTermsChecked && isPrivacyChecked
+    val agreementState by viewModel.agreementState
 
     val oneTapSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -117,8 +112,7 @@ fun PolicyAgreementContent(
     }
 
     val onLoginProcess: () -> Unit =
-        { viewModel.setSignInRequest(context, oneTapSignInLauncher, legacySignInLauncher) }
-
+        { viewModel.setSignInRequest(oneTapSignInLauncher, legacySignInLauncher, context) }
 
     Box(
         modifier = modifier
@@ -133,22 +127,23 @@ fun PolicyAgreementContent(
             AgreementTitle(textRsc = R.string.policy_agreement_content, fontSize = 14)
             Spacer(modifier = Modifier.weight(1f))
             AgreementButtonsField(
-                context = context,
-                isAllChecked = isAllChecked,
+                isAllChecked = agreementState.isAllChecked,
+                isAgeChecked = agreementState.isAgeChecked,
+                isTermsChecked = agreementState.isTermsChecked,
+                isPrivacyChecked = agreementState.isPrivacyChecked,
                 onAllCheckedChange = {
-                    isAllChecked = it
-                    isAgeChecked = it
-                    isTermsChecked = it
-                    isPrivacyChecked = it
+                    viewModel.onAgreementChange(
+                        ageChecked = it,
+                        termsChecked = it,
+                        privacyChecked = it
+                    )
                 },
-                isAgeChecked = isAgeChecked,
-                onAgeCheckedChange = { isAgeChecked = it },
-                isTermsChecked = isTermsChecked,
-                onTermsCheckedChange = { isTermsChecked = it },
-                isPrivacyChecked = isPrivacyChecked,
-                onPrivacyCheckedChange = { isPrivacyChecked = it },
+                onAgeCheckedChange = { viewModel.onAgreementChange(ageChecked = it) },
+                onTermsCheckedChange = { viewModel.onAgreementChange(termsChecked = it) },
+                onPrivacyCheckedChange = { viewModel.onAgreementChange(privacyChecked = it) },
+                onConfirm = onLoginProcess,
                 isOnGoing = viewModel.isOnGoingSignIn.value,
-                onConfirm = onLoginProcess
+                context = context
             )
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -196,17 +191,17 @@ fun AgreementTitle(
 
 @Composable
 fun AgreementButtonsField(
-    context: Context,
     isAllChecked: Boolean,
-    onAllCheckedChange: (Boolean) -> Unit,
     isAgeChecked: Boolean,
-    onAgeCheckedChange: (Boolean) -> Unit,
     isTermsChecked: Boolean,
-    onTermsCheckedChange: (Boolean) -> Unit,
     isPrivacyChecked: Boolean,
+    onAllCheckedChange: (Boolean) -> Unit,
+    onAgeCheckedChange: (Boolean) -> Unit,
+    onTermsCheckedChange: (Boolean) -> Unit,
     onPrivacyCheckedChange: (Boolean) -> Unit,
+    onConfirm: () -> Unit,
     isOnGoing: Boolean,
-    onConfirm: () -> Unit
+    context: Context
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AllAgreeCheckBoxField(
@@ -216,31 +211,31 @@ fun AgreementButtonsField(
         )
         Spacer(modifier = Modifier.height(16.dp))
         CheckBoxField(
-            context = context,
             stringRsc = R.string.age_check,
             isEssential = true,
             isChecked = isAgeChecked,
-            onCheckedChange = onAgeCheckedChange
+            onCheckedChange = onAgeCheckedChange,
+            context = context
         )
         Spacer(modifier = Modifier.height(8.dp))
         CheckBoxField(
-            context = context,
-            isShowInfo = true,
-            infoUrl = URL.TERMS_AND_CONDITION,
             stringRsc = R.string.terms_of_use_agreement,
             isEssential = true,
             isChecked = isTermsChecked,
-            onCheckedChange = onTermsCheckedChange
+            onCheckedChange = onTermsCheckedChange,
+            context = context,
+            isShowInfo = true,
+            infoUrl = URL.TERMS_AND_CONDITION
         )
         Spacer(modifier = Modifier.height(8.dp))
         CheckBoxField(
-            context = context,
-            isShowInfo = true,
-            infoUrl = URL.PRIVACY_POLICY,
             stringRsc = R.string.privacy_policy_agreement,
             isEssential = true,
             isChecked = isPrivacyChecked,
-            onCheckedChange = onPrivacyCheckedChange
+            onCheckedChange = onPrivacyCheckedChange,
+            context = context,
+            isShowInfo = true,
+            infoUrl = URL.PRIVACY_POLICY,
         )
         Spacer(modifier = Modifier.height(16.dp))
         PolicyAgreementButton(
@@ -285,13 +280,13 @@ fun AllAgreeCheckBoxField(
 
 @Composable
 fun CheckBoxField(
-    context: Context,
-    isShowInfo: Boolean = false,
-    infoUrl: String = "",
     stringRsc: Int,
     isEssential: Boolean,
     isChecked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    context: Context,
+    isShowInfo: Boolean = false,
+    infoUrl: String = ""
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
