@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -82,5 +84,53 @@ fun SettingsItem(
             fontSize = 16.sp,
             color = Color.White,
         )
+    }
+}
+
+@Composable
+fun AccountSettingTitle() {
+    Text(
+        text = stringResource(R.string.account_setting),
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White
+    )
+}
+
+@Composable
+fun AccountSubsetTitle(
+    textRsc: Int
+) {
+    Text(
+        text = stringResource(textRsc),
+        fontSize = 18.sp,
+        color = Color.White
+    )
+}
+
+@Composable
+fun AccountSubsetButton(
+    textRsc: Int,
+    textColor: Color,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = defaultBoxColor,
+            contentColor = Color.White
+        ),
+        shape = RoundedCornerShape(10.dp),
+        onClick = onClick
+    ) {
+        Row {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(textRsc),
+                fontSize = 16.sp,
+                color = textColor,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

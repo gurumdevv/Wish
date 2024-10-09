@@ -1,8 +1,6 @@
 package com.gurumlab.wish.ui.settings
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.Wish
@@ -11,6 +9,7 @@ import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,10 +18,8 @@ class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository
 ) : ViewModel() {
 
-    private var _isLogOut = mutableStateOf(false)
-    val isLogout: State<Boolean> = _isLogOut
-    private var _isDeleteAccount = mutableStateOf(false)
-    val isDeleteAccount: State<Boolean> = _isDeleteAccount
+    private val _accountUiState = MutableStateFlow(AccountUiState())
+    val accountUiState = _accountUiState.asStateFlow()
 
     private val _myWishes: MutableStateFlow<Map<String, Wish>> = MutableStateFlow(emptyMap())
     val myWishes = _myWishes.asStateFlow()
@@ -46,14 +43,14 @@ class SettingsViewModel @Inject constructor(
 
     fun logOut() {
         repository.logOut()
-        _isLogOut.value = true
+        _accountUiState.update { it.copy(isLogOut = true) }
     }
 
     fun deleteAccount() {
         viewModelScope.launch {
             val uid = repository.getUid()
-            repository.deleteAccount(uid).collect {
-                _isDeleteAccount.value = it
+            repository.deleteAccount(uid).collect { isSuccess ->
+                _accountUiState.update { it.copy(isDeleteAccount = isSuccess) }
             }
         }
     }
@@ -113,4 +110,9 @@ data class UserInfo(
     val name: String,
     val email: String,
     val imageUrl: String
+)
+
+data class AccountUiState(
+    val isLogOut: Boolean = false,
+    val isDeleteAccount: Boolean = false
 )
