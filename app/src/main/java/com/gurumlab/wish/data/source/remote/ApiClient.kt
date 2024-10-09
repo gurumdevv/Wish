@@ -86,19 +86,15 @@ interface ApiClient {
     ): ApiResponse<Map<String, String>>
 
     @GET("posts.json")
-    suspend fun getPostsByPosterId(
+    suspend fun getPostsByUid(
         @Query("orderBy") orderBy: String,
-        @Query("equalTo") equalTo: String
-    ): ApiResponse<Map<String, Wish>>
-
-    @GET("posts.json")
-    suspend fun getPostsByUserId(
-        @Query("orderBy") orderBy: String,
-        @Query("equalTo") equalTo: String
+        @Query("equalTo") equalTo: String,
+        @Query("auth") idToken: String
     ): ApiResponse<Map<String, Wish>>
 
     @DELETE("posts/{wishId}.json")
     suspend fun deleteWish(
-        @Path("wishId") wishId: String
+        @Path("wishId") wishId: String,
+        @Query("auth") idToken: String
     )
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.storage.StorageReference
+import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -21,7 +22,8 @@ class SettingsRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val firebaseAuth: FirebaseAuth,
     private val currentUser: FirebaseUser?,
-    private val storageRef: StorageReference
+    private val storageRef: StorageReference,
+    private val authManager: FirebaseAuthManager
 ) {
 
     fun getUserInfo() = currentUser
@@ -32,23 +34,24 @@ class SettingsRepository @Inject constructor(
         firebaseAuth.signOut()
     }
 
-    fun deleteAccount(uid: String): Flow<Boolean> = flow {
-        val response = apiClient.getPostsByPosterId(
+    fun deleteAccount(idToken: String, uid: String): Flow<Boolean> = flow {
+        val response = apiClient.getPostsByUid(
             orderBy = "\"${Constants.POSTER_ID}\"",
-            equalTo = "\"${uid}\""
+            equalTo = "\"${uid}\"",
+            idToken = idToken
         )
         response.onSuccess {
             val failedWishes = mutableListOf<String>()
 
             it.keys.forEach { wishId ->
                 try {
-                    apiClient.deleteWish(wishId)
+                    apiClient.deleteWish(wishId = wishId, idToken = idToken)
                     storageRef.child("images").child(wishId).delete()
                         .addOnFailureListener {
                             failedWishes.add(wishId)
                         }
                 } catch (e: Exception) {
-                    failedWishes.add(wishId)
+                    failedWishes.add(wishId) //실패하면 ID Token 유효성이 중간에 상실됐는지 확인하기
                 }
             }
 
@@ -58,7 +61,7 @@ class SettingsRepository @Inject constructor(
         }.onException {
             emit(false)
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     private suspend fun removeFirebaseAuthUser(user: FirebaseUser): Boolean {
         return try {
@@ -71,13 +74,18 @@ class SettingsRepository @Inject constructor(
     }
 
     fun getWishes(
+        idToken: String,
         orderBy: String,
         equalTo: String,
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
         val response =
-            apiClient.getPostsByUserId("\"${orderBy}\"", "\"${equalTo}\"")
+            apiClient.getPostsByUid(
+                orderBy = "\"${orderBy}\"",
+                equalTo = "\"${equalTo}\"",
+                idToken = idToken
+            )
         response.onSuccess {
             emit(it)
         }.onError { code, message ->
@@ -89,11 +97,15 @@ class SettingsRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun deleteWish(wishId: String) {
+    suspend fun deleteWish(idToken: String, wishId: String) {
         try {
-            apiClient.deleteWish(wishId)
+            apiClient.deleteWish(wishId = wishId, idToken = idToken)
         } catch (e: Exception) {
             Log.d("deleteWish", "Error delete Wish: ${e.message}")
         }
+    }
+
+    suspend fun getFirebaseIdToken(): String {
+        return authManager.getFirebaseIdToken()
     }
 }

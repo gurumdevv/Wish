@@ -21,25 +21,15 @@ class SettingsViewModel @Inject constructor(
     private val _accountUiState = MutableStateFlow(AccountUiState())
     val accountUiState = _accountUiState.asStateFlow()
 
-    private val _myWishes: MutableStateFlow<Map<String, Wish>> = MutableStateFlow(emptyMap())
-    val myWishes = _myWishes.asStateFlow()
-    private val _approachingWishes: MutableStateFlow<Map<String, Wish>> =
-        MutableStateFlow(emptyMap())
-    val approachingWishes = _approachingWishes.asStateFlow()
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
-    private val _isException = MutableStateFlow(false)
-    val isException = _isException.asStateFlow()
+    private val _approachingProjectUiState: MutableStateFlow<ApproachingProjectUiState> =
+        MutableStateFlow(ApproachingProjectUiState.Loading)
+    val approachingProjectUiState = _approachingProjectUiState.asStateFlow()
 
-    val userInfo = getUserInfo()
+    private val _myProjectUiState: MutableStateFlow<MyProjectUiState> =
+        MutableStateFlow(MyProjectUiState.Loading)
+    val myProjectUiState = _myProjectUiState.asStateFlow()
 
-    private fun getUserInfo(): UserInfo {
-        val userInfo = repository.getUserInfo()
-        val name = userInfo?.displayName ?: Constants.USER
-        val email = userInfo?.email ?: Constants.EMAIL
-        val imageUrl = userInfo?.photoUrl?.toString() ?: ""
-        return UserInfo(name, email, imageUrl)
-    }
+    val userInfo = fetchUserInfo()
 
     fun logOut() {
         repository.logOut()
@@ -49,60 +39,94 @@ class SettingsViewModel @Inject constructor(
     fun deleteAccount() {
         viewModelScope.launch {
             val uid = repository.getUid()
-            repository.deleteAccount(uid).collect { isSuccess ->
+            val idToken = repository.getFirebaseIdToken()
+
+            repository.deleteAccount(idToken = idToken, uid = uid).collect { isSuccess ->
                 _accountUiState.update { it.copy(isDeleteAccount = isSuccess) }
             }
         }
     }
 
-    private suspend fun loadWishes(
+    private fun loadWishes(
         orderBy: String,
+        onEmpty: () -> Unit,
+        onException: (String?) -> Unit,
         onSuccess: (Map<String, Wish>) -> Unit
     ) {
         val uid = repository.getUid()
-        val response = repository.getWishes(
-            orderBy = orderBy,
-            equalTo = uid,
-            onError = { e ->
-                _isLoading.value = false
-                Log.d("SettingsViewModel", "Fail to load data: $e")
-            },
-            onException = { e ->
-                _isLoading.value = false
-                _isException.value = true
-                Log.d("SettingsViewModel", "Fail to load data: $e")
-            }
-        )
 
-        response.collect { wishes ->
-            onSuccess(wishes)
-            _isLoading.value = false
+        viewModelScope.launch {
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isBlank()) {
+                onException("Fail to get idToken")
+                return@launch
+            }
+
+            val response = repository.getWishes(
+                idToken = idToken,
+                orderBy = orderBy,
+                equalTo = uid,
+                onError = { _ ->
+                    onEmpty()
+                },
+                onException = { e ->
+                    onException(e)
+                    Log.d("SettingsViewModel", "Fail to load data: $e")
+                }
+            )
+
+            response.collect { wishes ->
+                onSuccess(wishes)
+            }
         }
     }
 
     fun loadApproachingWishes() {
-        viewModelScope.launch {
-            loadWishes(orderBy = Constants.DEVELOPER_ID) { wishes ->
-                _approachingWishes.value = wishes
+        loadWishes(
+            orderBy = Constants.DEVELOPER_ID,
+            onEmpty = {
+                _approachingProjectUiState.value = ApproachingProjectUiState.Empty
+            },
+            onException = {
+                _approachingProjectUiState.value = ApproachingProjectUiState.Exception
+            },
+            onSuccess = { wishes ->
+                _approachingProjectUiState.value = ApproachingProjectUiState.Success(wishes)
             }
-        }
+        )
     }
 
     fun loadMyWishes() {
-        viewModelScope.launch {
-            loadWishes(orderBy = Constants.POSTER_ID) { wishes ->
-                _myWishes.value = wishes
+        loadWishes(
+            orderBy = Constants.POSTER_ID,
+            onEmpty = {
+                _myProjectUiState.value = MyProjectUiState.Empty
+            },
+            onException = {
+                _myProjectUiState.value = MyProjectUiState.Exception
+            },
+            onSuccess = { wishes ->
+                _myProjectUiState.value = MyProjectUiState.Success(wishes)
             }
-        }
+        )
     }
 
     suspend fun deleteWish(wishId: String) {
-        repository.deleteWish(wishId)
+        viewModelScope.launch {
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isBlank()) {
+                return@launch
+            }
+            repository.deleteWish(idToken = idToken, wishId = wishId)
+        }
     }
 
-    fun resetUiState() {
-        _isLoading.value = true
-        _isException.value = false
+    private fun fetchUserInfo(): UserInfo {
+        val userInfo = repository.getUserInfo()
+        val name = userInfo?.displayName ?: Constants.USER
+        val email = userInfo?.email ?: Constants.EMAIL
+        val imageUrl = userInfo?.photoUrl?.toString() ?: ""
+        return UserInfo(name, email, imageUrl)
     }
 }
 
@@ -116,3 +140,17 @@ data class AccountUiState(
     val isLogOut: Boolean = false,
     val isDeleteAccount: Boolean = false
 )
+
+sealed class ApproachingProjectUiState {
+    data class Success(val wishes: Map<String, Wish>) : ApproachingProjectUiState()
+    data object Loading : ApproachingProjectUiState()
+    data object Empty : ApproachingProjectUiState()
+    data object Exception : ApproachingProjectUiState()
+}
+
+sealed class MyProjectUiState {
+    data class Success(val wishes: Map<String, Wish>) : MyProjectUiState()
+    data object Loading : MyProjectUiState()
+    data object Empty : MyProjectUiState()
+    data object Exception : MyProjectUiState()
+}
