@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -39,6 +40,66 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlin.random.Random
+
+@Composable
+fun WishesLazyColumn(
+    wishes: Map<String, Wish>,
+    wishesSortedByLikes: Map<String, Wish>,
+    isWishesLoading: Boolean,
+    isWishesSortedByLikesLoading: Boolean,
+    onDetailScreen: (wishId: String) -> Unit
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            WishesBannerSection(isLoading = isWishesLoading, wishes = wishes)
+            Spacer(modifier = Modifier.height(16.dp))
+            WishesSortByLikesTitle()
+            Spacer(modifier = Modifier.height(16.dp))
+            WishesSortByLikesSection(
+                isLoading = isWishesSortedByLikesLoading,
+                wishesSortedByLikes = wishesSortedByLikes,
+                onDetailScreen = onDetailScreen
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            WishesRandomTitle()
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        if (isWishesLoading) {
+            items(15) { ShimmerWishesRandomItem() }
+        } else {
+            items(wishes.keys.size) { index ->
+                WishesRandomItem(
+                    wish = wishes.values.elementAt(index),
+                    wishId = wishes.keys.elementAt(index),
+                    onDetailScreen = onDetailScreen
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WishesBannerSection(isLoading: Boolean, wishes: Map<String, Wish>) {
+    if (isLoading) {
+        ShimmerWishesBanner()
+    } else {
+        WishesBanner(wishes)
+    }
+}
+
+@Composable
+fun WishesSortByLikesSection(
+    isLoading: Boolean,
+    wishesSortedByLikes: Map<String, Wish>,
+    onDetailScreen: (wishId: String) -> Unit
+) {
+    if (isLoading) {
+        ShimmerWishesSortByLikes()
+    } else {
+        WishesSortByLikes(wishesSortedByLikes, onDetailScreen)
+    }
+}
 
 @Composable
 fun WishesBanner(wishes: Map<String, Wish>) {
