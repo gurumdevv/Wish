@@ -18,10 +18,10 @@ import com.gurumlab.wish.ui.util.CustomExceptionScreen
 
 @Composable
 fun WishesScreen(
-    topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
     viewModel: WishesViewModel,
-    onDetailScreen: (wishId: String) -> Unit
+    onDetailScreen: (wishId: String) -> Unit,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = topBar,

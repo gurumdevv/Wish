@@ -18,9 +18,9 @@ fun WishesRoute(
         )
     }
     WishesScreen(
-        topBar = topBar,
-        bottomBar = bottomNavigationBar,
         viewModel = viewModel,
-        onDetailScreen = onDetailScreen
+        onDetailScreen = onDetailScreen,
+        topBar = topBar,
+        bottomBar = bottomNavigationBar
     )
 }
