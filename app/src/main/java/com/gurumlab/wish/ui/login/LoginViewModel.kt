@@ -26,6 +26,9 @@ import com.gurumlab.wish.data.model.UserInfo
 import com.gurumlab.wish.data.repository.LoginRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,13 +39,8 @@ class LoginViewModel @Inject constructor(
     private val repository: LoginRepository
 ) : ViewModel() {
 
-    private var _isOnGoingSignIn = mutableStateOf(false)
-    val isOnGoingSignIn: State<Boolean> = _isOnGoingSignIn
-    private var _isLoginSuccess = mutableStateOf(false)
-    val isLoginSuccess: State<Boolean> = _isLoginSuccess
-    private var _isLoginError = mutableStateOf(false)
-    val isLoginError: State<Boolean> = _isLoginError
-
+    private val _uiState = MutableStateFlow(LoginUiState())
+    val uiState: StateFlow<LoginUiState> = _uiState
     private val _agreementState = mutableStateOf(AgreementState())
     val agreementState: State<AgreementState> = _agreementState
 
@@ -67,7 +65,7 @@ class LoginViewModel @Inject constructor(
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
-            _isLoginSuccess.value = true
+            _uiState.update { it.copy(isLoginSuccess = true) }
         } else {
             updateFailState()
         }
@@ -87,7 +85,7 @@ class LoginViewModel @Inject constructor(
         legacySignInLauncher: ActivityResultLauncher<IntentSenderRequest>,
         context: Context
     ) {
-        _isOnGoingSignIn.value = true
+        _uiState.update { it.copy(isOnGoingSignIn = true) }
 
         signInClient = Identity.getSignInClient(context)
 
@@ -141,13 +139,11 @@ class LoginViewModel @Inject constructor(
                 }
                 .addOnFailureListener { e ->
                     Log.d("LoginViewModel", "Legacy sign-in fail: ${e.localizedMessage}")
-                    _isOnGoingSignIn.value = false
-                    _isLoginError.value = true
+                    _uiState.update { it.copy(isOnGoingSignIn = false, isLoginError = true) }
                 }
                 .addOnCanceledListener {
                     Log.d("LoginViewModel", "Legacy sign-in cancelled")
-                    _isOnGoingSignIn.value = false
-                    _isLoginError.value = true
+                    _uiState.update { it.copy(isOnGoingSignIn = false, isLoginError = true) }
                 }
         } else {
             onSuccess(lastToken)
@@ -209,17 +205,15 @@ class LoginViewModel @Inject constructor(
     }
 
     fun resetIsLoginError() {
-        _isLoginError.value = false
-        _isOnGoingSignIn.value = false
+        _uiState.update { it.copy(isLoginError = false, isOnGoingSignIn = false) }
     }
 
     fun notifyIsLoginError() {
-        _isLoginError.value = true
+        _uiState.update { it.copy(isLoginError = true) }
     }
 
     private fun updateFailState() {
-        _isOnGoingSignIn.value = false
-        _isLoginError.value = true
+        _uiState.update { it.copy(isOnGoingSignIn = false, isLoginError = true) }
     }
 }
 
@@ -231,3 +225,9 @@ data class AgreementState(
     val isAllChecked: Boolean
         get() = isAgeChecked && isTermsChecked && isPrivacyChecked
 }
+
+data class LoginUiState(
+    val isOnGoingSignIn: Boolean = false,
+    val isLoginSuccess: Boolean = false,
+    val isLoginError: Boolean = false
+)

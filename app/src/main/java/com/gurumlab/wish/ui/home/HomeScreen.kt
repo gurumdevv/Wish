@@ -15,6 +15,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -61,17 +62,16 @@ fun HomeContent(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val currentUiState = uiState.value
-    val pagerState = rememberPagerState(pageCount = { currentUiState.wishes.keys.size })
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pagerState = rememberPagerState(pageCount = { uiState.wishes.keys.size })
 
     Box(modifier = modifier) {
         when {
-            currentUiState.isError || currentUiState.isEmpty -> {
+            uiState.isError || uiState.isEmpty -> {
                 HomeErrorScreen()
             }
 
-            currentUiState.isException -> {
+            uiState.isException -> {
                 CustomExceptionScreen {
                     viewModel.loadWishes()
                 }
@@ -79,8 +79,8 @@ fun HomeContent(
 
             else -> {
                 VerticalPager(state = pagerState) { page ->
-                    val wishIdentifier = currentUiState.wishes.keys.elementAt(page)
-                    val wishContent = currentUiState.wishes.values.elementAt(page)
+                    val wishIdentifier = uiState.wishes.keys.elementAt(page)
+                    val wishContent = uiState.wishes.values.elementAt(page)
                     WishCard(
                         wish = wishContent,
                         onStartClick = { onDetailScreen(wishIdentifier) },
@@ -99,7 +99,7 @@ fun HomeContent(
             }
         }
 
-        if (currentUiState.isLoading) {
+        if (uiState.isLoading) {
             HomeLoadingScreen()
         }
 
@@ -113,8 +113,8 @@ fun HomeContent(
         }
     }
 
-    LaunchedEffect(currentUiState.isFailUpdateLikeCount) {
-        if (currentUiState.isFailUpdateLikeCount) {
+    LaunchedEffect(uiState.isFailUpdateLikeCount) {
+        if (uiState.isFailUpdateLikeCount) {
             showSnackbar(
                 snackbarHostState = snackbarHostState,
                 message = context.getString(R.string.fail_like_update)

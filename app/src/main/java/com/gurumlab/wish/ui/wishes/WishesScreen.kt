@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,12 +45,11 @@ fun WishesContent(
     viewModel: WishesViewModel,
     onDetailScreen: (wishId: String) -> Unit
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val currentUiState = uiState.value
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Box(modifier = modifier) {
         when {
-            currentUiState.isException -> {
+            uiState.isException -> {
                 CustomExceptionScreen {
                     viewModel.loadWishes()
                     viewModel.loadWishesSortedByLikes()
@@ -58,10 +58,10 @@ fun WishesContent(
 
             else -> {
                 WishesLazyColumn(
-                    wishes = currentUiState.wishes,
-                    wishesSortedByLikes = currentUiState.wishesSortedByLikes,
-                    isWishesLoading = currentUiState.isWishesLoading,
-                    isWishesSortedByLikesLoading = currentUiState.isWishesSortedByLikesLoading,
+                    wishes = uiState.wishes,
+                    wishesSortedByLikes = uiState.wishesSortedByLikes,
+                    isWishesLoading = uiState.isWishesLoading,
+                    isWishesSortedByLikesLoading = uiState.isWishesSortedByLikesLoading,
                     onDetailScreen = onDetailScreen
                 )
             }

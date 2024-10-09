@@ -36,9 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.Gray00
 import com.gurumlab.wish.ui.theme.Gray02
@@ -88,6 +87,7 @@ fun PolicyAgreementContent(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val agreementState by viewModel.agreementState
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val oneTapSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -142,7 +142,7 @@ fun PolicyAgreementContent(
                 onTermsCheckedChange = { viewModel.onAgreementChange(termsChecked = it) },
                 onPrivacyCheckedChange = { viewModel.onAgreementChange(privacyChecked = it) },
                 onConfirm = onLoginProcess,
-                isOnGoing = viewModel.isOnGoingSignIn.value,
+                isOnGoing = uiState.isOnGoingSignIn,
                 context = context
             )
             Spacer(modifier = Modifier.height(24.dp))
@@ -157,14 +157,12 @@ fun PolicyAgreementContent(
             CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
         }
 
-        LaunchedEffect(viewModel.isLoginSuccess.value) {
-            if (viewModel.isLoginSuccess.value) {
-                onHomeScreen()
-            }
+        if (uiState.isLoginSuccess) {
+            onHomeScreen()
         }
 
-        LaunchedEffect(viewModel.isLoginError.value) {
-            if (viewModel.isLoginError.value) {
+        LaunchedEffect(uiState.isLoginError) {
+            if (uiState.isLoginError) {
                 snackbarHostState.showSnackbar(
                     message = context.getString(R.string.login_error),
                     duration = SnackbarDuration.Short
