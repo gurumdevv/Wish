@@ -183,9 +183,7 @@ class PostViewModel @Inject constructor(
     }
 
     private fun getPosterUid() {
-        viewModelScope.launch {
-            uid = repository.getUid()
-        }
+        uid = repository.getUid()
     }
 
     private fun getPosterName() = repository.getUserName()

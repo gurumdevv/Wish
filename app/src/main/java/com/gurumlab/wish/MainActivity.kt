@@ -27,8 +27,7 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
 
         lifecycleScope.launch {
-            viewModel.getUid()
-            splashScreen.setKeepOnScreenCondition { viewModel.uid.value == null }
+            splashScreen.setKeepOnScreenCondition { viewModel.idToken.value == null }
         }
 
         enableEdgeToEdge()
@@ -38,9 +37,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WishTheme {
-                viewModel.uid.collectAsStateWithLifecycle().value?.let { loadedUid ->
+                viewModel.idToken.collectAsStateWithLifecycle().value?.let { currentIdToken ->
                     val startDestination =
-                        if (loadedUid.isBlank()) WishScreen.LOGIN.name else WishScreen.HOME.name
+                        if (currentIdToken.isBlank()) WishScreen.LOGIN.name else WishScreen.HOME.name
                     WishNavHost(startDestination = startDestination)
                 }
             }

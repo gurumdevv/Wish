@@ -6,7 +6,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.gurumlab.wish.data.model.Wish
-import com.gurumlab.wish.data.source.local.UserDataSource
 import com.gurumlab.wish.data.source.remote.ApiClient
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -14,7 +13,6 @@ import javax.inject.Inject
 class PostRepository @Inject constructor(
     private val storageRef: StorageReference,
     private val apiClient: ApiClient,
-    private val userDataSource: UserDataSource
 ) {
 
     suspend fun uploadImages(imageUri: Uri, postId: String, featureIndex: Int): String {
@@ -43,8 +41,8 @@ class PostRepository @Inject constructor(
         }
     }
 
-    suspend fun getUid(): String {
-        return userDataSource.getUid()
+    fun getUid(): String {
+        return Firebase.auth.currentUser?.uid ?: ""
     }
 
     fun getUserName(): String {

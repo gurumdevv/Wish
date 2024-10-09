@@ -9,7 +9,6 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.repository.SettingsRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -44,16 +43,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun logOut() {
-        viewModelScope.launch {
-            repository.logOut()
-            _isLogOut.value = true
-        }
+        repository.logOut()
+        _isLogOut.value = true
     }
 
     fun deleteAccount() {
         viewModelScope.launch {
-            val uid = async { repository.getUid() }
-            repository.deleteAccount(uid.await()).collect {
+            val uid = repository.getUid()
+            repository.deleteAccount(uid).collect {
                 _isDeleteAccount.value = it
             }
         }

@@ -6,7 +6,6 @@ import com.google.firebase.auth.UserInfo
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.data.model.Wish
-import com.gurumlab.wish.data.source.local.UserDataSource
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
 import com.gurumlab.wish.data.source.remote.onException
@@ -21,24 +20,18 @@ import javax.inject.Inject
 
 class SettingsRepository @Inject constructor(
     private val apiClient: ApiClient,
-    private val userDataSource: UserDataSource
 ) {
 
     fun getUserInfo(): UserInfo? {
         return Firebase.auth.currentUser
     }
 
-    suspend fun logOut() {
-        setUid("")
+    fun logOut() {
         Firebase.auth.signOut()
     }
 
-    suspend fun getUid(): String {
-        return userDataSource.getUid()
-    }
-
-    private suspend fun setUid(uid: String) {
-        userDataSource.setUid(uid)
+    fun getUid(): String {
+        return Firebase.auth.currentUser?.uid ?: ""
     }
 
     fun deleteAccount(uid: String): Flow<Boolean> = flow {
@@ -74,7 +67,6 @@ class SettingsRepository @Inject constructor(
         } catch (e: Exception) {
             false
         }
-        setUid("")
         return deleteSuccess
     }
 

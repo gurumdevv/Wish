@@ -6,22 +6,22 @@ import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object FirebaseAuthModule {
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun provideAuthCurrentUser(auth: FirebaseAuth): FirebaseUser? = auth.currentUser
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun provideAuthManager(currentUser: FirebaseUser?): FirebaseAuthManager =
         FirebaseAuthManager(currentUser)

@@ -23,7 +23,6 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.BuildConfig
 import com.gurumlab.wish.data.model.UserInfo
-import com.gurumlab.wish.data.repository.LoginRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +35,7 @@ private typealias SignInSuccessListener = (uid: String) -> Unit
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoginRepository
+    private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -152,9 +151,9 @@ class LoginViewModel @Inject constructor(
 
     private fun getFirebaseCredential(idToken: String?) {
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-        FirebaseAuth.getInstance().signInWithCredential(firebaseCredential)
+        firebaseAuth.signInWithCredential(firebaseCredential)
             .addOnCompleteListener {
-                val user = FirebaseAuth.getInstance().currentUser
+                val user = firebaseAuth.currentUser
                 if (user == null) {
                     updateFailState()
                 } else {
@@ -166,7 +165,6 @@ class LoginViewModel @Inject constructor(
                                     updateFailState()
                                 } else {
                                     viewModelScope.launch {
-                                        repository.setUid(user.uid)
                                         registerUserInfo(user.uid) { isSuccess ->
                                             if (isSuccess) updateUI(user)
                                             else updateFailState()
