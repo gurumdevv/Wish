@@ -157,8 +157,10 @@ fun PolicyAgreementContent(
             CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
         }
 
-        if (uiState.isLoginSuccess) {
-            onHomeScreen()
+        LaunchedEffect(uiState.isLoginSuccess) {
+            if (uiState.isLoginSuccess) {
+                onHomeScreen()
+            }
         }
 
         LaunchedEffect(uiState.isLoginError) {
