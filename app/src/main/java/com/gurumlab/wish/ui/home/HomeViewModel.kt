@@ -12,9 +12,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,51 +24,43 @@ class HomeViewModel @Inject constructor(
     private val repository: HomeRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState
+    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Loading)
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    init {
-        loadWishes()
-    }
+    private val _isFailUpdateLikeCount: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isFailUpdateLikeCount: StateFlow<Boolean> = _isFailUpdateLikeCount.asStateFlow()
 
     fun loadWishes() {
-        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val idToken = getIdTokenOrHandleError()
             if (idToken.isNullOrBlank()) {
-                _uiState.update { it.copy(isLoading = false, isError = false, isException = true) }
+                _uiState.value = HomeUiState.Exception
                 return@launch
             }
 
             val response = repository.getPostsByDate(
                 idToken = idToken,
                 date = DateTimeConverter.getDateMinusDays(NumericConstants.DEFAULT_POST_LOAD_DAY_LIMIT),
-                onCompletion = {
-                    _uiState.update { it.copy(isLoading = false) }
-                },
-                onSuccess = {
-                    _uiState.update { it.copy(isError = false, isException = false) }
-                },
                 onError = { message ->
-                    _uiState.update { it.copy(isError = true, isException = false) }
-                    Log.d("HomeViewModel", "onError called $message")
+                    _uiState.value = HomeUiState.Empty
                 },
                 onException = { message ->
-                    _uiState.update { it.copy(isError = false, isException = true) }
+                    _uiState.value = HomeUiState.Exception
                     Log.d("HomeViewModel", "onException called $message")
                 }
             )
 
-            response.collect { loadedWishes ->
-                val filteredWishes =
-                    loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
-                _uiState.update {
-                    it.copy(
-                        wishes = filteredWishes,
-                        isEmpty = filteredWishes.isEmpty()
-                    )
+            response
+                .onStart { _uiState.value = HomeUiState.Loading }
+                .collect { loadedWishes ->
+                    val filteredWishes =
+                        loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+                    if (filteredWishes.isEmpty()) {
+                        _uiState.value = HomeUiState.Empty
+                    } else {
+                        _uiState.value = HomeUiState.Success(filteredWishes)
+                    }
                 }
-            }
         }
     }
 
@@ -92,7 +85,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val isSuccess = performUpdateLikeCount(identifier, count)
             if (!isSuccess) {
-                _uiState.update { it.copy(isFailUpdateLikeCount = true) }
+                _isFailUpdateLikeCount.value = true
                 resetIsFailUpdateLikeCount()
             }
         }
@@ -107,7 +100,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun resetIsFailUpdateLikeCount() {
-        _uiState.update { it.copy(isFailUpdateLikeCount = false) }
+        _isFailUpdateLikeCount.value = false
     }
 
     private suspend fun getIdTokenOrHandleError(): String? {
@@ -119,11 +112,9 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class HomeUiState(
-    val wishes: Map<String, Wish> = emptyMap(),
-    val isLoading: Boolean = true,
-    val isError: Boolean = false,
-    val isException: Boolean = false,
-    val isEmpty: Boolean = false,
-    val isFailUpdateLikeCount: Boolean = false
-)
+sealed class HomeUiState {
+    data object Loading : HomeUiState()
+    data object Empty : HomeUiState()
+    data object Exception : HomeUiState()
+    data class Success(val wishes: Map<String, Wish>) : HomeUiState()
+}

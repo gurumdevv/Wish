@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
@@ -38,6 +36,10 @@ fun HomeScreen(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.loadWishes()
+    }
+
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
@@ -63,44 +65,44 @@ fun HomeContent(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val pagerState = rememberPagerState(pageCount = { uiState.wishes.keys.size })
+    val isFailUpdateLikeCount by viewModel.isFailUpdateLikeCount.collectAsStateWithLifecycle()
 
     Box(modifier = modifier) {
-        when {
-            uiState.isError || uiState.isEmpty -> {
+        when (uiState) {
+            HomeUiState.Loading -> {
+                HomeLoadingScreen()
+            }
+
+            HomeUiState.Empty -> {
                 HomeErrorScreen()
             }
 
-            uiState.isException -> {
-                CustomExceptionScreen {
+            HomeUiState.Exception -> {
+                HomeExceptionScreen {
                     viewModel.loadWishes()
                 }
             }
 
-            else -> {
-                VerticalPager(state = pagerState) { page ->
-                    val wishIdentifier = uiState.wishes.keys.elementAt(page)
-                    val wishContent = uiState.wishes.values.elementAt(page)
-                    WishCard(
-                        wish = wishContent,
-                        onStartClick = { onDetailScreen(wishIdentifier) },
-                        onLikeClick = {
-                            scope.launch {
-                                handleLikeClick(
-                                    viewModel = viewModel,
-                                    wishIdentifier = wishIdentifier,
-                                    context = context,
-                                    snackbarHostState = snackbarHostState
-                                )
-                            }
-                        }
-                    )
-                }
-            }
-        }
+            is HomeUiState.Success -> {
+                val wishes = (uiState as HomeUiState.Success).wishes
+                val pagerState = rememberPagerState(pageCount = { wishes.keys.size })
 
-        if (uiState.isLoading) {
-            HomeLoadingScreen()
+                HomeVerticalPager(
+                    wishes = wishes,
+                    pagerState = pagerState,
+                    onLikeClick = { wishIdentifier ->
+                        scope.launch {
+                            handleLikeCount(
+                                wishIdentifier = wishIdentifier,
+                                viewModel = viewModel,
+                                snackbarHostState = snackbarHostState,
+                                context = context
+                            )
+                        }
+                    },
+                    onDetailScreen = onDetailScreen,
+                )
+            }
         }
 
         SnackbarHost(
@@ -113,8 +115,8 @@ fun HomeContent(
         }
     }
 
-    LaunchedEffect(uiState.isFailUpdateLikeCount) {
-        if (uiState.isFailUpdateLikeCount) {
+    LaunchedEffect(isFailUpdateLikeCount) {
+        if (isFailUpdateLikeCount) {
             showSnackbar(
                 snackbarHostState = snackbarHostState,
                 message = context.getString(R.string.fail_like_update)
@@ -123,11 +125,11 @@ fun HomeContent(
     }
 }
 
-private suspend fun handleLikeClick(
-    viewModel: HomeViewModel,
+private suspend fun handleLikeCount(
     wishIdentifier: String,
-    context: Context,
+    viewModel: HomeViewModel,
     snackbarHostState: SnackbarHostState,
+    context: Context
 ) {
     val currentCount = viewModel.getLikes(wishIdentifier).single()
     if (currentCount == -1) {

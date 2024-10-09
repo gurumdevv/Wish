@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +43,30 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
+import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomIconButton
 import com.gurumlab.wish.ui.util.CustomLottieLoader
+
+@Composable
+fun HomeVerticalPager(
+    wishes: Map<String, Wish>,
+    pagerState: PagerState,
+    onLikeClick: (String) -> Unit,
+    onDetailScreen: (wishId: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        VerticalPager(state = pagerState) { page ->
+            val wishIdentifier = wishes.keys.elementAt(page)
+            val wishContent = wishes.values.elementAt(page)
+            WishCard(
+                wish = wishContent,
+                onStartClick = { onDetailScreen(wishIdentifier) },
+                onLikeClick = { onLikeClick(wishIdentifier) }
+            )
+        }
+    }
+}
 
 @Composable
 fun WishCard(
@@ -245,4 +269,9 @@ fun HomeErrorScreen(modifier: Modifier = Modifier) {
             )
         }
     }
+}
+
+@Composable
+fun HomeExceptionScreen(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    CustomExceptionScreen(modifier = modifier, onClick = onClick)
 }

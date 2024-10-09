@@ -11,6 +11,7 @@ import com.gurumlab.wish.ui.util.NumericConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,13 +22,7 @@ class WishesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WishesUiState())
-    val uiState: StateFlow<WishesUiState> = _uiState
-
-    init {
-        loadWishes()
-        loadWishesSortedByLikes()
-    }
-
+    val uiState: StateFlow<WishesUiState> = _uiState.asStateFlow()
 
     fun loadWishes() {
         _uiState.update { it.copy(isWishesLoading = true) }

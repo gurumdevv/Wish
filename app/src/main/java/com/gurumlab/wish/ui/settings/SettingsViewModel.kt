@@ -9,6 +9,7 @@ import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,6 +50,7 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadWishes(
         orderBy: String,
+        onLoading: () -> Unit,
         onEmpty: () -> Unit,
         onException: (String?) -> Unit,
         onSuccess: (Map<String, Wish>) -> Unit
@@ -75,15 +77,20 @@ class SettingsViewModel @Inject constructor(
                 }
             )
 
-            response.collect { wishes ->
-                onSuccess(wishes)
-            }
+            response
+                .onStart { onLoading() }
+                .collect { wishes ->
+                    onSuccess(wishes)
+                }
         }
     }
 
     fun loadApproachingWishes() {
         loadWishes(
             orderBy = Constants.DEVELOPER_ID,
+            onLoading = {
+                _approachingProjectUiState.value = ApproachingProjectUiState.Loading
+            },
             onEmpty = {
                 _approachingProjectUiState.value = ApproachingProjectUiState.Empty
             },
@@ -99,6 +106,9 @@ class SettingsViewModel @Inject constructor(
     fun loadMyWishes() {
         loadWishes(
             orderBy = Constants.POSTER_ID,
+            onLoading = {
+                _myProjectUiState.value = MyProjectUiState.Loading
+            },
             onEmpty = {
                 _myProjectUiState.value = MyProjectUiState.Empty
             },

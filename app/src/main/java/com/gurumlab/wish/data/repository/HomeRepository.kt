@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class HomeRepository @Inject constructor(
@@ -22,8 +21,6 @@ class HomeRepository @Inject constructor(
     fun getPostsByDate(
         idToken: String,
         date: Int,
-        onCompletion: () -> Unit,
-        onSuccess: () -> Unit,
         onError: (message: String?) -> Unit,
         onException: (message: String?) -> Unit
     ): Flow<Map<String, Wish>> = flow {
@@ -35,7 +32,6 @@ class HomeRepository @Inject constructor(
         )
         response.onSuccess {
             emit(it)
-            onSuccess()
         }.onError { code, message ->
             emit(emptyMap())
             onError("code: $code, message: $message")
@@ -43,8 +39,6 @@ class HomeRepository @Inject constructor(
             emit(emptyMap())
             onException(it.message)
         }
-    }.onCompletion {
-        onCompletion()
     }.flowOn(Dispatchers.IO)
 
     fun getPostsLikes(

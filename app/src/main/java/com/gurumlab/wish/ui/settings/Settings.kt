@@ -508,3 +508,44 @@ fun ModalBottomSheetItem(
 fun MyProjectLoadingScreen(modifier: Modifier) {
     ProjectSettingLoadingScreen(textRsc = R.string.my_project_setting, modifier = modifier)
 }
+
+//<-- TermsAndCondition --->
+
+@Composable
+fun TermsAndConditionTitle(
+) {
+    Text(
+        text = stringResource(R.string.terms_and_condition),
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White
+    )
+}
+
+@Composable
+fun TermsAndConditionItem(
+    textRsc: Int,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(textRsc),
+            fontSize = 18.sp,
+            color = Color.White
+        )
+        Icon(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = R.drawable.ic_arrow),
+            contentDescription = stringResource(
+                R.string.terms_and_condition_more_info
+            ),
+            tint = Color.White
+        )
+    }
+}
