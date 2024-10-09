@@ -3,7 +3,7 @@ package com.gurumlab.wish.data.repository
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserInfo
+import com.google.firebase.storage.StorageReference
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -20,7 +20,8 @@ import javax.inject.Inject
 class SettingsRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val firebaseAuth: FirebaseAuth,
-    private val currentUser: FirebaseUser?
+    private val currentUser: FirebaseUser?,
+    private val storageRef: StorageReference
 ) {
 
     fun getUserInfo() = currentUser
@@ -37,33 +38,36 @@ class SettingsRepository @Inject constructor(
             equalTo = "\"${uid}\""
         )
         response.onSuccess {
-            var isDeleteSuccess = true
-            for (wishId in it.keys) {
+            val failedWishes = mutableListOf<String>()
+
+            it.keys.forEach { wishId ->
                 try {
                     apiClient.deleteWish(wishId)
+                    storageRef.child("images").child(wishId).delete()
+                        .addOnFailureListener {
+                            failedWishes.add(wishId)
+                        }
                 } catch (e: Exception) {
-                    isDeleteSuccess = false
-                    break
+                    failedWishes.add(wishId)
                 }
             }
 
-            if (isDeleteSuccess) emit(handleUserDeletion(currentUser!!))
-            else emit(false)
+            emit(if (failedWishes.isEmpty()) removeFirebaseAuthUser(currentUser!!) else false)
         }.onError { _, _ ->
-            emit(handleUserDeletion(currentUser!!))
+            emit(removeFirebaseAuthUser(currentUser!!))
         }.onException {
             emit(false)
         }
     }
 
-    private suspend fun handleUserDeletion(user: FirebaseUser): Boolean {
-        val deleteSuccess = try {
+    private suspend fun removeFirebaseAuthUser(user: FirebaseUser): Boolean {
+        return try {
             user.delete().await()
             true
         } catch (e: Exception) {
+            Log.d("SettingsRepository", "Fail to delete user: ${e.message}")
             false
         }
-        return deleteSuccess
     }
 
     fun getWishes(
