@@ -42,6 +42,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -193,7 +194,9 @@ fun CustomTopAppBar(text: String) {
 @Composable
 fun CustomTopAppBarWithButton(
     title: String = "",
-    scrollBehavior: TopAppBarScrollBehavior? = null,
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(
+        rememberTopAppBarState()
+    ),
     onNavIconPressed: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
@@ -501,7 +504,8 @@ fun CustomTextField( //from TextField.kt
 }
 
 // slot API, we can set the default error message in case developers forget about it.
-internal fun Modifier.defaultErrorSemantics( //from TextFieldImpl.kt
+internal fun Modifier.defaultErrorSemantics(
+    //from TextFieldImpl.kt
     isError: Boolean,
     defaultErrorMessage: String,
 ): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this

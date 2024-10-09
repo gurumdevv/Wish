@@ -34,7 +34,9 @@ class SettingsViewModel @Inject constructor(
     private val _isException = MutableStateFlow(false)
     val isException = _isException.asStateFlow()
 
-    fun getUserInfo(): UserInfo {
+    val userInfo = getUserInfo()
+
+    private fun getUserInfo(): UserInfo {
         val userInfo = repository.getUserInfo()
         val name = userInfo?.displayName ?: Constants.USER
         val email = userInfo?.email ?: Constants.EMAIL

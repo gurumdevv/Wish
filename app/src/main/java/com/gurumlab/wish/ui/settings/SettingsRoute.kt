@@ -1,8 +1,6 @@
 package com.gurumlab.wish.ui.settings
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.gurumlab.wish.R
@@ -24,13 +22,13 @@ fun SettingsRoute(
         )
     }
     SettingsScreen(
-        topBar = topBar,
-        bottomBar = bottomNavigationBar,
         viewModel = viewModel,
         onAccountSetting = onAccountSetting,
         onMyProjectSetting = onMyProjectSetting,
         onApproachingProjectSetting = onApproachingProjectSetting,
-        onTermsAndCondition = onTermsAndCondition
+        onTermsAndCondition = onTermsAndCondition,
+        topBar = topBar,
+        bottomBar = bottomNavigationBar
     )
 }
 
@@ -41,16 +39,11 @@ fun AccountSettingRoute(
     onNavUp: () -> Unit,
     onStartScreen: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     AccountSettingScreen(
-        topBar = topBar,
         viewModel = viewModel,
-        onStartScreen = onStartScreen
+        onStartScreen = onStartScreen,
+        topBar = topBar
     )
 }
 
@@ -60,35 +53,20 @@ fun ApproachingProjectSettingRoute(
     viewModel: SettingsViewModel,
     onNavUp: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
-    ApproachingProjectSettingScreen(topBar = topBar, viewModel = viewModel)
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
+    ApproachingProjectSettingScreen(viewModel = viewModel, topBar = topBar)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProjectSettingRoute(viewModel: SettingsViewModel, onNavUp: () -> Unit) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
-    MyProjectSettingScreen(topBar = topBar, viewModel = viewModel)
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
+    MyProjectSettingScreen(viewModel = viewModel, topBar = topBar)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsAndConditionRoute(onNavUp: () -> Unit) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     TermsAndConditionScreen(topBar = topBar)
 }

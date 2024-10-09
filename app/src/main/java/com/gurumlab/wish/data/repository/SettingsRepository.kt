@@ -1,10 +1,9 @@
 package com.gurumlab.wish.data.repository
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserInfo
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import com.gurumlab.wish.data.source.remote.onError
@@ -20,22 +19,19 @@ import javax.inject.Inject
 
 class SettingsRepository @Inject constructor(
     private val apiClient: ApiClient,
+    private val firebaseAuth: FirebaseAuth,
+    private val currentUser: FirebaseUser?
 ) {
 
-    fun getUserInfo(): UserInfo? {
-        return Firebase.auth.currentUser
-    }
+    fun getUserInfo() = currentUser
+
+    fun getUid() = currentUser?.uid ?: ""
 
     fun logOut() {
-        Firebase.auth.signOut()
-    }
-
-    fun getUid(): String {
-        return Firebase.auth.currentUser?.uid ?: ""
+        firebaseAuth.signOut()
     }
 
     fun deleteAccount(uid: String): Flow<Boolean> = flow {
-        val user = Firebase.auth.currentUser!!
         val response = apiClient.getPostsByPosterId(
             orderBy = "\"${Constants.POSTER_ID}\"",
             equalTo = "\"${uid}\""
@@ -51,10 +47,10 @@ class SettingsRepository @Inject constructor(
                 }
             }
 
-            if (isDeleteSuccess) emit(handleUserDeletion(user))
+            if (isDeleteSuccess) emit(handleUserDeletion(currentUser!!))
             else emit(false)
         }.onError { _, _ ->
-            emit(handleUserDeletion(user))
+            emit(handleUserDeletion(currentUser!!))
         }.onException {
             emit(false)
         }
@@ -89,9 +85,7 @@ class SettingsRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun deleteWish(
-        wishId: String
-    ) {
+    suspend fun deleteWish(wishId: String) {
         try {
             apiClient.deleteWish(wishId)
         } catch (e: Exception) {

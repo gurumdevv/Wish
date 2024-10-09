@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.settings
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,11 +23,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 
 @Composable
-fun UserInfo(userInfo: UserInfo) {
+fun UserInfo(userInfo: UserInfo, context: Context) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -52,7 +54,9 @@ fun UserInfo(userInfo: UserInfo) {
             modifier = Modifier
                 .size(64.dp)
                 .clip(CircleShape),
-            model = userInfo.imageUrl,
+            model = userInfo.imageUrl.ifBlank {
+                ImageRequest.Builder(context).data(R.drawable.ic_profile).build()
+            },
             contentDescription = stringResource(R.string.profile_image),
             contentScale = ContentScale.Crop
         )

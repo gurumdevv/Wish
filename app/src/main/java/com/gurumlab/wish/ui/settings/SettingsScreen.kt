@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
@@ -20,13 +21,13 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 
 @Composable
 fun SettingsScreen(
-    topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
     viewModel: SettingsViewModel,
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
-    onTermsAndCondition: () -> Unit
+    onTermsAndCondition: () -> Unit,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         viewModel.resetUiState()
@@ -37,35 +38,35 @@ fun SettingsScreen(
         bottomBar = bottomBar
     ) { innerPadding ->
         SettingsContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(backgroundColor)
-                .padding(innerPadding)
-                .padding(start = 24.dp, end = 24.dp),
             viewModel = viewModel,
             onAccountSetting = onAccountSetting,
             onMyProjectSetting = onMyProjectSetting,
             onApproachingProjectSetting = onApproachingProjectSetting,
-            onTermsAndCondition = onTermsAndCondition
+            onTermsAndCondition = onTermsAndCondition,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
+                .padding(start = 24.dp, end = 24.dp)
         )
     }
 }
 
 @Composable
 fun SettingsContent(
-    modifier: Modifier = Modifier,
     viewModel: SettingsViewModel,
     onAccountSetting: () -> Unit,
     onMyProjectSetting: () -> Unit,
     onApproachingProjectSetting: () -> Unit,
-    onTermsAndCondition: () -> Unit
+    onTermsAndCondition: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val userInfo = viewModel.getUserInfo()
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
     ) {
-        UserInfo(userInfo)
+        UserInfo(viewModel.userInfo, context)
         Spacer(modifier = Modifier.height(16.dp))
         SettingsItem(
             text = stringResource(R.string.account_setting),
