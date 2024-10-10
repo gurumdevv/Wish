@@ -12,11 +12,7 @@ fun HomeRoute(
     onDetailScreen: (wishId: String) -> Unit
 ) {
     val viewModel = hiltViewModel<HomeViewModel>()
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBar(
-            stringResource(id = R.string.wish)
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBar(stringResource(id = R.string.wish)) }
     HomeScreen(
         viewModel = viewModel,
         onDetailScreen = onDetailScreen,

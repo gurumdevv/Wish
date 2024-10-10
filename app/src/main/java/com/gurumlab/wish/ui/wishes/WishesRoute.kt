@@ -12,11 +12,8 @@ fun WishesRoute(
     onDetailScreen: (wishId: String) -> Unit
 ) {
     val viewModel = hiltViewModel<WishesViewModel>()
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBar(
-            stringResource(id = R.string.wishes_top_bar)
-        )
-    }
+    val topBar: @Composable () -> Unit =
+        { CustomTopAppBar(stringResource(id = R.string.wishes_top_bar)) }
     WishesScreen(
         viewModel = viewModel,
         onDetailScreen = onDetailScreen,

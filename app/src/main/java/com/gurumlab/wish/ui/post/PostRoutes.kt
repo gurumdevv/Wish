@@ -1,8 +1,6 @@
 package com.gurumlab.wish.ui.post
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import com.gurumlab.wish.ui.util.CustomTopAppBarWithButton
 
@@ -13,16 +11,11 @@ fun PostStartRoute(
     onNavUp: () -> Unit,
     onPostDescription: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     PostStartScreen(
-        topBar = topBar,
         viewModel = viewModel,
-        onPostDescription = onPostDescription
+        onPostDescription = onPostDescription,
+        topBar = topBar
     )
 }
 
@@ -33,16 +26,11 @@ fun PostDescriptionRoute(
     onNavUp: () -> Unit,
     onPostFeatures: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     PostDescriptionScreen(
-        topBar = topBar,
         viewModel = viewModel,
-        onPostFeatures = onPostFeatures
+        onPostFeatures = onPostFeatures,
+        topBar = topBar
     )
 }
 
@@ -53,16 +41,11 @@ fun PostFeaturesRoute(
     onNavUp: () -> Unit,
     onPostExamination: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     PostFeaturesScreen(
-        topBar = topBar,
         viewModel = viewModel,
-        onPostExamination = onPostExamination
+        onPostExamination = onPostExamination,
+        topBar = topBar
     )
 }
 
@@ -73,15 +56,10 @@ fun PostExaminationRoute(
     onNavUp: () -> Unit,
     onWish: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     PostExaminationScreen(
-        topBar = topBar,
         viewModel = viewModel,
-        onWish = onWish
+        onWish = onWish,
+        topBar = topBar
     )
 }
