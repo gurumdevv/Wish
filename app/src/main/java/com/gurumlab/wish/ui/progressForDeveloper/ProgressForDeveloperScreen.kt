@@ -14,37 +14,37 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 
 @Composable
 fun ProgressForDeveloperScreen(
-    topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
-    minimizedWish: MinimizedWish,
     wishId: String,
+    minimizedWish: MinimizedWish,
     onSubmitScreen: (MinimizedWish, String) -> Unit,
-    onMessageScreen: (MinimizedWish) -> Unit
+    onMessageScreen: (MinimizedWish) -> Unit,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
     ) { innerPadding ->
         ProgressForDeveloperContent(
+            wishId = wishId,
+            minimizedWish = minimizedWish,
+            onSubmitScreen = onSubmitScreen,
+            onMessageScreen = onMessageScreen,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
-                .padding(innerPadding),
-            minimizedWish = minimizedWish,
-            wishId = wishId,
-            onSubmitScreen = onSubmitScreen,
-            onMessageScreen = onMessageScreen
+                .padding(innerPadding)
         )
     }
 }
 
 @Composable
 fun ProgressForDeveloperContent(
-    modifier: Modifier = Modifier,
-    minimizedWish: MinimizedWish,
     wishId: String,
+    minimizedWish: MinimizedWish,
     onSubmitScreen: (MinimizedWish, String) -> Unit,
-    onMessageScreen: (MinimizedWish) -> Unit
+    onMessageScreen: (MinimizedWish) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
 
@@ -53,11 +53,9 @@ fun ProgressForDeveloperContent(
     ) {
         ProjectProgressDescriptionArea(minimizedWish, scrollState)
         ProgressForDeveloperScreenButtonArea(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            minimizedWish = minimizedWish,
-            wishId = wishId,
-            onSubmitScreen = onSubmitScreen,
-            onMessageScreen = onMessageScreen
+            onSubmitScreen = { onSubmitScreen(minimizedWish, wishId) },
+            onMessageScreen = { onMessageScreen(minimizedWish) },
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 }

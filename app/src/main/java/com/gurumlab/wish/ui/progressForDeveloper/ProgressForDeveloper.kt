@@ -31,10 +31,11 @@ import com.gurumlab.wish.ui.util.CustomIconButton
 @Composable
 fun ProjectProgressDescriptionArea(
     minimizedWish: MinimizedWish,
-    scrollState: ScrollState
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(start = 24.dp, end = 24.dp)
@@ -156,11 +157,9 @@ fun WishMaker(wishMaker: String) {
 
 @Composable
 fun ProgressForDeveloperScreenButtonArea(
-    modifier: Modifier = Modifier,
-    minimizedWish: MinimizedWish,
-    wishId: String,
-    onSubmitScreen: (MinimizedWish, String) -> Unit,
-    onMessageScreen: (MinimizedWish) -> Unit
+    onSubmitScreen: () -> Unit,
+    onMessageScreen: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier
@@ -178,12 +177,14 @@ fun ProgressForDeveloperScreenButtonArea(
                 text = stringResource(R.string.finish),
                 icon = R.drawable.ic_clap,
                 description = stringResource(R.string.btn_begin),
-                onClick = { onSubmitScreen(minimizedWish, wishId) })
+                onClick = onSubmitScreen
+            )
             CustomIconButton(
                 text = stringResource(R.string.message),
                 icon = R.drawable.ic_message_enabled,
                 description = stringResource(R.string.btn_message),
-                onClick = { onMessageScreen(minimizedWish) })
+                onClick = onMessageScreen
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
     }

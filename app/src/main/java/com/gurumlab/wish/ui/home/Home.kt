@@ -64,10 +64,10 @@ fun HomeVerticalPager(
 
 @Composable
 fun WishCard(
-    modifier: Modifier = Modifier,
     wish: Wish,
     onStartClick: () -> Unit,
-    onLikeClick: () -> Unit
+    onLikeClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -82,7 +82,7 @@ fun WishCard(
 @Composable
 fun WishCardImageArea(
     wish: Wish,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         AsyncImage(
