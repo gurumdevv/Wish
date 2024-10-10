@@ -15,10 +15,6 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,9 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -75,37 +69,25 @@ fun WishCard(
     onStartClick: () -> Unit,
     onLikeClick: () -> Unit
 ) {
-    var screenHeight by remember { mutableIntStateOf(0) }
-    var noImageContentHeight by remember { mutableIntStateOf(0) }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .onGloballyPositioned { coordinates ->
-                screenHeight = coordinates.size.height
-            }
     ) {
-        WishCardImageArea(wish, screenHeight, noImageContentHeight)
-        WishCardContentWithoutImageArea(wish, onStartClick, onLikeClick) { height ->
-            noImageContentHeight = height
-        }
+        WishCardImageArea(wish, Modifier.weight(1f))
+        WishCardContentWithoutImageArea(wish, onStartClick, onLikeClick)
     }
 }
 
 @Composable
 fun WishCardImageArea(
     wish: Wish,
-    screenHeight: Int,
-    noImageContentHeight: Int
+    modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
-
-    Box {
+    Box(modifier = modifier.fillMaxSize()) {
         AsyncImage(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(with(density) { (screenHeight - noImageContentHeight).toDp() }),
+                .fillMaxSize(),
             model = wish.representativeImage,
             contentDescription = stringResource(R.string.wish_representative_image),
             contentScale = ContentScale.Crop
@@ -145,11 +127,10 @@ fun WishCardContentWithoutImageArea(
     wish: Wish,
     onStartClick: () -> Unit,
     onLikeClick: () -> Unit,
-    onHeightChange: (height: Int) -> Unit
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
-            .onGloballyPositioned { coordinates -> onHeightChange(coordinates.size.height) }
+        modifier = modifier.fillMaxWidth()
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         WishCardDescriptionArea(wish)
