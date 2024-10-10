@@ -1,19 +1,21 @@
 package com.gurumlab.wish.ui.detail
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.gurumlab.wish.data.model.MinimizedWish
+import com.gurumlab.wish.data.model.UserInfo
 import com.gurumlab.wish.data.model.Wish
+import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.DetailRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,76 +24,174 @@ class DetailViewModel @Inject constructor(
     private val repository: DetailRepository
 ) : ViewModel() {
 
-    private val _wish: MutableStateFlow<Wish?> = MutableStateFlow(null)
-    val wish = _wish.asStateFlow()
+    private val _uiState: MutableStateFlow<DetailUiState> = MutableStateFlow(DetailUiState.Loading)
+    val uiState = _uiState.asStateFlow()
 
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
-    private val _isFailed: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isFailed = _isFailed.asStateFlow()
+    private val _startingWishUiState: MutableStateFlow<StartingWishUiState> =
+        MutableStateFlow(StartingWishUiState())
+    val startingWishUiState = _startingWishUiState.asStateFlow()
 
-    val currentDate = DateTimeConverter.getCurrentDate()
-    private val currentUser = Firebase.auth.currentUser
-    val currentUserUid = currentUser?.uid ?: ""
-    val currentUserName = currentUser?.displayName ?: ""
-
-    private val _isStartedDateUpdateSuccess: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isStartedDateUpdateSuccess = _isStartedDateUpdateSuccess.asStateFlow()
-    private val _isDeveloperNameUpdateSuccess: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isDeveloperNameUpdateSuccess = _isDeveloperNameUpdateSuccess.asStateFlow()
-    private val _isDeveloperIdUpdateSuccess: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isDeveloperIdUpdateSuccess = _isDeveloperIdUpdateSuccess.asStateFlow()
-
-    private val _retryCount = mutableStateOf(0)
-    val retryCount: State<Int> = _retryCount
-
-    fun initializeDetail(wishId: String) {
+    fun loadWish(wishId: String) {
         viewModelScope.launch {
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isBlank()) {
+                _uiState.value = DetailUiState.Fail
+                return@launch
+            }
+
             val response = repository.getPost(
+                idToken = idToken,
                 postId = wishId,
-                onCompletion = {
-                    _isLoading.value = false
-                },
-                onSuccess = {
-                    _isFailed.value = false
-                },
                 onError = { message ->
                     Log.d("DetailViewModel", "onError called $message")
-                    _isFailed.value = true
+                    _uiState.value = DetailUiState.Fail
                 },
                 onException = { message ->
                     Log.d("DetailViewModel", "onException called $message")
-                    _isFailed.value = true
+                    _uiState.value = DetailUiState.Fail
                 }
             )
 
-            response.singleOrNull().let { _wish.value = it }
+            _uiState.value = response
+                .onStart { _uiState.value = DetailUiState.Loading }
+                .singleOrNull()?.let {
+                    DetailUiState.Success(it)
+                } ?: DetailUiState.Fail
         }
     }
 
-    fun updateStartedDate(postId: String, startedDate: Int) {
+    private suspend fun updateStatus(idToken: String, postId: String): Boolean {
+        val response = repository.updateStatus(
+            idToken = idToken,
+            postId = postId,
+            status = WishStatus.ONGOING.ordinal
+        )
+        return if (response) {
+            _startingWishUiState.update { it.copy(isStatusUpdateSuccess = true) }
+            true
+        } else false
+    }
+
+    private suspend fun updateStartedDate(
+        idToken: String,
+        postId: String,
+        startedDate: Int
+    ): Boolean {
+        val response = repository.updateStartedDate(
+            idToken = idToken,
+            postId = postId,
+            startedDate = startedDate
+        )
+        return if (response) {
+            _startingWishUiState.update { it.copy(isStartedDateUpdateSuccess = true) }
+            true
+        } else false
+    }
+
+    private suspend fun updateDeveloperName(
+        idToken: String,
+        postId: String,
+        developerName: String
+    ): Boolean {
+        val response = repository.updateDeveloperName(
+            idToken = idToken,
+            postId = postId,
+            developerName = developerName
+        )
+        return if (response) {
+            _startingWishUiState.update { it.copy(isDeveloperNameUpdateSuccess = true) }
+            true
+        } else false
+    }
+
+    private suspend fun updateDeveloperId(
+        idToken: String,
+        postId: String,
+        developerId: String
+    ): Boolean {
+        val response = repository.updateDeveloperId(
+            idToken = idToken,
+            postId = postId,
+            developerId = developerId
+        )
+        return if (response) {
+            _startingWishUiState.update { it.copy(isDeveloperIdUpdateSuccess = true) }
+            true
+        } else false
+    }
+
+    fun fetchCurrentDate(): Int = DateTimeConverter.getCurrentDate()
+
+    fun fetchUserInfo(): UserInfo {
+        val currentUser = repository.getCurrentUser()
+        return UserInfo(
+            uid = currentUser?.uid ?: "",
+            name = currentUser?.displayName ?: ""
+        )
+    }
+
+    fun fetchMinimizedWish(
+        wish: Wish,
+        currentDate: Int,
+        currentUser: UserInfo
+    ): MinimizedWish {
+        return MinimizedWish(
+            postId = wish.postId,
+            createdDate = wish.createdDate,
+            startedDate = currentDate,
+            completedDate = wish.completedDate,
+            posterId = wish.posterId,
+            developerId = currentUser.uid,
+            posterName = wish.posterName,
+            developerName = currentUser.name,
+            title = wish.title,
+            simpleDescription = wish.simpleDescription,
+            comment = wish.comment
+        )
+    }
+
+    fun updateWish(
+        wishId: String,
+        currentDate: Int,
+        currentUser: UserInfo
+    ) {
         viewModelScope.launch {
-            val response = repository.updateStartedDate(postId, startedDate)
-            _isStartedDateUpdateSuccess.value = response
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isBlank()) {
+                _startingWishUiState.update { it.copy(isFailUpdateWish = true) }
+                resetIsFailUpdateWish()
+            }
+            val isStatusUpdatedSuccess = async { updateStatus(idToken, wishId) }.await()
+            val isDateUpdatedSuccess =
+                async { updateStartedDate(idToken, wishId, currentDate) }.await()
+            val isDeveloperNameUpdatedSuccess =
+                async { updateDeveloperName(idToken, wishId, currentUser.name) }.await()
+            val isDeveloperIdUpdatedSuccess =
+                async { updateDeveloperId(idToken, wishId, currentUser.uid) }.await()
+
+            if (isStatusUpdatedSuccess || isDateUpdatedSuccess || isDeveloperNameUpdatedSuccess || isDeveloperIdUpdatedSuccess) {
+                _startingWishUiState.update { it.copy(isFailUpdateWish = true) }
+                resetIsFailUpdateWish()
+                return@launch
+            }
         }
     }
 
-    fun updateDeveloperName(postId: String, developerName: String) {
-        viewModelScope.launch {
-            val response = repository.updateDeveloperName(postId, developerName)
-            _isDeveloperNameUpdateSuccess.value = response
-        }
-    }
-
-    fun updateDeveloperId(postId: String, developerId: String) {
-        viewModelScope.launch {
-            val response = repository.updateDeveloperId(postId, developerId)
-            _isDeveloperIdUpdateSuccess.value = response
-        }
-    }
-
-    fun retryLoadWish(wishId: String) {
-        _retryCount.value++
-        initializeDetail(wishId)
+    private fun resetIsFailUpdateWish() {
+        _startingWishUiState.update { it.copy(isFailUpdateWish = false) }
     }
 }
+
+sealed class DetailUiState {
+    data object Loading : DetailUiState()
+    data object Fail : DetailUiState()
+    data class Success(val wish: Wish) : DetailUiState()
+}
+
+data class StartingWishUiState(
+    val isStatusUpdateSuccess: Boolean = false,
+    val isStartedDateUpdateSuccess: Boolean = false,
+    val isDeveloperNameUpdateSuccess: Boolean = false,
+    val isDeveloperIdUpdateSuccess: Boolean = false,
+    val isFailUpdateWish: Boolean = false
+)

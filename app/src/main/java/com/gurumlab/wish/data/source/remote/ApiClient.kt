@@ -14,7 +14,8 @@ interface ApiClient {
 
     @GET("posts/{postId}.json")
     suspend fun getPostByPostId(
-        @Path("postId") postId: String
+        @Path("postId") postId: String,
+        @Query("auth") idToken: String
     ): ApiResponse<Wish>
 
     @GET("posts.json")
@@ -42,7 +43,8 @@ interface ApiClient {
     @PUT("posts/{postId}/status.json")
     suspend fun updateStatus(
         @Path("postId") postId: String,
-        @Body status: Int
+        @Body status: Int,
+        @Query("auth") idToken: String
     )
 
     @PUT("posts/{postId}/completedDate.json")
@@ -54,19 +56,22 @@ interface ApiClient {
     @PUT("posts/{postId}/startedDate.json")
     suspend fun updateStartedDate(
         @Path("postId") postId: String,
-        @Body startedDate: Int
+        @Body startedDate: Int,
+        @Query("auth") idToken: String
     )
 
     @PUT("posts/{postId}/developerId.json")
     suspend fun updateDeveloperId(
         @Path("postId") postId: String,
-        @Body developerId: String
+        @Body developerId: String,
+        @Query("auth") idToken: String
     )
 
     @PUT("posts/{postId}/developerName.json")
     suspend fun updateDeveloperName(
         @Path("postId") postId: String,
-        @Body developerName: String
+        @Body developerName: String,
+        @Query("auth") idToken: String
     )
 
     @GET("posts/{postIdentifier}/likes.json")

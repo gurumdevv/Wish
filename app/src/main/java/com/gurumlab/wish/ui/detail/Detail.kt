@@ -26,15 +26,18 @@ import com.gurumlab.wish.data.model.DetailDescription
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomIconButton
+import com.gurumlab.wish.ui.util.CustomLoadingScreen
 
 @Composable
 fun ProjectDescriptionArea(
     scrollState: ScrollState,
-    wish: Wish
+    wish: Wish,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(start = 24.dp, end = 24.dp)
@@ -118,10 +121,10 @@ fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
 
 @Composable
 fun DetailScreenButtonArea(
-    modifier: Modifier = Modifier,
     minimizedWish: MinimizedWish,
     onUpdateWish: () -> Unit,
     onMessageScreen: (MinimizedWish) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier
@@ -152,4 +155,25 @@ fun DetailScreenButtonArea(
         }
         Spacer(modifier = Modifier.height(16.dp))
     }
+}
+
+@Composable
+fun DetailLoadingScreen(
+    modifier: Modifier = Modifier
+) {
+    CustomLoadingScreen(modifier = modifier)
+}
+
+@Composable
+fun DetailFailScreen(
+    wishId: String,
+    viewModel: DetailViewModel,
+    modifier: Modifier = Modifier
+) {
+    CustomExceptionScreen(
+        titleRsc = R.string.cannot_load_data,
+        descriptionRsc = R.string.retry_load_wish,
+        onClick = { viewModel.loadWish(wishId) },
+        modifier = modifier
+    )
 }

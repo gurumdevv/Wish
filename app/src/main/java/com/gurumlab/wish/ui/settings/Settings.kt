@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
 
 //<--- Settings--->
 @Composable
-fun UserInfo(userInfo: UserInfo, context: Context) {
+fun SettingsUserInfo(userInfo: UserInfo, context: Context) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -5,31 +5,38 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.MinimizedWish
-import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomExceptionScreen
-import com.gurumlab.wish.ui.util.CustomLoadingScreen
+import com.gurumlab.wish.ui.util.CustomSnackbarContent
 
 @Composable
 fun DetailScreen(
-    topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
     wishId: String,
     viewModel: DetailViewModel,
     onProgressScreen: (MinimizedWish, String) -> Unit,
-    onMessageScreen: (MinimizedWish) -> Unit
+    onMessageScreen: (MinimizedWish) -> Unit,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
-        viewModel.initializeDetail(wishId)
+        viewModel.loadWish(wishId)
     }
 
     Scaffold(
@@ -37,112 +44,98 @@ fun DetailScreen(
         bottomBar = bottomBar
     ) { innerPadding ->
         DetailContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(backgroundColor)
-                .padding(innerPadding),
             wishId = wishId,
             viewModel = viewModel,
             onProgressScreen = onProgressScreen,
-            onMessageScreen = onMessageScreen
+            onMessageScreen = onMessageScreen,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(innerPadding)
         )
     }
 }
 
 @Composable
 fun DetailContent(
-    modifier: Modifier,
     wishId: String,
     viewModel: DetailViewModel,
     onProgressScreen: (MinimizedWish, String) -> Unit,
-    onMessageScreen: (MinimizedWish) -> Unit
+    onMessageScreen: (MinimizedWish) -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
-    val wish = viewModel.wish.collectAsStateWithLifecycle(initialValue = null)
-    val isStartedDateUpdateSuccess =
-        viewModel.isStartedDateUpdateSuccess.collectAsStateWithLifecycle()
-    val isDeveloperIdUpdateSuccess =
-        viewModel.isDeveloperIdUpdateSuccess.collectAsStateWithLifecycle()
-    val isDeveloperNameUpdateSuccess =
-        viewModel.isDeveloperNameUpdateSuccess.collectAsStateWithLifecycle()
-    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
-    val isFailed = viewModel.isFailed.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val startingWishUiState by viewModel.startingWishUiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel.retryCount.value) {
-        if (viewModel.retryCount.value > 0) viewModel.initializeDetail(wishId)
-    }
+    when (uiState) {
+        DetailUiState.Loading -> {
+            DetailLoadingScreen(modifier)
+        }
 
-    if (isLoading.value) {
-        CustomLoadingScreen(modifier = modifier)
-    } else {
-        if (isFailed.value) {
-            CustomExceptionScreen(
-                modifier = modifier,
-                titleRsc = R.string.cannot_load_data,
-                descriptionRsc = R.string.retry_load_wish,
-                onClick = { viewModel.retryLoadWish(wishId) }
-            )
-        } else {
-            wish.value?.let { loadedWish ->
-                val minimizedWish = remember {
-                    getMinimizedWish(
-                        loadedWish,
-                        viewModel.currentDate,
-                        viewModel.currentUserUid,
-                        viewModel.currentUserName
+        DetailUiState.Fail -> {
+            DetailFailScreen(wishId = wishId, viewModel = viewModel)
+        }
+
+        is DetailUiState.Success -> {
+            val wish = (uiState as DetailUiState.Success).wish
+            val currentDate = remember { viewModel.fetchCurrentDate() }
+            val currentUser = remember { viewModel.fetchUserInfo() }
+            val minimizedWish =
+                remember {
+                    viewModel.fetchMinimizedWish(
+                        wish = wish,
+                        currentDate = currentDate,
+                        currentUser = currentUser
                     )
                 }
-                val onUpdateWish: () -> Unit = remember {
-                    {
-                        viewModel.updateStartedDate(wishId, viewModel.currentDate)
-                        viewModel.updateDeveloperName(wishId, viewModel.currentUserName)
-                        viewModel.updateDeveloperId(wishId, viewModel.currentUserUid)
-                    }
-                }
 
-                LaunchedEffect(
-                    isStartedDateUpdateSuccess.value,
-                    isDeveloperIdUpdateSuccess.value,
-                    isDeveloperNameUpdateSuccess.value
-                ) {
-                    if (isStartedDateUpdateSuccess.value && isDeveloperIdUpdateSuccess.value && isDeveloperNameUpdateSuccess.value) {
-                        onProgressScreen(minimizedWish, wishId)
-                    }
-                }
+            Box(
+                modifier = modifier
+            ) {
+                ProjectDescriptionArea(scrollState = scrollState, wish = wish)
+                DetailScreenButtonArea(
+                    minimizedWish = minimizedWish,
+                    onUpdateWish = { viewModel.updateWish(wishId, currentDate, currentUser) },
+                    onMessageScreen = onMessageScreen,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
 
-                Box(
-                    modifier = modifier
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 24.dp)
+                ) { data ->
+                    CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
+                }
+            }
+
+            LaunchedEffect(
+                startingWishUiState.isStatusUpdateSuccess,
+                startingWishUiState.isStartedDateUpdateSuccess,
+                startingWishUiState.isDeveloperIdUpdateSuccess,
+                startingWishUiState.isDeveloperNameUpdateSuccess
+            ) {
+                if (startingWishUiState.isStatusUpdateSuccess
+                    && startingWishUiState.isStartedDateUpdateSuccess
+                    && startingWishUiState.isDeveloperIdUpdateSuccess
+                    && startingWishUiState.isDeveloperNameUpdateSuccess
                 ) {
-                    ProjectDescriptionArea(scrollState = scrollState, wish = loadedWish)
-                    DetailScreenButtonArea(
-                        modifier = Modifier.align(Alignment.BottomCenter),
-                        minimizedWish = minimizedWish,
-                        onUpdateWish = onUpdateWish,
-                        onMessageScreen = onMessageScreen
-                    )
+                    onProgressScreen(minimizedWish, wishId)
                 }
             }
         }
     }
-}
 
-fun getMinimizedWish(
-    wish: Wish,
-    startedDate: Int,
-    currentUserUid: String,
-    currentUserName: String
-): MinimizedWish {
-    return MinimizedWish(
-        postId = wish.postId,
-        createdDate = wish.createdDate,
-        startedDate = startedDate,
-        completedDate = wish.completedDate,
-        posterId = wish.posterId,
-        developerId = currentUserUid,
-        posterName = wish.posterName,
-        developerName = currentUserName,
-        title = wish.title,
-        simpleDescription = wish.simpleDescription,
-        comment = wish.comment
-    )
+    LaunchedEffect(startingWishUiState.isFailUpdateWish) {
+        if (startingWishUiState.isFailUpdateWish) {
+            snackbarHostState.showSnackbar(
+                message = context.getString(R.string.please_try_again_later),
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
 }

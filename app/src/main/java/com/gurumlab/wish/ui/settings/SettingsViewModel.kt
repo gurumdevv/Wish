@@ -132,7 +132,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun fetchUserInfo(): UserInfo {
-        val userInfo = repository.getUserInfo()
+        val userInfo = repository.getCurrentUser()
         val name = userInfo?.displayName ?: Constants.USER
         val email = userInfo?.email ?: Constants.EMAIL
         val imageUrl = userInfo?.photoUrl?.toString() ?: ""

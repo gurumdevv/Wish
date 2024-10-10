@@ -25,10 +25,10 @@ fun DetailRoute(
 
     val viewModel = hiltViewModel<DetailViewModel>()
     DetailScreen(
-        topBar = topBar,
         wishId = wishId,
         viewModel = viewModel,
         onProgressScreen = onProgressScreen,
-        onMessageScreen = onMessageScreen
+        onMessageScreen = onMessageScreen,
+        topBar = topBar
     )
 }

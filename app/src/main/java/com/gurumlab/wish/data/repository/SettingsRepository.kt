@@ -26,7 +26,7 @@ class SettingsRepository @Inject constructor(
     private val authManager: FirebaseAuthManager
 ) {
 
-    fun getUserInfo() = currentUser
+    fun getCurrentUser() = currentUser
 
     fun getUid() = currentUser?.uid ?: ""
 

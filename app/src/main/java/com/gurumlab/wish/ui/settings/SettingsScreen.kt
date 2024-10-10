@@ -61,7 +61,7 @@ fun SettingsContent(
     Column(
         modifier = modifier
     ) {
-        UserInfo(viewModel.userInfo, context)
+        SettingsUserInfo(viewModel.userInfo, context)
         Spacer(modifier = Modifier.height(16.dp))
         SettingsItem(
             text = stringResource(R.string.account_setting),
