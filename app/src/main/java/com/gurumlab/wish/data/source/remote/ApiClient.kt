@@ -50,7 +50,8 @@ interface ApiClient {
     @PUT("posts/{postId}/completedDate.json")
     suspend fun updateCompletedDate(
         @Path("postId") postId: String,
-        @Body completedDate: Int
+        @Body completedDate: Int,
+        @Query("auth") idToken: String
     )
 
     @PUT("posts/{postId}/startedDate.json")
@@ -87,7 +88,8 @@ interface ApiClient {
 
     @POST("completedPosts.json")
     suspend fun uploadCompletedPost(
-        @Body completedWish: CompletedWish
+        @Body completedWish: CompletedWish,
+        @Query("auth") idToken: String
     ): ApiResponse<Map<String, String>>
 
     @GET("posts.json")

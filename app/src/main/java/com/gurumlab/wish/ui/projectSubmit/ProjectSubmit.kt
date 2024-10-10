@@ -1,11 +1,18 @@
 package com.gurumlab.wish.ui.projectSubmit
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,7 +28,73 @@ import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.CustomTextField
+import com.gurumlab.wish.ui.util.CustomWideButton
 import com.gurumlab.wish.ui.util.DateTimeConverter
+
+@Composable
+fun ProjectSubmitInputArea(
+    minimizedWish: MinimizedWish,
+    projectSubmitInputFieldUiState: ProjectSubmitInputFieldUiState,
+    scrollState: ScrollState,
+    onRepositoryInfoChange: (String) -> Unit,
+    onAccountInfoChange: (String) -> Unit,
+    onAccountOwnerChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .imePadding()
+            .verticalScroll(scrollState)
+    ) {
+        ProjectTitle(title = minimizedWish.title)
+        Spacer(modifier = Modifier.height(8.dp))
+        ExplanationThanks(minimizedWish = minimizedWish)
+        Spacer(modifier = Modifier.height(8.dp))
+        PeriodOfProgressTitle()
+        Spacer(modifier = Modifier.height(8.dp))
+        PeriodOfProgress(minimizedWish = minimizedWish)
+        Spacer(modifier = Modifier.height(16.dp))
+        RepositoryInfoTitle()
+        Spacer(modifier = Modifier.height(8.dp))
+        RepositoryInfoInput(
+            text = projectSubmitInputFieldUiState.repositoryInfo,
+            onValueChange = onRepositoryInfoChange
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        RepositoryInfoInputHint()
+        Spacer(modifier = Modifier.height(6.dp))
+        AccountInfoTitle()
+        Spacer(modifier = Modifier.height(8.dp))
+        AccountInfoInput(
+            text = projectSubmitInputFieldUiState.accountInfo,
+            onValueChange = onAccountInfoChange
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        AccountOwnerTitle()
+        Spacer(modifier = Modifier.height(8.dp))
+        AccountOwnerInput(
+            text = projectSubmitInputFieldUiState.accountOwner,
+            onValueChange = onAccountOwnerChange
+        )
+    }
+}
+
+@Composable
+fun ProjectSubmitButtonArea(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        CustomWideButton(
+            text = stringResource(R.string.submit),
+            onClick = onClick
+        )
+        Spacer(modifier = Modifier.size(24.dp))
+    }
+}
 
 @Composable
 fun ProjectTitle(title: String) {
