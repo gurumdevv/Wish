@@ -54,7 +54,7 @@ class HomeViewModel @Inject constructor(
                 .onStart { _uiState.value = HomeUiState.Loading }
                 .collect { loadedWishes ->
                     val filteredWishes =
-                        loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+                        loadedWishes.filter { it.value.status == WishStatus.POSTED.ordinal }
                     if (filteredWishes.isEmpty()) {
                         _uiState.value = HomeUiState.Empty
                     } else {

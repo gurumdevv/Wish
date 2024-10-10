@@ -94,7 +94,7 @@ class WishesViewModel @Inject constructor(
 
             response.collect { loadedWishes ->
                 val filteredWishes =
-                    loadedWishes.filter { it.value.status != WishStatus.COMPLETED.ordinal }
+                    loadedWishes.filter { it.value.status == WishStatus.POSTED.ordinal }
                 _uiState.update { wishesUpdate(filteredWishes) }
             }
         }
