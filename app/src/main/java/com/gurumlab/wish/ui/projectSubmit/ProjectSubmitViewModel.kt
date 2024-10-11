@@ -6,12 +6,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FieldValue
-import com.gurumlab.wish.data.model.Chat
 import com.gurumlab.wish.data.model.CompletedWish
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.ProjectSubmitRepository
+import com.gurumlab.wish.ui.message.addMessage
+import com.gurumlab.wish.ui.message.getChatRoom
+import com.gurumlab.wish.ui.message.updateChatRoom
 import com.gurumlab.wish.ui.util.Constants
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -143,71 +143,39 @@ class ProjectSubmitViewModel @Inject constructor(
         minimizedWish: MinimizedWish,
         projectCompletedDescription: String
     ): Boolean {
-        return try {
-            val currentUser = repository.getCurrentUser()
-            val uid = currentUser?.uid ?: ""
-            val othersUid = minimizedWish.posterId
-            val roomId = "${uid}+${othersUid}"
+        val currentUser = repository.getCurrentUser()
+        val uid = currentUser?.uid ?: ""
+        val othersUid = minimizedWish.posterId
+        val roomId = "${uid}+${othersUid}"
 
-            val fireStore = repository.getFireStore()
-            val myFireStoreRef = fireStore.collection(uid).document(roomId)
-            val othersFireStoreRef = fireStore.collection(othersUid).document(roomId)
-            val batch = fireStore.batch()
+        val fireStore = repository.getFireStore()
+        val myFireStoreRef = fireStore.collection(uid).document(roomId)
+        val othersFireStoreRef = fireStore.collection(othersUid).document(roomId)
 
-            val database = repository.getDatabaseRef()
-            val messagesRef = database.child(Constants.MESSAGES).child(roomId)
+        val database = repository.getDatabaseRef()
+        val messagesRef = database.child(Constants.MESSAGES).child(roomId)
 
-            val newChat = Chat(
-                uid = uid,
-                message = completedWishId,
-                sentAt = System.currentTimeMillis(),
-                submission = true
-            )
+        val isMessageSent = addMessage(
+            uid = uid,
+            message = completedWishId,
+            isSubmission = true,
+            messagesRef = messagesRef
+        )
+        if (!isMessageSent) return false
 
-            val currentTimeStamp = FieldValue.serverTimestamp()
-            val chatRoomData = mutableMapOf(
-                Constants.LAST_MESSAGE to projectCompletedDescription,
-                Constants.LAST_SENT_AT to currentTimeStamp
-            )
+        val chatRoom = getChatRoom(myFireStoreRef) ?: return false
 
-            messagesRef.push().setValue(newChat).await()
+        val isFireStoreUpdated = updateChatRoom(
+            message = projectCompletedDescription,
+            chatRoom = chatRoom,
+            roomId = roomId,
+            myUid = uid,
+            othersUid = othersUid,
+            myFireStoreRef = myFireStoreRef,
+            othersFireStoreRef = othersFireStoreRef
+        )
 
-            val chatRoomSnapshot = myFireStoreRef.get().await()
-            if (chatRoomSnapshot.exists()) {
-                batch.update(myFireStoreRef, chatRoomData)
-                batch.update(othersFireStoreRef, chatRoomData)
-                batch.update(
-                    othersFireStoreRef,
-                    Constants.NOT_READ_MESSAGE_COUNT,
-                    FieldValue.increment(1)
-                )
-                batch.commit().await()
-            } else {
-                val myChatRoomData = mutableMapOf(
-                    Constants.ID to roomId,
-                    Constants.OTHERS_UID to othersUid,
-                    Constants.LAST_MESSAGE to projectCompletedDescription,
-                    Constants.LAST_SENT_AT to currentTimeStamp,
-                    Constants.NOT_READ_MESSAGE_COUNT to 0
-                )
-                val othersChatRoomData = mutableMapOf(
-                    Constants.ID to roomId,
-                    Constants.OTHERS_UID to uid,
-                    Constants.LAST_MESSAGE to projectCompletedDescription,
-                    Constants.LAST_SENT_AT to currentTimeStamp,
-                    Constants.NOT_READ_MESSAGE_COUNT to 1
-                )
-
-                batch.set(myFireStoreRef, myChatRoomData)
-                batch.set(othersFireStoreRef, othersChatRoomData)
-                batch.commit().await()
-            }
-
-            true
-        } catch (e: Exception) {
-            Log.d("ProjectSubmitViewModel", "Message submission failed: ${e.message}")
-            false
-        }
+        return isFireStoreUpdated
     }
 
     private suspend fun updateWishStatus(idToken: String, wishId: String): Boolean {
