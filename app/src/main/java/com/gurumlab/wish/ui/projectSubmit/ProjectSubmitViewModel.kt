@@ -172,14 +172,36 @@ class ProjectSubmitViewModel @Inject constructor(
 
             messagesRef.push().setValue(newChat).await()
 
-            batch.update(myFireStoreRef, chatRoomData)
-            batch.update(othersFireStoreRef, chatRoomData)
-            batch.update(
-                othersFireStoreRef,
-                Constants.NOT_READ_MESSAGE_COUNT,
-                FieldValue.increment(1)
-            )
-            batch.commit().await()
+            val chatRoomSnapshot = myFireStoreRef.get().await()
+            if (chatRoomSnapshot.exists()) {
+                batch.update(myFireStoreRef, chatRoomData)
+                batch.update(othersFireStoreRef, chatRoomData)
+                batch.update(
+                    othersFireStoreRef,
+                    Constants.NOT_READ_MESSAGE_COUNT,
+                    FieldValue.increment(1)
+                )
+                batch.commit().await()
+            } else {
+                val myChatRoomData = mutableMapOf(
+                    Constants.ID to roomId,
+                    Constants.OTHERS_UID to othersUid,
+                    Constants.LAST_MESSAGE to projectCompletedDescription,
+                    Constants.LAST_SENT_AT to currentTimeStamp,
+                    Constants.NOT_READ_MESSAGE_COUNT to 0
+                )
+                val othersChatRoomData = mutableMapOf(
+                    Constants.ID to roomId,
+                    Constants.OTHERS_UID to uid,
+                    Constants.LAST_MESSAGE to projectCompletedDescription,
+                    Constants.LAST_SENT_AT to currentTimeStamp,
+                    Constants.NOT_READ_MESSAGE_COUNT to 1
+                )
+
+                batch.set(myFireStoreRef, myChatRoomData)
+                batch.set(othersFireStoreRef, othersChatRoomData)
+                batch.commit().await()
+            }
 
             true
         } catch (e: Exception) {
