@@ -60,7 +60,7 @@ class ProjectSubmitViewModel @Inject constructor(
         projectCompletedDescription: String
     ) {
         if (!isInputFieldsValid()) {
-            _snackbarMessage.value = emptySnackbarMessageRes
+            updateEmptyState(emptySnackbarMessageRes)
             return
         }
 
@@ -75,19 +75,19 @@ class ProjectSubmitViewModel @Inject constructor(
         viewModelScope.launch {
             val idToken = repository.getFirebaseIdToken()
             if (idToken.isBlank()) {
-                Log.d("ProjectSubmitViewModel", "idToken is blank")
-                updateFailState(failSnackbarMessageRes)
+                handleFailure("idToken is blank", failSnackbarMessageRes)
                 return@launch
             }
 
             val completedWishId = repository.submitWish(
                 idToken = idToken,
-                completedWish = completedWish,
-                onErrorOrException = {
-                    Log.d("ProjectSubmitViewModel", "upload completedWish failed")
-                    updateFailState(failSnackbarMessageRes)
-                },
+                completedWish = completedWish
             ).single()
+
+            if (completedWishId.values.isEmpty()) {
+                handleFailure("completedWish uploading failed", failSnackbarMessageRes)
+                return@launch
+            }
 
             val isMessageSent = sendMessageWithSubmission(
                 completedWishId = completedWishId.values.first(),
@@ -104,29 +104,7 @@ class ProjectSubmitViewModel @Inject constructor(
                     failSnackbarMessageRes = failSnackbarMessageRes
                 )
             } else {
-                updateFailState(failSnackbarMessageRes)
-            }
-        }
-    }
-
-    private fun updateProjectStatus(idToken: String, wishId: String, failSnackbarMessageRes: Int) {
-        viewModelScope.launch {
-            val isStatusUpdatedSuccess = async {
-                updateCompletedDate(
-                    idToken = idToken,
-                    wishId = wishId
-                )
-            }.await()
-            val isCompletedDateUpdatedSuccess = async {
-                updateWishStatus(
-                    idToken = idToken,
-                    wishId = wishId
-                )
-            }.await()
-
-            if (!isStatusUpdatedSuccess || !isCompletedDateUpdatedSuccess) {
-                Log.d("ProjectSubmitViewModel", "Status or Date Update failed")
-                updateFailState(failSnackbarMessageRes)
+                handleFailure("Message sending failed", failSnackbarMessageRes)
             }
         }
     }
@@ -178,6 +156,27 @@ class ProjectSubmitViewModel @Inject constructor(
         return isFireStoreUpdated
     }
 
+    private fun updateProjectStatus(idToken: String, wishId: String, failSnackbarMessageRes: Int) {
+        viewModelScope.launch {
+            val isStatusUpdatedSuccess = async {
+                updateCompletedDate(
+                    idToken = idToken,
+                    wishId = wishId
+                )
+            }.await()
+            val isCompletedDateUpdatedSuccess = async {
+                updateWishStatus(
+                    idToken = idToken,
+                    wishId = wishId
+                )
+            }.await()
+
+            if (!isStatusUpdatedSuccess || !isCompletedDateUpdatedSuccess) {
+                handleFailure("Status or Date Update failed", failSnackbarMessageRes)
+            }
+        }
+    }
+
     private suspend fun updateWishStatus(idToken: String, wishId: String): Boolean {
         val result = repository.updateWishStatus(
             idToken = idToken,
@@ -199,9 +198,16 @@ class ProjectSubmitViewModel @Inject constructor(
         return result
     }
 
-    private fun updateFailState(failSnackbarMessageRes: Int) {
+
+    private fun handleFailure(logMessage: String, snackbarMessageRes: Int) {
+        Log.d("ProjectSubmitViewModel", logMessage)
         _isLoading.value = false
-        _snackbarMessage.value = failSnackbarMessageRes
+        _snackbarMessage.value = snackbarMessageRes
+        resetSnackbarMessageState()
+    }
+
+    private fun updateEmptyState(emptySnackbarMessageRes: Int) {
+        _snackbarMessage.value = emptySnackbarMessageRes
         resetSnackbarMessageState()
     }
 

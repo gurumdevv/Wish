@@ -27,7 +27,6 @@ class ProjectSubmitRepository @Inject constructor(
     fun submitWish(
         idToken: String,
         completedWish: CompletedWish,
-        onErrorOrException: (message: String?) -> Unit,
     ): Flow<Map<String, String>> = flow {
         val response = apiClient.uploadCompletedPost(
             completedWish = completedWish,
@@ -37,10 +36,10 @@ class ProjectSubmitRepository @Inject constructor(
             emit(it)
         }.onError { code, message ->
             emit(emptyMap())
-            onErrorOrException("code: $code, message: $message")
+            Log.d("submitWish", "code: $code, message: $message")
         }.onException {
             emit(emptyMap())
-            onErrorOrException(it.message)
+            Log.d("submitWish", "${it.message}")
         }
     }.flowOn(Dispatchers.IO)
 
