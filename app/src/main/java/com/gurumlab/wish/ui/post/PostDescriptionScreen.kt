@@ -12,141 +12,91 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.theme.defaultBoxColor
-import com.gurumlab.wish.ui.util.CustomSnackbarContent
-import com.gurumlab.wish.ui.util.CustomWideButton
-import kotlinx.coroutines.launch
 
 @Composable
 fun PostDescriptionScreen(
-    topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
     viewModel: PostViewModel,
-    onPostFeatures: () -> Unit
+    onPostFeatures: () -> Unit,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
     ) { innerPadding ->
         PostDescriptionContent(
+            viewModel = viewModel,
+            onPostFeatures = onPostFeatures,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
                 .padding(innerPadding)
-                .padding(start = 24.dp, end = 24.dp),
-            viewModel = viewModel,
-            onPostFeatures = onPostFeatures
+                .padding(start = 24.dp, end = 24.dp)
         )
     }
 }
 
 @Composable
 fun PostDescriptionContent(
-    modifier: Modifier = Modifier,
     viewModel: PostViewModel,
-    onPostFeatures: () -> Unit
+    onPostFeatures: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val projectDescription = viewModel.projectDescription.value
     val buttonAndAroundPaddingHeight = 110.dp
 
     Box(
         modifier = modifier
     ) {
-        Column {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
             PostDescriptionTitleSection()
             Spacer(modifier = Modifier.height(16.dp))
+
             PostDescriptionTextFieldSection(
+                text = viewModel.projectDescription,
+                onValueChange = { viewModel.updateProjectDescription(it) },
                 modifier = Modifier
                     .weight(1f)
                     .consumeWindowInsets(PaddingValues(bottom = buttonAndAroundPaddingHeight))
-                    .imePadding(),
-                text = projectDescription,
-                onValueChange = { viewModel.setProjectDescription(it) }
+                    .imePadding()
             )
             Spacer(modifier = Modifier.height(24.dp))
-            CustomWideButton(
-                text = stringResource(R.string.next)
-            ) {
-                if (projectDescription.isNotBlank()) {
-                    onPostFeatures()
-                } else {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = context.getString(R.string.blank),
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                }
-            }
+
+            PostDescriptionButtonSection(
+                projectDescription = viewModel.projectDescription,
+                onPostFeatures = onPostFeatures,
+                onSnackbarMessageChange = { viewModel.updateSnackbarMessage(it) }
+            )
             Spacer(modifier = Modifier.size(24.dp))
         }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
+        PostScreensSnackbar(
+            snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .offset(y = (-102).dp)
-        ) { data ->
-            CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
-        }
+        )
     }
-}
 
-@Composable
-fun PostDescriptionTitleSection() {
-    PostTitle(titleTextRsc = R.string.post_description_title)
-    Spacer(modifier = Modifier.height(16.dp))
-    PostTitleDescription(descriptionTextRsc = R.string.post_title_description)
-}
-
-@Composable
-fun PostDescriptionTextFieldSection(
-    modifier: Modifier,
-    text: String,
-    onValueChange: (String) -> Unit
-) {
-    Column(
-        modifier = modifier
-    ) {
-        PostSubTitle(textRsc = R.string.post_project_description)
-        Spacer(modifier = Modifier.height(8.dp))
-        PostMultiLineTextField(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(10.dp))
-                .background(defaultBoxColor)
-                .verticalScroll(rememberScrollState()),
-            text = text,
-            onValueChange = onValueChange,
-            placeHolderRsc = R.string.post_project_description_placeholder,
-            textSize = 16,
-            placeHolderTextSize = 16,
-            imeOption = ImeAction.Done
+    LaunchedEffect(viewModel.snackbarMessageRes) {
+        showSnackbar(
+            snackbarMessageRes = viewModel.snackbarMessageRes,
+            context = context,
+            snackbarHostState = snackbarHostState,
+            resetSnackbarMessage = { viewModel.resetSnackbarMessage() }
         )
     }
 }

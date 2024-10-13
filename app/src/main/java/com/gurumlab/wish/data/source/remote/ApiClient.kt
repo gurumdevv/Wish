@@ -83,7 +83,8 @@ interface ApiClient {
 
     @POST("posts.json")
     suspend fun uploadPost(
-        @Body wish: Wish
+        @Body wish: Wish,
+        @Query("auth") idToken: String
     )
 
     @POST("completedPosts.json")

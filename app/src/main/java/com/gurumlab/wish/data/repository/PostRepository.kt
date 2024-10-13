@@ -2,9 +2,9 @@ package com.gurumlab.wish.data.repository
 
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.storage.StorageReference
+import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
 import kotlinx.coroutines.tasks.await
@@ -13,9 +13,11 @@ import javax.inject.Inject
 class PostRepository @Inject constructor(
     private val storageRef: StorageReference,
     private val apiClient: ApiClient,
+    private val currentUser: FirebaseUser?,
+    private val authManager: FirebaseAuthManager
 ) {
 
-    suspend fun uploadImages(imageUri: Uri, postId: String, featureIndex: Int): String {
+    suspend fun uploadImages(postId: String, featureIndex: Int, imageUri: Uri): String {
         val imagesRef =
             storageRef.child("images/${postId}/$featureIndex/${imageUri.lastPathSegment}")
         val uploadTask = imagesRef.putFile(imageUri)
@@ -31,9 +33,9 @@ class PostRepository @Inject constructor(
         }
     }
 
-    suspend fun uploadPost(wish: Wish): Boolean {
+    suspend fun uploadPost(idToken: String, wish: Wish): Boolean {
         try {
-            apiClient.uploadPost(wish)
+            apiClient.uploadPost(wish = wish, idToken = idToken)
             return true
         } catch (e: Exception) {
             Log.d("uploadPost", "Error uploading post: ${e.message}")
@@ -41,11 +43,9 @@ class PostRepository @Inject constructor(
         }
     }
 
-    fun getUid(): String {
-        return Firebase.auth.currentUser?.uid ?: ""
-    }
+    fun getCurrentUser() = currentUser
 
-    fun getUserName(): String {
-        return Firebase.auth.currentUser?.displayName ?: "Wisher"
+    suspend fun getFirebaseIdToken(): String {
+        return authManager.getFirebaseIdToken()
     }
 }

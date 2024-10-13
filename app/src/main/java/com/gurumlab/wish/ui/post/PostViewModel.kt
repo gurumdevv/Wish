@@ -1,10 +1,11 @@
 package com.gurumlab.wish.ui.post
 
 import android.net.Uri
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.DetailDescription
@@ -14,10 +15,10 @@ import com.gurumlab.wish.data.repository.PostRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.URL
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -28,76 +29,76 @@ class PostViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
-    private var _projectTitle = mutableStateOf("")
-    val projectTitle: State<String> = _projectTitle
-    private var _oneLineDescription = mutableStateOf("")
-    val oneLineDescription: State<String> = _oneLineDescription
-    private var _simpleDescription = mutableStateOf("")
-    val simpleDescription: State<String> = _simpleDescription
+    var projectTitle by mutableStateOf("")
+        private set
+    var oneLineDescription by mutableStateOf("")
+        private set
+    var simpleDescription by mutableStateOf("")
+        private set
 
-    private var _projectDescription = mutableStateOf("")
-    val projectDescription: State<String> = _projectDescription
+    var projectDescription by mutableStateOf("")
+        private set
 
-    private var _itemCount = mutableIntStateOf(1)
-    val itemCount: State<Int> = _itemCount
-    private val _featureTitles = mutableStateMapOf<Int, String>()
-    val featureTitles: Map<Int, String> get() = _featureTitles
-    private val _featureDescriptions = mutableStateMapOf<Int, String>()
-    val featureDescriptions: Map<Int, String> get() = _featureDescriptions
-    private val _selectedImageUris = mutableStateMapOf<Int, List<Uri>>()
-    val selectedImageUris: Map<Int, List<Uri>> get() = _selectedImageUris
-    private var imageDownloadUrls = mutableMapOf<Int, MutableList<String>>()
+    var itemCount by mutableIntStateOf(1)
+        private set
+    var featureTitles = mutableStateMapOf<Int, String>()
+        private set
+    var featureDescriptions = mutableStateMapOf<Int, String>()
+        private set
+    var selectedImageUris = mutableStateMapOf<Int, List<Uri>>()
+        private set
+    private val imageDownloadUrls = mutableMapOf<Int, MutableList<String>>()
 
-    private var isImageUploaded = UploadState.NOTHING.ordinal
-    private var _isPostUploaded = mutableIntStateOf(UploadState.NOTHING.ordinal)
-    val isPostUploaded = _isPostUploaded
+    private val _postExaminationUiState: MutableStateFlow<PostExaminationUiState> =
+        MutableStateFlow(PostExaminationUiState.Nothing)
+    val postExaminationUiState = _postExaminationUiState.asStateFlow()
 
-    private var _isLoading = mutableStateOf(false)
-    val isLoading: State<Boolean> = _isLoading
+    var isLoading by mutableStateOf(false)
+        private set
 
-    private var uid: String = ""
+    var snackbarMessageRes by mutableIntStateOf(-1)
+        private set
 
-    fun setProjectTitle(title: String) {
-        _projectTitle.value = title
+    fun uploadPost() {
+        viewModelScope.launch {
+            isLoading = true
+
+            val idToken = repository.getFirebaseIdToken()
+            if (idToken.isEmpty()) {
+                _postExaminationUiState.value = PostExaminationUiState.Failed
+                return@launch
+            }
+
+            val imageUploadedResult =
+                uploadImages(selectedImageUris.toMap()).await()
+
+            when (imageUploadedResult) {
+                UploadState.Success -> {
+                    _postExaminationUiState.value =
+                        if (repository.uploadPost(idToken = idToken, wish = getWish()))
+                            PostExaminationUiState.Success
+                        else
+                            PostExaminationUiState.Failed
+                }
+
+                UploadState.Failed -> {
+                    _postExaminationUiState.value = PostExaminationUiState.Failed
+                }
+            }
+
+            isLoading = false
+        }
     }
 
-    fun setOneLineDescription(description: String) {
-        _oneLineDescription.value = description
-    }
-
-    fun setSimpleDescription(description: String) {
-        _simpleDescription.value = description
-    }
-
-    fun setProjectDescription(description: String) {
-        _projectDescription.value = description
-    }
-
-    fun setItemCount(count: Int) {
-        _itemCount.intValue = count
-    }
-
-    fun setFeatureTitles(index: Int, title: String) {
-        _featureTitles[index] = title
-    }
-
-    fun setFeatureDescriptions(index: Int, description: String) {
-        _featureDescriptions[index] = description
-    }
-
-    fun setSelectedImageUris(index: Int, uris: List<Uri>) {
-        _selectedImageUris[index] = uris
-    }
-
-    private fun uploadImages(imageUris: Map<Int, List<Uri>>): Job = viewModelScope.launch {
+    private fun uploadImages(imageUris: Map<Int, List<Uri>>) = viewModelScope.async {
         val postId = getPostId()
         val uploadResults = imageUris.flatMap { (key, imageUris) ->
             imageUris.map { imageUri ->
                 async {
                     val imageDownloadUrl = repository.uploadImages(
-                        imageUri = imageUri,
                         postId = postId,
-                        featureIndex = key
+                        featureIndex = key,
+                        imageUri = imageUri
                     )
                     imageDownloadUrls.getOrPut(key) { mutableListOf() }.add(imageDownloadUrl)
                     imageDownloadUrl
@@ -106,91 +107,122 @@ class PostViewModel @Inject constructor(
         }
 
         val uploadSuccessList = uploadResults.awaitAll()
-
-        val successUploadCount = uploadSuccessList.count { it.isNotEmpty() }
+        val successUploadCount = uploadSuccessList.count()
         val isAllUploaded = successUploadCount == imageUris.values.sumOf { it.size }
 
-        isImageUploaded =
-            if (isAllUploaded) UploadState.SUCCESS.ordinal else UploadState.FAILED.ordinal
+        if (isAllUploaded) UploadState.Success else UploadState.Failed
     }
 
-    fun uploadPost() {
-        _isLoading.value = true
+    private fun getDetailFeatures(): List<DetailDescription> {
+        val features = mutableListOf<DetailDescription>()
 
-        viewModelScope.launch {
-            getPosterUid()
-            while (uid.isBlank()) {
-                delay(100)
-            }
-
-            val uploadImagesProcess = uploadImages(selectedImageUris.toMap())
-            uploadImagesProcess.invokeOnCompletion {
-                when (isImageUploaded) {
-                    UploadState.SUCCESS.ordinal -> {
-                        val features = mutableListOf<DetailDescription>()
-
-                        featureTitles.forEach { (index, title) ->
-                            val description = featureDescriptions[index] ?: ""
-                            val photos = imageDownloadUrls[index] ?: emptyList()
-                            features.add(DetailDescription(title, description, photos))
-                        }
-
-                        val wish = Wish(
-                            postId = getPostId(),
-                            createdDate = DateTimeConverter.getCurrentDate(),
-                            startedDate = 0,
-                            completedDate = 0,
-                            posterId = uid,
-                            developerId = "",
-                            posterName = getPosterName(),
-                            developerName = "",
-                            title = projectTitle.value,
-                            representativeImage = imageDownloadUrls[0]?.firstOrNull()
-                                ?: URL.DEFAULT_WISH_PHOTO,
-                            status = WishStatus.POSTED.ordinal,
-                            likes = 0,
-                            oneLineDescription = oneLineDescription.value,
-                            simpleDescription = simpleDescription.value,
-                            detailDescription = features,
-                            features = featureTitles.values.toList(),
-                            comment = ""
-                        )
-
-                        viewModelScope.launch {
-                            if (repository.uploadPost(wish)) {
-                                isPostUploaded.intValue = UploadState.SUCCESS.ordinal
-                            } else {
-                                isPostUploaded.intValue = UploadState.FAILED.ordinal
-                                _isLoading.value = false
-                            }
-                        }
-                    }
-
-                    UploadState.FAILED.ordinal -> {
-                        isPostUploaded.intValue = UploadState.FAILED.ordinal
-                        _isLoading.value = false
-                    }
-                }
-            }
+        featureTitles.forEach { (index, title) ->
+            val description =
+                featureDescriptions.getOrDefault(
+                    key = index,
+                    defaultValue = ""
+                )
+            val photos = imageDownloadUrls.getOrDefault(
+                key = index,
+                defaultValue = emptyList() //이미지가 첨부되지 않은 경우 문제가 발생한다면 이부분 확인
+            )
+            features.add(
+                DetailDescription(
+                    feature = title,
+                    description = description,
+                    photos = photos
+                )
+            )
         }
+
+        return features.toList()
+    }
+
+    private fun getWish(): Wish {
+        val uid = repository.getCurrentUser()?.uid ?: ""
+        val userName = repository.getCurrentUser()?.displayName ?: ""
+        val currentDate = DateTimeConverter.getCurrentDate()
+        val postId = getPostId()
+        val detailFeatures = getDetailFeatures()
+
+        return Wish(
+            postId = postId,
+            createdDate = currentDate,
+            startedDate = 0,
+            completedDate = 0,
+            posterId = uid,
+            developerId = "",
+            posterName = userName,
+            developerName = "",
+            title = projectTitle,
+            representativeImage = imageDownloadUrls[0]?.firstOrNull()
+                ?: URL.DEFAULT_WISH_PHOTO,
+            status = WishStatus.POSTED.ordinal,
+            likes = 0,
+            oneLineDescription = oneLineDescription,
+            simpleDescription = simpleDescription,
+            detailDescription = detailFeatures,
+            features = featureTitles.values.toList(),
+            comment = ""
+        )
     }
 
     private fun getPostId(): String {
+        val uid = repository.getCurrentUser()?.uid ?: ""
         val date = DateTimeConverter.getCurrentDate()
         val randomNum = Random.nextInt(0, 9999)
         val formattedNum = String.format(Locale.getDefault(), "%04d", randomNum)
         return "$uid$date$formattedNum"
     }
 
-    private fun getPosterUid() {
-        uid = repository.getUid()
+    fun updateProjectTitle(title: String) {
+        projectTitle = title
     }
 
-    private fun getPosterName() = repository.getUserName()
+    fun updateOneLineDescription(description: String) {
+        oneLineDescription = description
+    }
+
+    fun updateSimpleDescription(description: String) {
+        simpleDescription = description
+    }
+
+    fun updateProjectDescription(description: String) {
+        projectDescription = description
+    }
+
+    fun updateItemCount(count: Int) {
+        itemCount = count
+    }
+
+    fun updateFeatureTitles(index: Int, title: String) {
+        featureTitles[index] = title
+    }
+
+    fun updateFeatureDescriptions(index: Int, description: String) {
+        featureDescriptions[index] = description
+    }
+
+    fun updateSelectedImageUris(index: Int, uris: List<Uri>) {
+        selectedImageUris[index] = uris
+    }
+
+    fun updateSnackbarMessage(messageRsc: Int) {
+        snackbarMessageRes = messageRsc
+    }
+
+    fun resetSnackbarMessage() {
+        snackbarMessageRes = -1
+    }
 }
 
-enum class UploadState {
-    NOTHING,
-    SUCCESS,
-    FAILED
+sealed class UploadState {
+    data object Success : UploadState()
+    data object Failed : UploadState()
+}
+
+sealed class PostExaminationUiState {
+    data object Nothing : PostExaminationUiState()
+    data object Success : PostExaminationUiState()
+    data object Failed : PostExaminationUiState()
 }
