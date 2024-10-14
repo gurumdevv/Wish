@@ -82,7 +82,6 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
-    ksp(libs.dagger.compiler)
     ksp(libs.hilt.compiler)
     implementation(libs.logging.interceptor)
     implementation(libs.okhttp)
