@@ -4,18 +4,18 @@ import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object FirebaseStorageModule {
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun provideStorage() = FirebaseStorage.getInstance()
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun provideStorageRef(storage: FirebaseStorage) = storage.reference
 }
