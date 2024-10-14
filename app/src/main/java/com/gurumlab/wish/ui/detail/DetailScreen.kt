@@ -3,13 +3,10 @@ package com.gurumlab.wish.ui.detail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,14 +14,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomSnackbarContent
+import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
 fun DetailScreen(
@@ -52,6 +49,7 @@ fun DetailScreen(
                 .fillMaxSize()
                 .background(backgroundColor)
                 .padding(innerPadding)
+                .padding(horizontal = 24.dp)
         )
     }
 }
@@ -98,19 +96,24 @@ fun DetailContent(
                 ProjectDescriptionArea(scrollState = scrollState, wish = wish)
                 DetailScreenButtonArea(
                     minimizedWish = minimizedWish,
-                    onUpdateWish = { viewModel.updateWish(wishId, currentDate, currentUser) },
+                    onUpdateWish = {
+                        viewModel.updateWish(
+                            wishId = wishId,
+                            currentDate = currentDate,
+                            currentUser = currentUser,
+                            failSnackbarMessageRes = R.string.please_try_again_later
+                        )
+                    },
                     onMessageScreen = onMessageScreen,
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
 
-                SnackbarHost(
-                    hostState = snackbarHostState,
+                ErrorSnackBarMessage(
+                    snackbarHostState = snackbarHostState,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(horizontal = 24.dp)
-                ) { data ->
-                    CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
-                }
+                        .offset(y = (-102).dp)
+                )
             }
 
             LaunchedEffect(
@@ -119,10 +122,10 @@ fun DetailContent(
                 startingWishUiState.isDeveloperIdUpdateSuccess,
                 startingWishUiState.isDeveloperNameUpdateSuccess
             ) {
-                if (startingWishUiState.isStatusUpdateSuccess
-                    && startingWishUiState.isStartedDateUpdateSuccess
-                    && startingWishUiState.isDeveloperIdUpdateSuccess
-                    && startingWishUiState.isDeveloperNameUpdateSuccess
+                if (startingWishUiState.isStatusUpdateSuccess &&
+                    startingWishUiState.isStartedDateUpdateSuccess &&
+                    startingWishUiState.isDeveloperIdUpdateSuccess &&
+                    startingWishUiState.isDeveloperNameUpdateSuccess
                 ) {
                     onProgressScreen(minimizedWish, wishId)
                 }
@@ -130,12 +133,11 @@ fun DetailContent(
         }
     }
 
-    LaunchedEffect(startingWishUiState.isFailUpdateWish) {
-        if (startingWishUiState.isFailUpdateWish) {
-            snackbarHostState.showSnackbar(
-                message = context.getString(R.string.please_try_again_later),
-                duration = SnackbarDuration.Short
-            )
-        }
+    LaunchedEffect(viewModel.snackbarMessageRes.value) {
+        showSnackbar(
+            snackbarMessageRes = viewModel.snackbarMessageRes.value,
+            context = context,
+            snackbarHostState = snackbarHostState
+        )
     }
 }

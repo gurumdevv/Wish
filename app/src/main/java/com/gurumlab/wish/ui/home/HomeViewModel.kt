@@ -1,14 +1,18 @@
 package com.gurumlab.wish.ui.home
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.HomeRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.NumericConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,8 +32,8 @@ class HomeViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    private val _isFailUpdateLikeCount: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isFailUpdateLikeCount: StateFlow<Boolean> = _isFailUpdateLikeCount.asStateFlow()
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
+        private set
 
     fun loadWishes() {
         viewModelScope.launch {
@@ -41,7 +46,7 @@ class HomeViewModel @Inject constructor(
             val response = repository.getPostsByDate(
                 idToken = idToken,
                 date = DateTimeConverter.getDateMinusDays(NumericConstants.DEFAULT_POST_LOAD_DAY_LIMIT),
-                onError = { message ->
+                onError = { _ ->
                     _uiState.value = HomeUiState.Empty
                 },
                 onException = { message ->
@@ -64,7 +69,20 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getLikes(identifier: String): Flow<Int> = flow {
+    fun updateLikeCount(
+        wishIdentifier: String,
+    ) {
+        viewModelScope.launch {
+            val currentCount = getLikes(wishIdentifier).single()
+            if (currentCount == -1) {
+                handleError(logMessage = "getLikes failed", messageRes = R.string.fail_like_update)
+            } else {
+                updateLikeCount(identifier = wishIdentifier, count = currentCount + 1)
+            }
+        }
+    }
+
+    private fun getLikes(identifier: String): Flow<Int> = flow {
         val idToken = getIdTokenOrHandleError() ?: return@flow emit(-1)
 
         val response = repository.getPostsLikes(
@@ -81,12 +99,14 @@ class HomeViewModel @Inject constructor(
         emitAll(response)
     }
 
-    fun updateLikeCount(identifier: String, count: Int) {
+    private fun updateLikeCount(identifier: String, count: Int) {
         viewModelScope.launch {
             val isSuccess = performUpdateLikeCount(identifier, count)
             if (!isSuccess) {
-                _isFailUpdateLikeCount.value = true
-                resetIsFailUpdateLikeCount()
+                handleError(
+                    logMessage = "updating like count failed",
+                    messageRes = R.string.fail_like_update
+                )
             }
         }
     }
@@ -99,16 +119,29 @@ class HomeViewModel @Inject constructor(
         return repository.updateLikeCount(idToken, identifier, count)
     }
 
-    private fun resetIsFailUpdateLikeCount() {
-        _isFailUpdateLikeCount.value = false
-    }
-
     private suspend fun getIdTokenOrHandleError(): String? {
         val idToken = repository.getFirebaseIdToken()
         if (idToken.isBlank()) {
             return null
         }
         return idToken
+    }
+
+    private fun handleError(logMessage: String, messageRes: Int) {
+        viewModelScope.launch {
+            Log.d("HomeViewModel", logMessage)
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
+        }
+    }
+
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
+    }
+
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
     }
 }
 

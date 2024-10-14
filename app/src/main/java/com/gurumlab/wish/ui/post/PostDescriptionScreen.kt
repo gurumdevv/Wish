@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
 fun PostDescriptionScreen(
@@ -78,12 +80,12 @@ fun PostDescriptionContent(
             PostDescriptionButtonSection(
                 projectDescription = viewModel.projectDescription,
                 onPostFeatures = onPostFeatures,
-                onSnackbarMessageChange = { viewModel.updateSnackbarMessage(it) }
+                onSnackbarMessageChange = { viewModel.showSnackbarMessage(it) }
             )
             Spacer(modifier = Modifier.size(24.dp))
         }
 
-        PostScreensSnackbar(
+        ErrorSnackBarMessage(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -91,12 +93,11 @@ fun PostDescriptionContent(
         )
     }
 
-    LaunchedEffect(viewModel.snackbarMessageRes) {
+    LaunchedEffect(viewModel.snackbarMessageRes.value) {
         showSnackbar(
-            snackbarMessageRes = viewModel.snackbarMessageRes,
+            snackbarMessageRes = viewModel.snackbarMessageRes.value,
             context = context,
-            snackbarHostState = snackbarHostState,
-            resetSnackbarMessage = { viewModel.resetSnackbarMessage() }
+            snackbarHostState = snackbarHostState
         )
     }
 }

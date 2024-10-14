@@ -39,8 +39,7 @@ fun ProjectDescriptionArea(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(start = 24.dp, end = 24.dp)
+            .verticalScroll(scrollState),
     ) {
         ProjectTitle(wish.title)
         Spacer(modifier = Modifier.height(16.dp))
@@ -134,8 +133,7 @@ fun DetailScreenButtonArea(
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CustomIconButton(

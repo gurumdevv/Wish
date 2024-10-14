@@ -25,6 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
 fun PostFeaturesScreen(
@@ -79,7 +81,7 @@ fun PostFeaturesContent(
                 btnTextRsc = R.string.btn_finish,
                 viewModel = viewModel,
                 onClick = onFinishClick,
-                onSnackbarMessageChange = { viewModel.updateSnackbarMessage(it) }
+                onSnackbarMessageChange = { viewModel.showSnackbarMessage(it) }
             )
 
             PostFeaturesLazyColumn(
@@ -111,7 +113,7 @@ fun PostFeaturesContent(
             )
         }
 
-        PostScreensSnackbar(
+        ErrorSnackBarMessage(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -119,12 +121,11 @@ fun PostFeaturesContent(
         )
     }
 
-    LaunchedEffect(viewModel.snackbarMessageRes) {
+    LaunchedEffect(viewModel.snackbarMessageRes.value) {
         showSnackbar(
-            snackbarMessageRes = viewModel.snackbarMessageRes,
+            snackbarMessageRes = viewModel.snackbarMessageRes.value,
             context = context,
             snackbarHostState = snackbarHostState,
-            resetSnackbarMessage = { viewModel.resetSnackbarMessage() }
         )
     }
 }

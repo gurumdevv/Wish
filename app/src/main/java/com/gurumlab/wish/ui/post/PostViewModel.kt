@@ -1,6 +1,7 @@
 package com.gurumlab.wish.ui.post
 
 import android.net.Uri
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -17,6 +18,7 @@ import com.gurumlab.wish.ui.util.URL
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -56,7 +58,7 @@ class PostViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
         private set
 
-    var snackbarMessageRes by mutableIntStateOf(-1)
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
         private set
 
     fun uploadPost() {
@@ -207,12 +209,20 @@ class PostViewModel @Inject constructor(
         selectedImageUris[index] = uris
     }
 
-    fun updateSnackbarMessage(messageRsc: Int) {
-        snackbarMessageRes = messageRsc
+    fun showSnackbarMessage(messageRes: Int) {
+        viewModelScope.launch {
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
+        }
     }
 
-    fun resetSnackbarMessage() {
-        snackbarMessageRes = -1
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
+    }
+
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
     }
 }
 

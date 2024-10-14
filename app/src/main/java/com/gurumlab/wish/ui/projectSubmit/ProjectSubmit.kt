@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.theme.defaultBoxColor
-import com.gurumlab.wish.ui.util.CustomLottieLoader
+import com.gurumlab.wish.ui.util.CustomLoadingScreen
 import com.gurumlab.wish.ui.util.CustomTextField
 import com.gurumlab.wish.ui.util.CustomWideButton
 import com.gurumlab.wish.ui.util.DateTimeConverter
@@ -238,6 +238,6 @@ fun AccountOwnerInput(
 }
 
 @Composable
-fun ProjectSubmitLoadingScreen(modifier: Modifier) {
-    CustomLottieLoader(modifier = modifier, resId = R.raw.animation_default_loading)
+fun ProjectSubmitLoadingScreen(modifier: Modifier = Modifier) {
+    CustomLoadingScreen(modifier)
 }

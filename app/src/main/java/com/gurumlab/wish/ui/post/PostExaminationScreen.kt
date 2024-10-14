@@ -24,6 +24,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomLoadingScreen
+import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
 fun PostExaminationScreen(
@@ -113,7 +115,7 @@ fun PostExaminationContent(
             CustomLoadingScreen()
         }
 
-        PostScreensSnackbar(
+        ErrorSnackBarMessage(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -128,19 +130,18 @@ fun PostExaminationContent(
             }
 
             PostExaminationUiState.Failed -> {
-                viewModel.updateSnackbarMessage(R.string.upload_fail)
+                viewModel.showSnackbarMessage(R.string.upload_fail)
             }
 
             else -> {}
         }
     }
 
-    LaunchedEffect(viewModel.snackbarMessageRes) {
+    LaunchedEffect(viewModel.snackbarMessageRes.value) {
         showSnackbar(
-            snackbarMessageRes = viewModel.snackbarMessageRes,
+            snackbarMessageRes = viewModel.snackbarMessageRes.value,
             context = context,
             snackbarHostState = snackbarHostState,
-            resetSnackbarMessage = { viewModel.resetSnackbarMessage() }
         )
     }
 }

@@ -6,8 +6,10 @@ import android.content.IntentSender
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
-import androidx.compose.runtime.State
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -25,6 +27,7 @@ import com.gurumlab.wish.BuildConfig
 import com.gurumlab.wish.data.model.UserInfo
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,20 +44,12 @@ class LoginViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-    private val _agreementState = mutableStateOf(AgreementState())
-    val agreementState: State<AgreementState> get() = _agreementState
 
-    fun onAgreementChange(
-        ageChecked: Boolean? = null,
-        termsChecked: Boolean? = null,
-        privacyChecked: Boolean? = null
-    ) {
-        _agreementState.value = _agreementState.value.copy(
-            isAgeChecked = ageChecked ?: _agreementState.value.isAgeChecked,
-            isTermsChecked = termsChecked ?: _agreementState.value.isTermsChecked,
-            isPrivacyChecked = privacyChecked ?: _agreementState.value.isPrivacyChecked
-        )
-    }
+    var agreementState by mutableStateOf(AgreementState())
+        private set
+
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
+        private set
 
     private lateinit var signInClient: SignInClient
     private var signInRequest: BeginSignInRequest = getBeginSignInRequest()
@@ -213,6 +208,34 @@ class LoginViewModel @Inject constructor(
 
     private fun updateFailState() {
         _uiState.update { it.copy(isOnGoingSignIn = false, isLoginError = true) }
+    }
+
+    fun showSnackbarMessage(messageRes: Int) {
+        viewModelScope.launch {
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
+        }
+    }
+
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
+    }
+
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
+    }
+
+    fun updateAgreementState(
+        ageChecked: Boolean? = null,
+        termsChecked: Boolean? = null,
+        privacyChecked: Boolean? = null
+    ) {
+        agreementState = agreementState.copy(
+            isAgeChecked = ageChecked ?: agreementState.isAgeChecked,
+            isTermsChecked = termsChecked ?: agreementState.isTermsChecked,
+            isPrivacyChecked = privacyChecked ?: agreementState.isPrivacyChecked
+        )
     }
 }
 

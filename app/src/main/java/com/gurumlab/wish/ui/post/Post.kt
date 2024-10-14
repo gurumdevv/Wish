@@ -651,33 +651,3 @@ fun PostExaminationButtonSection(
         onClick = onClick
     )
 }
-
-// <-- common -->
-@Composable
-fun PostScreensSnackbar(
-    snackbarHostState: SnackbarHostState,
-    modifier: Modifier
-) {
-    SnackbarHost(
-        hostState = snackbarHostState,
-        modifier = modifier
-    ) { data ->
-        CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
-    }
-}
-
-suspend fun showSnackbar(
-    snackbarMessageRes: Int,
-    context: Context,
-    snackbarHostState: SnackbarHostState,
-    resetSnackbarMessage: () -> Unit,
-    duration: SnackbarDuration = SnackbarDuration.Short
-) {
-    if (snackbarMessageRes != -1) {
-        snackbarHostState.showSnackbar(
-            message = context.getString(snackbarMessageRes),
-            duration = duration
-        )
-        resetSnackbarMessage()
-    }
-}

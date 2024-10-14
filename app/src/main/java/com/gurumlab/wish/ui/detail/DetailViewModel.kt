@@ -1,6 +1,8 @@
 package com.gurumlab.wish.ui.detail
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.MinimizedWish
@@ -11,6 +13,7 @@ import com.gurumlab.wish.data.repository.DetailRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
@@ -30,6 +33,9 @@ class DetailViewModel @Inject constructor(
     private val _startingWishUiState: MutableStateFlow<StartingWishUiState> =
         MutableStateFlow(StartingWishUiState())
     val startingWishUiState = _startingWishUiState.asStateFlow()
+
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
+        private set
 
     fun loadWish(wishId: String) {
         viewModelScope.launch {
@@ -153,14 +159,16 @@ class DetailViewModel @Inject constructor(
     fun updateWish(
         wishId: String,
         currentDate: Int,
-        currentUser: UserInfo
+        currentUser: UserInfo,
+        failSnackbarMessageRes: Int
     ) {
         viewModelScope.launch {
             val idToken = repository.getFirebaseIdToken()
             if (idToken.isBlank()) {
-                _startingWishUiState.update { it.copy(isFailUpdateWish = true) }
-                resetIsFailUpdateWish()
+                handleError(logMessage = "IdToken is blank", messageRes = failSnackbarMessageRes)
+                return@launch
             }
+
             val isStatusUpdatedSuccess = async { updateStatus(idToken, wishId) }.await()
             val isDateUpdatedSuccess =
                 async { updateStartedDate(idToken, wishId, currentDate) }.await()
@@ -169,16 +177,34 @@ class DetailViewModel @Inject constructor(
             val isDeveloperIdUpdatedSuccess =
                 async { updateDeveloperId(idToken, wishId, currentUser.uid) }.await()
 
-            if (isStatusUpdatedSuccess || isDateUpdatedSuccess || isDeveloperNameUpdatedSuccess || isDeveloperIdUpdatedSuccess) {
-                _startingWishUiState.update { it.copy(isFailUpdateWish = true) }
-                resetIsFailUpdateWish()
-                return@launch
+            if (!isStatusUpdatedSuccess ||
+                !isDateUpdatedSuccess ||
+                !isDeveloperNameUpdatedSuccess ||
+                !isDeveloperIdUpdatedSuccess
+            ) {
+                handleError(
+                    logMessage = "Updating wish failed",
+                    messageRes = failSnackbarMessageRes
+                )
             }
         }
     }
 
-    private fun resetIsFailUpdateWish() {
-        _startingWishUiState.update { it.copy(isFailUpdateWish = false) }
+    private fun handleError(logMessage: String, messageRes: Int) {
+        viewModelScope.launch {
+            Log.d("DetailViewModel", logMessage)
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
+        }
+    }
+
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
+    }
+
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
     }
 }
 
@@ -193,5 +219,4 @@ data class StartingWishUiState(
     val isStartedDateUpdateSuccess: Boolean = false,
     val isDeveloperNameUpdateSuccess: Boolean = false,
     val isDeveloperIdUpdateSuccess: Boolean = false,
-    val isFailUpdateWish: Boolean = false
 )

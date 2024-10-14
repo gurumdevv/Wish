@@ -2,8 +2,9 @@ package com.gurumlab.wish.ui.projectSubmit
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.CompletedWish
@@ -17,6 +18,7 @@ import com.gurumlab.wish.ui.util.Constants
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.single
@@ -29,28 +31,17 @@ class ProjectSubmitViewModel @Inject constructor(
     private val repository: ProjectSubmitRepository
 ) : ViewModel() {
 
-    private val _projectSubmitInputFieldUiState = mutableStateOf(ProjectSubmitInputFieldUiState())
-    val projectSubmitInputFieldUiState: State<ProjectSubmitInputFieldUiState> get() = _projectSubmitInputFieldUiState
-
     private val _projectUpdateUiState = MutableStateFlow(ProjectUpdateUiState())
     val projectUpdateUiState = _projectUpdateUiState.asStateFlow()
 
-    private val _isLoading = mutableStateOf(false)
-    val isLoading: State<Boolean> = _isLoading
-    private val _snackbarMessage: MutableState<Int?> = mutableStateOf(null)
-    val snackbarMessage: State<Int?> = _snackbarMessage
+    var projectSubmitInputFieldUiState by mutableStateOf(ProjectSubmitInputFieldUiState())
+        private set
 
-    fun onProjectSubmitInputFieldChange(
-        repositoryInfo: String? = null,
-        accountInfo: String? = null,
-        accountOwner: String? = null
-    ) {
-        _projectSubmitInputFieldUiState.value = _projectSubmitInputFieldUiState.value.copy(
-            repositoryInfo = repositoryInfo ?: _projectSubmitInputFieldUiState.value.repositoryInfo,
-            accountInfo = accountInfo ?: _projectSubmitInputFieldUiState.value.accountInfo,
-            accountOwner = accountOwner ?: _projectSubmitInputFieldUiState.value.accountOwner
-        )
-    }
+    var isLoading by mutableStateOf(false)
+        private set
+
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
+        private set
 
     fun submitWish(
         wishId: String,
@@ -60,22 +51,22 @@ class ProjectSubmitViewModel @Inject constructor(
         projectCompletedDescription: String
     ) {
         if (!isInputFieldsValid()) {
-            updateEmptyState(emptySnackbarMessageRes)
+            handleError("", emptySnackbarMessageRes)
             return
         }
 
-        _isLoading.value = true
-
         val completedWish = fetchCompletedWish(
             minimizedWish = minimizedWish,
-            inputFieldUiState = _projectSubmitInputFieldUiState.value,
+            inputFieldUiState = projectSubmitInputFieldUiState,
             currentDate = DateTimeConverter.getCurrentDate()
         )
 
         viewModelScope.launch {
+            isLoading = true
+
             val idToken = repository.getFirebaseIdToken()
             if (idToken.isBlank()) {
-                handleFailure("idToken is blank", failSnackbarMessageRes)
+                handleError("idToken is blank", failSnackbarMessageRes)
                 return@launch
             }
 
@@ -85,7 +76,7 @@ class ProjectSubmitViewModel @Inject constructor(
             ).single()
 
             if (completedWishId.values.isEmpty()) {
-                handleFailure("completedWish uploading failed", failSnackbarMessageRes)
+                handleError("completedWish uploading failed", failSnackbarMessageRes)
                 return@launch
             }
 
@@ -104,13 +95,13 @@ class ProjectSubmitViewModel @Inject constructor(
                     failSnackbarMessageRes = failSnackbarMessageRes
                 )
             } else {
-                handleFailure("Message sending failed", failSnackbarMessageRes)
+                handleError("Message sending failed", failSnackbarMessageRes)
             }
         }
     }
 
     private fun isInputFieldsValid(): Boolean {
-        val state = _projectSubmitInputFieldUiState.value
+        val state = projectSubmitInputFieldUiState
         return state.repositoryInfo.isNotBlank() &&
                 state.accountInfo.isNotBlank() &&
                 state.accountOwner.isNotBlank()
@@ -172,7 +163,7 @@ class ProjectSubmitViewModel @Inject constructor(
             }.await()
 
             if (!isStatusUpdatedSuccess || !isCompletedDateUpdatedSuccess) {
-                handleFailure("Status or Date Update failed", failSnackbarMessageRes)
+                handleError("Status or Date Update failed", failSnackbarMessageRes)
             }
         }
     }
@@ -199,20 +190,21 @@ class ProjectSubmitViewModel @Inject constructor(
     }
 
 
-    private fun handleFailure(logMessage: String, snackbarMessageRes: Int) {
-        Log.d("ProjectSubmitViewModel", logMessage)
-        _isLoading.value = false
-        _snackbarMessage.value = snackbarMessageRes
-        resetSnackbarMessageState()
+    private fun handleError(logMessage: String, messageRes: Int) {
+        viewModelScope.launch {
+            Log.d("DetailViewModel", logMessage)
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
+        }
     }
 
-    private fun updateEmptyState(emptySnackbarMessageRes: Int) {
-        _snackbarMessage.value = emptySnackbarMessageRes
-        resetSnackbarMessageState()
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
     }
 
-    private fun resetSnackbarMessageState() {
-        _snackbarMessage.value = null
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
     }
 
     private fun fetchCompletedWish(
@@ -234,6 +226,18 @@ class ProjectSubmitViewModel @Inject constructor(
             repositoryURL = inputFieldUiState.repositoryInfo,
             accountInfo = inputFieldUiState.accountInfo,
             accountOwner = inputFieldUiState.accountOwner
+        )
+    }
+
+    fun updateProjectSubmitInputFieldChange(
+        repositoryInfo: String? = null,
+        accountInfo: String? = null,
+        accountOwner: String? = null
+    ) {
+        projectSubmitInputFieldUiState = projectSubmitInputFieldUiState.copy(
+            repositoryInfo = repositoryInfo ?: projectSubmitInputFieldUiState.repositoryInfo,
+            accountInfo = accountInfo ?: projectSubmitInputFieldUiState.accountInfo,
+            accountOwner = accountOwner ?: projectSubmitInputFieldUiState.accountOwner
         )
     }
 }
