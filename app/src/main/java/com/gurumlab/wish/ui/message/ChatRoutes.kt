@@ -34,13 +34,14 @@ fun ChatRoomRoute(
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit
 ) {
-    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
+    val topBar: @Composable () -> Unit =
+        { CustomTopAppBarWithButton(title = otherUserName, onNavIconPressed = onNavUp) }
     val viewModel: ChatRoomViewModel = hiltViewModel()
     ChatRoomScreen(
-        viewModel = viewModel,
         chatRoom = chatRoom,
         otherUserName = otherUserName,
         otherUserImageUrl = otherUserImageUrl,
+        viewModel = viewModel,
         onRepository = onRepository,
         onDonation = onDonation,
         topBar = topBar
