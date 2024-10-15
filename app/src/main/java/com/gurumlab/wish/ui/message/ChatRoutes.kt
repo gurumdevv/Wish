@@ -1,8 +1,6 @@
 package com.gurumlab.wish.ui.message
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,16 +15,12 @@ fun ChatsRoute(
     onChatRoom: (ChatRoom, otherUserName: String, otherUserImageUrl: String) -> Unit
 ) {
     val viewModel: ChatsViewModel = hiltViewModel()
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBar(
-            stringResource(id = R.string.chats)
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBar(stringResource(id = R.string.chats)) }
     ChatsScreen(
-        topBar = topBar,
-        bottomBar = bottomNavigationBar,
         viewModel = viewModel,
-        onChatRoom = onChatRoom
+        onChatRoom = onChatRoom,
+        topBar = topBar,
+        bottomBar = bottomNavigationBar
     )
 }
 
@@ -40,55 +34,45 @@ fun ChatRoomRoute(
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     val viewModel: ChatRoomViewModel = hiltViewModel()
     ChatRoomScreen(
-        topBar = topBar,
         viewModel = viewModel,
         chatRoom = chatRoom,
         otherUserName = otherUserName,
         otherUserImageUrl = otherUserImageUrl,
         onRepository = onRepository,
-        onDonation = onDonation
+        onDonation = onDonation,
+        topBar = topBar
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DonationRoute(
-    viewModel: SubmissionViewModel,
     completedWishId: String,
+    viewModel: SubmissionViewModel,
     onNavUp: () -> Unit,
     onClosed: () -> Unit
 ) {
-    val topBar: @Composable () -> Unit = {
-        CustomTopAppBarWithButton(
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-            onNavIconPressed = onNavUp
-        )
-    }
+    val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     DonationScreen(
-        topBar = topBar,
         viewModel = viewModel,
         completedWishId = completedWishId,
-        onClosed = onClosed
+        onClosed = onClosed,
+        topBar = topBar
     )
 }
 
 @Composable
 fun RepositoryRedirectRoute(
-    viewModel: SubmissionViewModel,
     completedWishId: String,
+    viewModel: SubmissionViewModel,
     onBack: () -> Unit
 ) {
     RepositoryRedirectScreen(
-        viewModel = viewModel,
         completedWishId = completedWishId,
+        viewModel = viewModel,
         onBack = onBack
     )
 }

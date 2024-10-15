@@ -184,7 +184,11 @@ fun WishNavHost(
                 val viewModel =
                     backStackEntry.sharedViewModel<SubmissionViewModel>(navController = navController)
                 val completedWishId = backStackEntry.arguments?.getString("completedWishId") ?: ""
-                DonationRoute(viewModel, completedWishId, onNavUp) {
+                DonationRoute(
+                    completedWishId = completedWishId,
+                    viewModel = viewModel,
+                    onNavUp = onNavUp
+                ) {
                     navController.navigate(WishScreen.WISHES.name) {
                         popUpTo(WishScreen.MESSAGE.name) {
                             inclusive = true
@@ -199,7 +203,7 @@ fun WishNavHost(
                 val viewModel =
                     backStackEntry.sharedViewModel<SubmissionViewModel>(navController = navController)
                 val completedWishId = backStackEntry.arguments?.getString("completedWishId") ?: ""
-                RepositoryRedirectRoute(viewModel, completedWishId) {
+                RepositoryRedirectRoute(completedWishId = completedWishId, viewModel = viewModel) {
                     navController.navigateUp()
                 }
             }
