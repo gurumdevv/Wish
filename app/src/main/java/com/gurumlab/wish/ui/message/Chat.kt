@@ -62,6 +62,31 @@ import com.gurumlab.wish.ui.util.CustomTextField
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.toDp
 
+// <-- common -->
+@Composable
+fun ChatFailScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.no_internet_connection),
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = stringResource(R.string.cannot_chat_now),
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            color = Color.White
+        )
+    }
+}
+
 // <-- Chats -->
 @Composable
 fun ChatRoomTitle(
@@ -158,30 +183,6 @@ fun ChatRoomLoadingScreen(modifier: Modifier = Modifier) {
         CustomLottieLoader(
             resId = R.raw.animation_loading_circle,
             modifier = Modifier.size(48.dp)
-        )
-    }
-}
-
-@Composable
-fun ChatRoomFailScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(R.string.no_internet_connection),
-            textAlign = TextAlign.Center,
-            fontSize = 18.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = stringResource(R.string.cannot_chat_now),
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp,
-            color = Color.White
         )
     }
 }

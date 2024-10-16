@@ -131,4 +131,5 @@
     <string name="error_text_field">올바르지 않음</string>
     <string name="please_try_again_later">잠시 후 다시 시도해 주세요.</string>
     <string name="cannot_chat_now">현재 채팅 서비스를 이용할 수 없습니다.</string>
+    <string name="sending_message_error">메세지 전송에 실패했습니다.</string>
 </resources>

@@ -1,23 +1,30 @@
 package com.gurumlab.wish.ui.message
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
 fun ChatRoomScreen(
@@ -69,44 +76,54 @@ fun ChatRoomContent(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidth = remember { configuration.screenWidthDp.dp }
+    val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = modifier
-    ) {
-        when (uiState) {
-            ChatRoomUiState.Loading -> {
-                ChatRoomLoadingScreen(modifier = Modifier.weight(1f))
+    Box(modifier = modifier) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            when (uiState) {
+                ChatRoomUiState.Loading -> {
+                    ChatRoomLoadingScreen(modifier = Modifier.weight(1f))
+                }
+
+                ChatRoomUiState.Fail -> {
+                    ChatFailScreen(modifier = Modifier.weight(1f))
+                }
+
+                is ChatRoomUiState.Success -> {
+                    val messages = (uiState as ChatRoomUiState.Success).messages
+                    ChatList(
+                        chatList = messages,
+                        currentUserUid = viewModel.getUid(),
+                        otherUserName = otherUserName,
+                        otherUserImageUrl = otherUserImageUrl,
+                        context = context,
+                        screenWidth = screenWidth,
+                        onRepository = onRepository,
+                        onDonation = onDonation,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
-            ChatRoomUiState.Fail -> {
-                ChatRoomFailScreen(modifier = Modifier.weight(1f))
-            }
-
-            is ChatRoomUiState.Success -> {
-                val messages = (uiState as ChatRoomUiState.Success).messages
-                ChatList(
-                    chatList = messages,
-                    currentUserUid = viewModel.getUid(),
-                    otherUserName = otherUserName,
-                    otherUserImageUrl = otherUserImageUrl,
-                    context = context,
-                    screenWidth = screenWidth,
-                    onRepository = onRepository,
-                    onDonation = onDonation,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
+            ChatInput(
+                text = viewModel.messageUiState.message,
+                isEnabled = viewModel.messageUiState.isChatEnabled,
+                onTextChange = { viewModel.updateMessage(it) },
+                onSendClick = { viewModel.sendMessage() }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        ChatInput(
-            text = viewModel.messageUiState.message,
-            isEnabled = viewModel.messageUiState.isChatEnabled,
-            onTextChange = { viewModel.updateMessage(it) },
-            onSendClick = { viewModel.sendMessage() }
+        ErrorSnackBarMessage(
+            snackbarHostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = (-102).dp)
         )
-        Spacer(modifier = Modifier.height(24.dp))
     }
 
     LaunchedEffect(uiState) {
@@ -115,6 +132,20 @@ fun ChatRoomContent(
                 is ChatRoomUiState.Success -> true
                 else -> false
             }
+        )
+    }
+
+    LaunchedEffect(viewModel.messageUiState.isChatError) {
+        if (viewModel.messageUiState.isChatError) {
+            viewModel.handleSendingMessageError(R.string.sending_message_error)
+        }
+    }
+
+    LaunchedEffect(viewModel.snackbarMessageRes.value) {
+        showSnackbar(
+            snackbarMessageRes = viewModel.snackbarMessageRes.value,
+            context = context,
+            snackbarHostState = snackbarHostState,
         )
     }
 }

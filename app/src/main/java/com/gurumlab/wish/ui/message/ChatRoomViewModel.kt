@@ -1,6 +1,7 @@
 package com.gurumlab.wish.ui.message
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,7 +17,9 @@ import com.gurumlab.wish.data.model.Chat
 import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.data.repository.ChatRoomRepository
 import com.gurumlab.wish.ui.util.Constants
+import com.gurumlab.wish.ui.util.NetWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,7 +27,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatRoomViewModel @Inject constructor(
-    private val repository: ChatRoomRepository
+    private val repository: ChatRoomRepository,
+    private val netWorkManager: NetWorkManager
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ChatRoomUiState> =
@@ -34,6 +38,9 @@ class ChatRoomViewModel @Inject constructor(
     private lateinit var chatRoomDetailUiState: ChatRoomDetailUiState
 
     var messageUiState by mutableStateOf(MessageUiState())
+        private set
+
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
         private set
 
     private val databaseRef = repository.getFirebaseDatabaseRef()
@@ -46,6 +53,12 @@ class ChatRoomViewModel @Inject constructor(
 
     fun getChatRoom(roomId: String, othersUid: String, chatRoom: ChatRoom) {
         val uid = repository.getCurrentUser()?.uid ?: ""
+        val isOnline = netWorkManager.isOnline()
+
+        if (!isOnline) {
+            _uiState.value = ChatRoomUiState.Fail
+            return
+        }
 
         chatRoomDetailUiState = ChatRoomDetailUiState(
             chatRoom = chatRoom,
@@ -82,6 +95,11 @@ class ChatRoomViewModel @Inject constructor(
         val message = messageUiState.message
         if (message.isBlank()) return
 
+        if (!netWorkManager.isOnline()) {
+            updateMessageUiState(isChatError = true)
+            return
+        }
+
         viewModelScope.launch {
             updateMessageUiState(isChatEnabled = false)
 
@@ -105,7 +123,7 @@ class ChatRoomViewModel @Inject constructor(
                 updateMessageUiState(message = "", isChatEnabled = true)
             } else {
                 Log.d("ChatRoomViewModel", "Failed to add message")
-                updateMessageUiState(isChatEnabled = true)
+                updateMessageUiState(isChatEnabled = true, isChatError = true)
             }
         }
     }
@@ -126,14 +144,37 @@ class ChatRoomViewModel @Inject constructor(
         updateMessageUiState(isChatEnabled = isChatEnabled)
     }
 
-    fun updateMessageUiState(
+    private fun updateMessageUiState(
         message: String? = null,
-        isChatEnabled: Boolean? = null
+        isChatEnabled: Boolean? = null,
+        isChatError: Boolean? = null
     ) {
         messageUiState = messageUiState.copy(
             message = message ?: messageUiState.message,
-            isChatEnabled = isChatEnabled ?: messageUiState.isChatEnabled
+            isChatEnabled = isChatEnabled ?: messageUiState.isChatEnabled,
+            isChatError = isChatError ?: messageUiState.isChatError
         )
+    }
+
+    fun handleSendingMessageError(messageRes: Int) {
+        showSnackbarMessage(messageRes)
+        updateMessageUiState(isChatError = false)
+    }
+
+    private fun showSnackbarMessage(messageRes: Int) {
+        viewModelScope.launch {
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
+        }
+    }
+
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
+    }
+
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
     }
 }
 
@@ -152,5 +193,6 @@ data class ChatRoomDetailUiState(
 
 data class MessageUiState(
     val message: String = "",
-    val isChatEnabled: Boolean = false
+    val isChatEnabled: Boolean = false,
+    val isChatError: Boolean = false
 )
