@@ -54,26 +54,41 @@ fun ChatsContent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val chatRooms by viewModel.chatRooms.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier) {
         ChatRoomTitle()
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn {
-            items(chatRooms.count()) { index ->
-                val othersUid = chatRooms[index].othersUid
-                val otherUserInfo = viewModel.userInfos[othersUid]
-                val othersName = otherUserInfo?.name ?: stringResource(R.string.name)
-                val othersProfileImageUrl = otherUserInfo?.profileImageUrl ?: ""
 
-                ChatsItem(
-                    chatRoom = chatRooms[index],
-                    othersName = othersName,
-                    othersProfileImageUrl = othersProfileImageUrl,
-                    context = context,
-                    onChatRoom = onChatRoom
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+        when (uiState) {
+            is ChatsUiState.Loading -> {
+                ChatsLoadingScreen()
+            }
+
+            is ChatsUiState.Fail -> {
+                ChatFailScreen()
+            }
+
+            is ChatsUiState.Success -> {
+                val chatRooms = (uiState as ChatsUiState.Success).chatRooms
+
+                LazyColumn {
+                    items(chatRooms.count()) { index ->
+                        val othersUid = chatRooms[index].othersUid
+                        val otherUserInfo = viewModel.userInfos[othersUid]
+                        val othersName = otherUserInfo?.name ?: stringResource(R.string.name)
+                        val othersProfileImageUrl = otherUserInfo?.profileImageUrl ?: ""
+
+                        ChatsItem(
+                            chatRoom = chatRooms[index],
+                            othersName = othersName,
+                            othersProfileImageUrl = othersProfileImageUrl,
+                            context = context,
+                            onChatRoom = onChatRoom
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             }
         }
     }

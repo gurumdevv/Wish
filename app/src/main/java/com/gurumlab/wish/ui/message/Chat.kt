@@ -61,6 +61,7 @@ import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.CustomTextField
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.toDp
+import com.valentinilk.shimmer.shimmer
 
 // <-- common -->
 @Composable
@@ -168,6 +169,55 @@ fun ChatsItem(
         } else {
             val dateTime = DateTimeConverter.getDateTime(chatRoom.lastMessageSentAt!!, context)
             Text(text = dateTime, color = Color.White, fontSize = 14.sp)
+        }
+    }
+}
+
+@Composable
+fun ShimmerChatsItem() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .fillMaxWidth(0.3f)
+                    .height(16.sp.toDp())
+                    .background(Color.LightGray)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .fillMaxWidth(0.7f)
+                    .height(16.sp.toDp())
+                    .background(Color.LightGray)
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+    }
+}
+
+@Composable
+fun ChatsLoadingScreen() {
+    LazyColumn {
+        items(count = 7) {
+            ShimmerChatsItem()
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
