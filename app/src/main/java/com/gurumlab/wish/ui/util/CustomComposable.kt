@@ -262,7 +262,7 @@ fun CustomSnackbarContent(
 }
 
 @Composable
-fun CustomLottieLoader(modifier: Modifier = Modifier, resId: Int) {
+fun CustomLottieLoader(resId: Int, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
         LottieAnimation(composition, iterations = LottieConstants.IterateForever)

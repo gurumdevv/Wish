@@ -1,57 +1,62 @@
 package com.gurumlab.wish.ui.message
 
 import android.util.Log
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.ktx.auth
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.Query
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.gurumlab.wish.data.model.Chat
 import com.gurumlab.wish.data.model.ChatRoom
+import com.gurumlab.wish.data.repository.ChatRoomRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatRoomViewModel @Inject constructor() : ViewModel() {
-    private var roomId = ""
-    private var othersUid = ""
-    private lateinit var chatRoom: ChatRoom
-    private val database = Firebase.database
+class ChatRoomViewModel @Inject constructor(
+    private val repository: ChatRoomRepository
+) : ViewModel() {
+
+    private val _uiState: MutableStateFlow<ChatRoomUiState> =
+        MutableStateFlow(ChatRoomUiState.Loading)
+    val uiState = _uiState.asStateFlow()
+
+    private lateinit var chatRoomDetailUiState: ChatRoomDetailUiState
+
+    var messageUiState by mutableStateOf(MessageUiState())
+        private set
+
+    private val databaseRef = repository.getFirebaseDatabaseRef()
     private lateinit var messagesRef: DatabaseReference
     private lateinit var messagesQuery: Query
-    private val uid = Firebase.auth.currentUser?.uid ?: ""
-    private val fireStore = Firebase.firestore
+
+    private val fireStore = repository.getFireStore()
     private lateinit var myFireStoreRef: DocumentReference
     private lateinit var othersFireStoreRef: DocumentReference
 
-    private val _message = mutableStateOf("")
-    val message: State<String> = _message
-    private var _messages = MutableStateFlow(emptyList<Chat>())
-    val messages = _messages.asStateFlow()
-    private var _isChatEnabled = mutableStateOf(true)
-    val isChatEnabled: State<Boolean> = _isChatEnabled
+    fun getChatRoom(roomId: String, othersUid: String, chatRoom: ChatRoom) {
+        val uid = repository.getCurrentUser()?.uid ?: ""
 
-    fun initializeChatRoom(chatRoom: ChatRoom, roomId: String, othersUid: String) {
-        this.chatRoom = chatRoom
-        this.roomId = roomId
-        this.othersUid = othersUid
-        messagesRef =
-            database.getReference().child(Constants.MESSAGES).child(roomId)
-        messagesQuery =
-            database.getReference().child(Constants.MESSAGES).child(roomId)
-                .orderByChild(Constants.SENT_AT)
+        chatRoomDetailUiState = ChatRoomDetailUiState(
+            chatRoom = chatRoom,
+            roomId = roomId,
+            uid = uid,
+            othersUid = othersUid
+        )
+
+        messagesRef = databaseRef.child(Constants.MESSAGES).child(roomId)
+        messagesQuery = messagesRef.orderByChild(Constants.SENT_AT)
+
         myFireStoreRef = fireStore.collection(uid).document(roomId)
         othersFireStoreRef = fireStore.collection(othersUid).document(roomId)
 
@@ -63,91 +68,89 @@ class ChatRoomViewModel @Inject constructor() : ViewModel() {
         messagesQuery.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chatList = snapshot.children.mapNotNull { it.getValue(Chat::class.java) }
-                _messages.value = chatList
+                _uiState.value = ChatRoomUiState.Success(chatList)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.w("ChatViewModel", "Listen failed.", error.toException())
+                Log.d("ChatRoomViewModel", "Listen failed ${error.toException()}")
+                _uiState.value = ChatRoomUiState.Fail
             }
         })
     }
 
-    fun addMessage() {
-        val message = _message.value
-        if (message.isNotBlank()) {
-            _isChatEnabled.value = false
-            val newChat = Chat(
-                uid = uid,
+    fun sendMessage() {
+        val message = messageUiState.message
+        if (message.isBlank()) return
+
+        viewModelScope.launch {
+            updateMessageUiState(isChatEnabled = false)
+
+            val result = addMessage(
+                uid = chatRoomDetailUiState.uid,
                 message = message,
-                sentAt = System.currentTimeMillis(),
-                submission = false
+                isSubmission = false,
+                messagesRef = messagesRef
             )
 
-            messagesRef.push().setValue(newChat)
-                .addOnSuccessListener {
-                    updateFireStore(message)
-                    _message.value = ""
-                    _isChatEnabled.value = true
-                }
-                .addOnFailureListener {
-                    Log.w("ChatViewModel", "Failed to add message")
-                    _isChatEnabled.value = true
-                }
-        }
-    }
-
-    private fun updateFireStore(currentMessage: String) {
-        val currentTimeStamp = FieldValue.serverTimestamp()
-        val batch = Firebase.firestore.batch()
-
-        val myChatRoomData = mutableMapOf(
-            Constants.LAST_MESSAGE to currentMessage,
-            Constants.LAST_SENT_AT to currentTimeStamp
-        ).apply {
-            if (chatRoom.lastMessageSentAt == null) {
-                put(Constants.ID, roomId)
-                put(Constants.OTHERS_UID, othersUid)
-                put(Constants.NOT_READ_MESSAGE_COUNT, 0)
+            if (result) {
+                updateChatRoom(
+                    message = message,
+                    chatRoom = chatRoomDetailUiState.chatRoom!!,
+                    roomId = chatRoomDetailUiState.roomId,
+                    myUid = chatRoomDetailUiState.uid,
+                    othersUid = chatRoomDetailUiState.othersUid,
+                    myFireStoreRef = myFireStoreRef,
+                    othersFireStoreRef = othersFireStoreRef
+                )
+                updateMessageUiState(message = "", isChatEnabled = true)
+            } else {
+                Log.d("ChatRoomViewModel", "Failed to add message")
+                updateMessageUiState(isChatEnabled = true)
             }
         }
-
-        val othersChatRoomData = mutableMapOf(
-            Constants.LAST_MESSAGE to currentMessage,
-            Constants.LAST_SENT_AT to currentTimeStamp
-        ).apply {
-            if (chatRoom.lastMessageSentAt == null) {
-                put(Constants.ID, roomId)
-                put(Constants.OTHERS_UID, uid)
-                put(Constants.NOT_READ_MESSAGE_COUNT, 1)
-            }
-        }
-
-        if (chatRoom.lastMessageSentAt == null) {
-            batch.set(myFireStoreRef, myChatRoomData)
-            batch.set(othersFireStoreRef, othersChatRoomData)
-        } else {
-            batch.update(myFireStoreRef, myChatRoomData)
-            batch.update(othersFireStoreRef, othersChatRoomData)
-            batch.update(
-                othersFireStoreRef,
-                Constants.NOT_READ_MESSAGE_COUNT,
-                FieldValue.increment(1)
-            )
-        }
-
-        batch.commit().addOnSuccessListener {
-            Log.d("updateFireStore", "Chat room updated successfully")
-        }.addOnFailureListener { e ->
-            Log.e("updateFireStore", "Error updating chat room", e)
-        }
     }
-
 
     private fun resetMyNotReadMessageCount() {
         myFireStoreRef.update(mapOf(Constants.NOT_READ_MESSAGE_COUNT to 0))
     }
 
+    fun getUid(): String {
+        return repository.getCurrentUser()?.uid ?: ""
+    }
+
     fun updateMessage(newMessage: String) {
-        _message.value = newMessage
+        updateMessageUiState(message = newMessage)
+    }
+
+    fun updateIsChatEnabled(isChatEnabled: Boolean) {
+        updateMessageUiState(isChatEnabled = isChatEnabled)
+    }
+
+    fun updateMessageUiState(
+        message: String? = null,
+        isChatEnabled: Boolean? = null
+    ) {
+        messageUiState = messageUiState.copy(
+            message = message ?: messageUiState.message,
+            isChatEnabled = isChatEnabled ?: messageUiState.isChatEnabled
+        )
     }
 }
+
+sealed class ChatRoomUiState {
+    data object Loading : ChatRoomUiState()
+    data object Fail : ChatRoomUiState()
+    data class Success(val messages: List<Chat>) : ChatRoomUiState()
+}
+
+data class ChatRoomDetailUiState(
+    val chatRoom: ChatRoom? = null,
+    val roomId: String = "",
+    val uid: String = "",
+    val othersUid: String = ""
+)
+
+data class MessageUiState(
+    val message: String = "",
+    val isChatEnabled: Boolean = false
+)
