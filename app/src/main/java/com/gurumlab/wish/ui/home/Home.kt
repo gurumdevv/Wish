@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,7 +24,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +40,8 @@ import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomIconButton
 import com.gurumlab.wish.ui.util.CustomLottieLoader
+import com.gurumlab.wish.ui.util.toDp
+import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun HomeVerticalPager(
@@ -197,28 +199,88 @@ fun WishCardButtonArea(
 
 @Composable
 fun HomeLoadingScreen(modifier: Modifier = Modifier) {
-    val configuration = LocalConfiguration.current
-    val lottieHeight = (configuration.screenHeightDp / 3).dp
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundColor),
+            .background(backgroundColor)
     ) {
-        CustomLottieLoader(
+        ShimmerWishCardImageArea(Modifier.weight(1f))
+        ShimmerWishCardContentWithoutImageArea()
+    }
+}
+
+@Composable
+fun ShimmerWishCardImageArea(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .shimmer()
+            .fillMaxSize()
+            .background(Color.LightGray)
+    )
+}
+
+@Composable
+fun ShimmerWishCardContentWithoutImageArea(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(lottieHeight),
-            resId = R.raw.animation_shooting_star
-        )
+                .padding(start = 24.dp, end = 24.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(defaultBoxColor)
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .shimmer()
+                    .fillMaxWidth(0.7f)
+                    .height(18.sp.toDp())
+                    .background(Color.LightGray)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                modifier = Modifier
+                    .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+                    .shimmer()
+                    .fillMaxWidth()
+                    .height(18.sp.toDp())
+                    .background(Color.LightGray)
+
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            CustomIconButton(
+                text = stringResource(R.string.start),
+                icon = R.drawable.ic_magic,
+                description = stringResource(R.string.btn_start),
+                onClick = {},
+                isEnabled = false
+            )
+            CustomIconButton(
+                text = stringResource(R.string.like),
+                icon = R.drawable.ic_like,
+                description = stringResource(R.string.btn_like),
+                onClick = {},
+                isEnabled = false
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 @Composable
 fun HomeErrorScreen(modifier: Modifier = Modifier) {
-    val configuration = LocalConfiguration.current
-    val lottieHeight = (configuration.screenHeightDp / 3).dp
-
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -227,7 +289,7 @@ fun HomeErrorScreen(modifier: Modifier = Modifier) {
         CustomLottieLoader(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(lottieHeight),
+                .fillMaxHeight(0.3f),
             resId = R.raw.animation_shooting_star
         )
         Column(

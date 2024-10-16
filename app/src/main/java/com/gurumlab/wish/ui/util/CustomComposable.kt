@@ -88,22 +88,26 @@ fun CustomIconButton(
     text: String,
     icon: Int,
     description: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isEnabled: Boolean = true
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp
     val width = screenWidthDp.dp / 2 - 24.dp - 8.dp
 
     Button(
-        modifier = Modifier
-            .width(width)
-            .height(62.dp),
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = defaultBoxColor,
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = defaultBoxColor,
+            disabledContentColor = Color.White
         ),
-        onClick = { onClick() }
+        onClick = onClick,
+        enabled = isEnabled,
+        modifier = Modifier
+            .width(width)
+            .height(62.dp)
     ) {
         Row(
             modifier = Modifier
@@ -113,9 +117,9 @@ fun CustomIconButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                modifier = Modifier.size(28.dp),
                 imageVector = ImageVector.vectorResource(id = icon),
-                contentDescription = description
+                contentDescription = description,
+                modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             AutoSizeText(
