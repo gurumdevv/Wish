@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -74,11 +75,13 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gurumlab.wish.R
+import com.gurumlab.wish.ui.theme.Gray02
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
@@ -513,3 +516,33 @@ internal fun Modifier.defaultErrorSemantics(
     isError: Boolean,
     defaultErrorMessage: String,
 ): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this
+
+@Composable
+fun CustomAsyncImage(
+    url: String,
+    contentDescription: String,
+    contentScale: ContentScale,
+    modifier: Modifier = Modifier,
+    isCrossFade: Boolean = true,
+    defaultPainterResource: Int? = null
+) {
+    AsyncImage(
+        modifier = modifier,
+        model =
+        if (!isCrossFade) {
+            url
+        } else {
+            if (defaultPainterResource != null && url.isEmpty()) {
+                painterResource(id = defaultPainterResource)
+            } else {
+                ImageRequest.Builder(LocalContext.current)
+                    .data(url)
+                    .crossfade(true)
+                    .build()
+            }
+        },
+        contentDescription = contentDescription,
+        contentScale = contentScale,
+        placeholder = ColorPainter(Gray02)
+    )
+}

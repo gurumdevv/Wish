@@ -45,8 +45,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Chat
 import com.gurumlab.wish.data.model.ChatRoom
@@ -57,6 +55,7 @@ import com.gurumlab.wish.ui.theme.defaultMyMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultOtherMessageItemColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 import com.gurumlab.wish.ui.theme.defaultSubmissionCheckButtonColor
+import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.CustomTextField
 import com.gurumlab.wish.ui.util.DateTimeConverter
@@ -119,15 +118,14 @@ fun ChatsItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = othersProfileImageUrl.ifBlank {
-                ImageRequest.Builder(context).data(R.drawable.ic_profile).build()
-            },
+        CustomAsyncImage(
+            url = othersProfileImageUrl,
             contentDescription = stringResource(id = R.string.profile_image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .clip(CircleShape)
-                .size(48.dp)
+                .size(48.dp),
+            defaultPainterResource = R.drawable.ic_profile
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(
@@ -306,7 +304,6 @@ fun ChatList(
     currentUserUid: String,
     otherUserName: String,
     otherUserImageUrl: String,
-    context: Context,
     screenWidth: Dp,
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit,
@@ -324,8 +321,7 @@ fun ChatList(
                         userName = "",
                         userImageUrl = "",
                         chatType = ChatType.Me,
-                        screenWidth = screenWidth,
-                        context = context
+                        screenWidth = screenWidth
                     )
                 }
             } else {
@@ -351,8 +347,7 @@ fun ChatList(
                         userName = otherUserName,
                         userImageUrl = otherUserImageUrl,
                         chatType = ChatType.Other,
-                        screenWidth = screenWidth,
-                        context = context
+                        screenWidth = screenWidth
                     )
                 }
             }
@@ -433,7 +428,6 @@ fun ChatItem(
     userImageUrl: String,
     chatType: ChatType,
     screenWidth: Dp,
-    context: Context
 ) {
     when (chatType) {
         ChatType.Me -> {
@@ -468,15 +462,14 @@ fun ChatItem(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.Start
             ) {
-                AsyncImage(
-                    model = userImageUrl.ifBlank {
-                        ImageRequest.Builder(context).data(R.drawable.ic_profile).build()
-                    },
+                CustomAsyncImage(
+                    url = userImageUrl,
                     contentDescription = stringResource(R.string.user_profile_image),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    defaultPainterResource = R.drawable.ic_profile
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(

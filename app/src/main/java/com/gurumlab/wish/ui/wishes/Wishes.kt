@@ -30,11 +30,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.White00
+import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.URL
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -118,13 +118,12 @@ fun WishesBanner(wishes: Map<String, Wish>) {
             .fillMaxWidth()
             .height(260.dp)
     ) {
-        AsyncImage(
-            modifier = Modifier.fillMaxSize(),
-            model = selectedWish.representativeImage,
+        CustomAsyncImage(
+            url = selectedWish.representativeImage,
             contentDescription = stringResource(R.string.wishes_screen_header),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -215,11 +214,11 @@ fun WishesSortByLikesItem(
             .clickable { onDetailScreen(wishId) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AsyncImage(
-            modifier = Modifier.size(135.dp),
-            model = wish.representativeImage,
+        CustomAsyncImage(
+            url = wish.representativeImage,
             contentDescription = stringResource(R.string.wish_image),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(135.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
@@ -317,11 +316,11 @@ fun WishesRandomItem(
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            AsyncImage(
-                modifier = Modifier.size(78.dp),
-                model = wish.representativeImage,
+            CustomAsyncImage(
+                url = wish.representativeImage,
                 contentDescription = stringResource(R.string.wish_image),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(78.dp)
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.settings
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,14 +43,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.Gray00
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultScrimColor
+import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.toDp
 import kotlinx.coroutines.CoroutineScope
@@ -59,7 +57,7 @@ import kotlinx.coroutines.launch
 
 //<--- Settings--->
 @Composable
-fun SettingsUserInfo(userInfo: UserInfo, context: Context) {
+fun SettingsUserInfo(userInfo: UserInfo) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,15 +79,14 @@ fun SettingsUserInfo(userInfo: UserInfo, context: Context) {
                 color = Color.White,
             )
         }
-        AsyncImage(
+        CustomAsyncImage(
+            url = userInfo.imageUrl,
+            contentDescription = stringResource(R.string.profile_image),
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(64.dp)
                 .clip(CircleShape),
-            model = userInfo.imageUrl.ifBlank {
-                ImageRequest.Builder(context).data(R.drawable.ic_profile).build()
-            },
-            contentDescription = stringResource(R.string.profile_image),
-            contentScale = ContentScale.Crop
+            defaultPainterResource = R.drawable.ic_profile
         )
     }
 }

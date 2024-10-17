@@ -31,12 +31,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
+import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomIconButton
 import com.gurumlab.wish.ui.util.CustomLottieLoader
@@ -87,12 +87,11 @@ fun WishCardImageArea(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        AsyncImage(
-            modifier = Modifier
-                .fillMaxSize(),
-            model = wish.representativeImage,
+        CustomAsyncImage(
+            url = wish.representativeImage,
             contentDescription = stringResource(R.string.wish_representative_image),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
         Box(
             modifier = Modifier

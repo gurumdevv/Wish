@@ -99,7 +99,6 @@ fun ChatRoomContent(
                         currentUserUid = viewModel.getUid(),
                         otherUserName = otherUserName,
                         otherUserImageUrl = otherUserImageUrl,
-                        context = context,
                         screenWidth = screenWidth,
                         onRepository = onRepository,
                         onDonation = onDonation,

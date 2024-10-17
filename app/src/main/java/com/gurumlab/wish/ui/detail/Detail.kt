@@ -20,12 +20,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.DetailDescription
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
+import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomIconButton
 import com.gurumlab.wish.ui.util.CustomLoadingScreen
@@ -107,11 +107,11 @@ fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         detailDescription.photos.forEach { url ->
-            AsyncImage(
-                modifier = Modifier.fillMaxWidth(),
-                model = url,
+            CustomAsyncImage(
+                url = url,
                 contentDescription = stringResource(R.string.wish_image),
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
