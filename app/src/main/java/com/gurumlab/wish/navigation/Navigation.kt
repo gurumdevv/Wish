@@ -106,17 +106,20 @@ fun WishNavHost(
                 navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
             }
         }
-        navigation(startDestination = WishScreen.CHATS.name, route = WishScreen.MESSAGE.name) {
-            composable(route = WishScreen.CHATS.name) {
-                ChatsRoute(bottomNavigationBar) { chatRoom, name, imageUrl ->
-                    navController.navigate(
-                        WishScreen.CHAT_ROOM.name
-                                + "/${Gson().toJson(chatRoom)}"
-                                + "/${name}"
-                                + "/" + URLEncoder.encode(imageUrl, "UTF-8")
-                    )
-                }
+        composable(route = WishScreen.CHATS.name) {
+            ChatsRoute(bottomNavigationBar) { chatRoom, name, imageUrl ->
+                navController.navigate(
+                    WishScreen.CHAT_ROOM.name
+                            + "/${Gson().toJson(chatRoom)}"
+                            + "/${name}"
+                            + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                )
             }
+        }
+        navigation(
+            startDestination = WishScreen.CHAT_ROOM.name + "/{chatRoom}/{name}/{imageUrl}",
+            route = WishScreen.MESSAGE.name
+        ) {
             composable(
                 route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}",
                 enterTransition = {
@@ -189,7 +192,7 @@ fun WishNavHost(
                     viewModel = viewModel,
                     onNavUp = onNavUp
                 ) {
-                    navController.navigate(WishScreen.WISHES.name) {
+                    navController.navigate(WishScreen.CHATS.name) {
                         popUpTo(WishScreen.MESSAGE.name) {
                             inclusive = true
                         }

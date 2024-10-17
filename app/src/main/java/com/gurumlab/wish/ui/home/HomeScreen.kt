@@ -27,10 +27,6 @@ fun HomeScreen(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadWishes()
-    }
-
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar

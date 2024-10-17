@@ -35,6 +35,10 @@ class HomeViewModel @Inject constructor(
     var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
         private set
 
+    init {
+        loadWishes()
+    }
+
     fun loadWishes() {
         viewModelScope.launch {
             val idToken = getIdTokenOrHandleError()

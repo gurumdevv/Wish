@@ -24,6 +24,11 @@ class WishesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WishesUiState())
     val uiState: StateFlow<WishesUiState> = _uiState.asStateFlow()
 
+    init {
+        loadWishes()
+        loadWishesSortedByLikes()
+    }
+
     fun loadWishes() {
         _uiState.update { it.copy(isWishesLoading = true) }
         loadWishesData(

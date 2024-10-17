@@ -14,7 +14,7 @@ fun ChatsRoute(
     bottomNavigationBar: @Composable () -> Unit,
     onChatRoom: (ChatRoom, otherUserName: String, otherUserImageUrl: String) -> Unit
 ) {
-    val viewModel: ChatsViewModel = hiltViewModel()
+    val viewModel = hiltViewModel<ChatsViewModel>()
     val topBar: @Composable () -> Unit = { CustomTopAppBar(stringResource(id = R.string.chats)) }
     ChatsScreen(
         viewModel = viewModel,

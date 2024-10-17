@@ -33,7 +33,11 @@ class ChatsViewModel @Inject constructor(
     var userInfos = mutableStateMapOf<String, UserInfo>()
         private set
 
-    fun getChatRooms() {
+    init {
+        getChatRooms()
+    }
+
+    private fun getChatRooms() {
         if (!netWorkManager.isOnline()) {
             _uiState.value = ChatsUiState.Fail
             return
