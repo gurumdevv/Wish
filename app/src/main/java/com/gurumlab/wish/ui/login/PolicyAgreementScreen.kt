@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.ErrorSnackBar
 import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
@@ -122,7 +122,7 @@ fun PolicyAgreementContent(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        ErrorSnackBarMessage(
+        ErrorSnackBar(
             snackbarHostState = snackbarHostState, modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .offset(y = (-102).dp)

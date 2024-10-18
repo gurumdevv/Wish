@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.ErrorSnackBar
 import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
@@ -81,7 +81,7 @@ fun HomeContent(
             }
         }
 
-        ErrorSnackBarMessage(
+        ErrorSnackBar(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
