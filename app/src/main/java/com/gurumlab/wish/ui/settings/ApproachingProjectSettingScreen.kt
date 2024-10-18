@@ -10,13 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.backgroundColor
 
 @Composable
 fun ApproachingProjectSettingScreen(
     viewModel: SettingsViewModel,
-    onDetailScreen: (String) -> Unit,
+    onProgressScreen: (MinimizedWish, String) -> Unit,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
@@ -30,7 +31,7 @@ fun ApproachingProjectSettingScreen(
     ) { innerPadding ->
         ApproachingProjectSettingContent(
             viewModel = viewModel,
-            onDetailScreen = onDetailScreen,
+            onProgressScreen = onProgressScreen,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
@@ -43,7 +44,7 @@ fun ApproachingProjectSettingScreen(
 @Composable
 fun ApproachingProjectSettingContent(
     viewModel: SettingsViewModel,
-    onDetailScreen: (String) -> Unit,
+    onProgressScreen: (MinimizedWish, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.approachingProjectUiState.collectAsStateWithLifecycle()
@@ -58,7 +59,8 @@ fun ApproachingProjectSettingContent(
                 totalCount = 0,
                 successCount = 0,
                 wishes = emptyMap(),
-                onDetailScreen = {},
+                getMinimizedWish = null,
+                onProgressScreen = null,
                 modifier = modifier
             )
         }
@@ -76,7 +78,8 @@ fun ApproachingProjectSettingContent(
                 wishes = wishes,
                 totalCount = totalCount,
                 successCount = successCount,
-                onDetailScreen = onDetailScreen,
+                getMinimizedWish = viewModel::getMinimizedWish,
+                onProgressScreen = onProgressScreen,
                 modifier = modifier
             )
         }

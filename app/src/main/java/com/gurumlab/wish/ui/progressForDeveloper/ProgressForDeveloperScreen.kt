@@ -52,10 +52,12 @@ fun ProgressForDeveloperContent(
         modifier = modifier
     ) {
         ProjectProgressDescriptionArea(minimizedWish, scrollState)
-        ProgressForDeveloperScreenButtonArea(
-            onSubmitScreen = { onSubmitScreen(minimizedWish, wishId) },
-            onMessageScreen = { onMessageScreen(minimizedWish) },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+        if (minimizedWish.completedDate == 0) {
+            ProgressForDeveloperScreenButtonArea(
+                onSubmitScreen = { onSubmitScreen(minimizedWish, wishId) },
+                onMessageScreen = { onMessageScreen(minimizedWish) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
 }

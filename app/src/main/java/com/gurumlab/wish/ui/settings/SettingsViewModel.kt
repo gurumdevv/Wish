@@ -3,6 +3,7 @@ package com.gurumlab.wish.ui.settings
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.repository.SettingsRepository
 import com.gurumlab.wish.ui.util.Constants
@@ -131,16 +132,34 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun fetchUserInfo(): UserInfo {
+    private fun fetchUserInfo(): CurrentUserInfo {
         val userInfo = repository.getCurrentUser()
         val name = userInfo?.displayName ?: Constants.USER
         val email = userInfo?.email ?: Constants.EMAIL
         val imageUrl = userInfo?.photoUrl?.toString() ?: ""
-        return UserInfo(name, email, imageUrl)
+        return CurrentUserInfo(name, email, imageUrl)
+    }
+
+    fun getMinimizedWish(
+        wish: Wish,
+    ): MinimizedWish {
+        return MinimizedWish(
+            postId = wish.postId,
+            createdDate = wish.createdDate,
+            startedDate = wish.startedDate,
+            completedDate = wish.completedDate,
+            posterId = wish.posterId,
+            developerId = wish.developerId,
+            posterName = wish.posterName,
+            developerName = wish.developerName,
+            title = wish.title,
+            simpleDescription = wish.simpleDescription,
+            comment = wish.comment
+        )
     }
 }
 
-data class UserInfo(
+data class CurrentUserInfo(
     val name: String,
     val email: String,
     val imageUrl: String

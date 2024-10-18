@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.Gray00
@@ -55,7 +56,7 @@ import com.gurumlab.wish.ui.util.toDp
 
 //<--- Settings--->
 @Composable
-fun SettingsUserInfo(userInfo: UserInfo) {
+fun SettingsUserInfo(currentUserInfo: CurrentUserInfo) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,20 +66,20 @@ fun SettingsUserInfo(userInfo: UserInfo) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = userInfo.name,
+                text = currentUserInfo.name,
                 fontSize = 18.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = userInfo.email,
+                text = currentUserInfo.email,
                 fontSize = 16.sp,
                 color = Color.White,
             )
         }
         CustomAsyncImage(
-            url = userInfo.imageUrl,
+            url = currentUserInfo.imageUrl,
             contentDescription = stringResource(R.string.profile_image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -245,7 +246,9 @@ fun ProjectStatisticsItem(
 fun ProjectListItem(
     wish: Wish,
     wishId: String,
-    onDetailScreen: (String) -> Unit,
+    getMinimizedWish: ((Wish) -> MinimizedWish)? = null,
+    onProgressScreen: ((MinimizedWish, String) -> Unit)? = null,
+    onDetailScreen: ((String) -> Unit)? = null,
     onOptionClick: ((String) -> Unit)? = null
 ) {
     Box(
@@ -253,7 +256,13 @@ fun ProjectListItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(defaultBoxColor)
-            .clickable { onDetailScreen(wishId) }
+            .clickable {
+                onDetailScreen?.let { onDetailScreen(wishId) }
+                onProgressScreen?.let {
+                    val minimizedWish = getMinimizedWish!!(wish)
+                    onProgressScreen(minimizedWish, wishId)
+                }
+            }
     ) {
         Row(
             modifier = Modifier.padding(16.dp)
@@ -372,7 +381,8 @@ fun ApproachingProjectWishesList(
     wishes: Map<String, Wish>,
     totalCount: Int,
     successCount: Int,
-    onDetailScreen: (String) -> Unit,
+    getMinimizedWish: ((Wish) -> MinimizedWish)?,
+    onProgressScreen: ((MinimizedWish, String) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -398,7 +408,8 @@ fun ApproachingProjectWishesList(
             ProjectListItem(
                 wish = wishes.values.elementAt(index),
                 wishId = wishes.keys.elementAt(index),
-                onDetailScreen = onDetailScreen
+                getMinimizedWish = getMinimizedWish,
+                onProgressScreen = onProgressScreen
             )
             Spacer(modifier = Modifier.height(8.dp))
         }

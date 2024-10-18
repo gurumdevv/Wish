@@ -4,6 +4,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.gurumlab.wish.R
+import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.ui.util.CustomTopAppBar
 import com.gurumlab.wish.ui.util.CustomTopAppBarWithButton
 
@@ -52,12 +53,12 @@ fun AccountSettingRoute(
 fun ApproachingProjectSettingRoute(
     viewModel: SettingsViewModel,
     onNavUp: () -> Unit,
-    onDetailScreen: (String) -> Unit
+    onProgressScreen: (MinimizedWish, String) -> Unit,
 ) {
     val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
     ApproachingProjectSettingScreen(
         viewModel = viewModel,
-        onDetailScreen = onDetailScreen,
+        onProgressScreen = onProgressScreen,
         topBar = topBar
     )
 }

@@ -396,8 +396,15 @@ fun WishNavHost(
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
-                ApproachingProjectSettingRoute(viewModel, onNavUp) { wishId ->
-                    navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
+                ApproachingProjectSettingRoute(
+                    viewModel = viewModel,
+                    onNavUp = onNavUp
+                ) { minimizedWishObject, wishIdString ->
+                    navController.navigate(
+                        WishScreen.PROGRESS_FOR_DEVELOPER.name
+                                + "/${Gson().toJson(minimizedWishObject)}"
+                                + "/${wishIdString}"
+                    )
                 }
             }
             composable(
