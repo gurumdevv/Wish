@@ -18,12 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.backgroundColor
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyProjectSettingScreen(
+    viewModel: SettingsViewModel,
+    onDetailScreen: (String) -> Unit,
     topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
-    viewModel: SettingsViewModel
+    bottomBar: @Composable () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         viewModel.loadMyWishes()
@@ -34,12 +36,13 @@ fun MyProjectSettingScreen(
         bottomBar = bottomBar
     ) { innerPadding ->
         MyProjectSettingContent(
+            viewModel = viewModel,
+            onDetailScreen = onDetailScreen,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
                 .padding(innerPadding)
-                .padding(start = 24.dp, end = 24.dp),
-            viewModel = viewModel
+                .padding(start = 24.dp, end = 24.dp)
         )
     }
 }
@@ -47,8 +50,9 @@ fun MyProjectSettingScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProjectSettingContent(
-    modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    onDetailScreen: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.myProjectUiState.collectAsStateWithLifecycle()
 
@@ -67,7 +71,8 @@ fun MyProjectSettingContent(
                 wishes = emptyMap(),
                 totalCount = 0,
                 successCount = 0,
-                onItemClick = {},
+                onDetailScreen = {},
+                onOptionClick = {},
                 modifier = modifier
             )
         }
@@ -85,7 +90,8 @@ fun MyProjectSettingContent(
                 wishes = wishes,
                 totalCount = totalCount,
                 successCount = successCount,
-                onItemClick = { wishId ->
+                onDetailScreen = onDetailScreen,
+                onOptionClick = { wishId ->
                     currentWishId = wishId
                     showBottomSheet = true
                 },
@@ -97,11 +103,18 @@ fun MyProjectSettingContent(
     if (showBottomSheet) {
         MyProjectBottomSheet(
             sheetState = sheetState,
-            currentWishId = currentWishId,
-            scope = scope,
-            viewModel = viewModel
-        ) {
-            showBottomSheet = it
-        }
+            onDismiss = { showBottomSheet = it },
+            onDeleteBtnClick = {
+                scope.launch {
+                    viewModel.deleteWish(currentWishId)
+                    viewModel.loadMyWishes()
+                    sheetState.hide()
+                }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showBottomSheet = false
+                    }
+                }
+            }
+        )
     }
 }

@@ -376,7 +376,9 @@ fun WishNavHost(
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
-                MyProjectSettingRoute(viewModel, onNavUp)
+                MyProjectSettingRoute(viewModel, onNavUp) { wishId ->
+                    navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
+                }
             }
             composable(
                 route = WishScreen.APPROACHING_PROJECT_SETTING.name,
@@ -394,7 +396,9 @@ fun WishNavHost(
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
-                ApproachingProjectSettingRoute(viewModel, onNavUp)
+                ApproachingProjectSettingRoute(viewModel, onNavUp) { wishId ->
+                    navController.navigate(WishScreen.DETAIL.name + "/${wishId}")
+                }
             }
             composable(
                 route = WishScreen.TERMS_AND_CONDITION.name,

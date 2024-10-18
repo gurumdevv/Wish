@@ -51,17 +51,30 @@ fun AccountSettingRoute(
 @Composable
 fun ApproachingProjectSettingRoute(
     viewModel: SettingsViewModel,
-    onNavUp: () -> Unit
+    onNavUp: () -> Unit,
+    onDetailScreen: (String) -> Unit
 ) {
     val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
-    ApproachingProjectSettingScreen(viewModel = viewModel, topBar = topBar)
+    ApproachingProjectSettingScreen(
+        viewModel = viewModel,
+        onDetailScreen = onDetailScreen,
+        topBar = topBar
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyProjectSettingRoute(viewModel: SettingsViewModel, onNavUp: () -> Unit) {
+fun MyProjectSettingRoute(
+    viewModel: SettingsViewModel,
+    onNavUp: () -> Unit,
+    onDetailScreen: (String) -> Unit
+) {
     val topBar: @Composable () -> Unit = { CustomTopAppBarWithButton(onNavIconPressed = onNavUp) }
-    MyProjectSettingScreen(viewModel = viewModel, topBar = topBar)
+    MyProjectSettingScreen(
+        viewModel = viewModel,
+        onDetailScreen = onDetailScreen,
+        topBar = topBar
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

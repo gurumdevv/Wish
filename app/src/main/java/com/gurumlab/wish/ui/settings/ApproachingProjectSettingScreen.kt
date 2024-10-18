@@ -16,6 +16,7 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 @Composable
 fun ApproachingProjectSettingScreen(
     viewModel: SettingsViewModel,
+    onDetailScreen: (String) -> Unit,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
@@ -29,6 +30,7 @@ fun ApproachingProjectSettingScreen(
     ) { innerPadding ->
         ApproachingProjectSettingContent(
             viewModel = viewModel,
+            onDetailScreen = onDetailScreen,
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
@@ -41,6 +43,7 @@ fun ApproachingProjectSettingScreen(
 @Composable
 fun ApproachingProjectSettingContent(
     viewModel: SettingsViewModel,
+    onDetailScreen: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.approachingProjectUiState.collectAsStateWithLifecycle()
@@ -55,6 +58,7 @@ fun ApproachingProjectSettingContent(
                 totalCount = 0,
                 successCount = 0,
                 wishes = emptyMap(),
+                onDetailScreen = {},
                 modifier = modifier
             )
         }
@@ -72,6 +76,7 @@ fun ApproachingProjectSettingContent(
                 wishes = wishes,
                 totalCount = totalCount,
                 successCount = successCount,
+                onDetailScreen = onDetailScreen,
                 modifier = modifier
             )
         }

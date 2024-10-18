@@ -52,8 +52,6 @@ import com.gurumlab.wish.ui.theme.defaultScrimColor
 import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.toDp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 //<--- Settings--->
 @Composable
@@ -246,14 +244,16 @@ fun ProjectStatisticsItem(
 @Composable
 fun ProjectListItem(
     wish: Wish,
-    wishId: String? = null,
-    onClick: ((String) -> Unit)? = null
+    wishId: String,
+    onDetailScreen: (String) -> Unit,
+    onOptionClick: ((String) -> Unit)? = null
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(defaultBoxColor)
+            .clickable { onDetailScreen(wishId) }
     ) {
         Row(
             modifier = Modifier.padding(16.dp)
@@ -307,10 +307,10 @@ fun ProjectListItem(
             }
         }
 
-        if (wish.status == WishStatus.POSTED.ordinal && onClick != null && wishId != null) {
+        if (wish.status == WishStatus.POSTED.ordinal && onOptionClick != null) {
             IconButton(
                 modifier = Modifier.align(Alignment.TopEnd),
-                onClick = { onClick(wishId) }) {
+                onClick = { onOptionClick(wishId) }) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_etc),
                     contentDescription = stringResource(
@@ -372,7 +372,8 @@ fun ApproachingProjectWishesList(
     wishes: Map<String, Wish>,
     totalCount: Int,
     successCount: Int,
-    modifier: Modifier
+    onDetailScreen: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier
@@ -394,7 +395,11 @@ fun ApproachingProjectWishesList(
             Spacer(modifier = Modifier.height(8.dp))
         }
         items(wishes.keys.size) { index ->
-            ProjectListItem(wish = wishes.values.elementAt(index))
+            ProjectListItem(
+                wish = wishes.values.elementAt(index),
+                wishId = wishes.keys.elementAt(index),
+                onDetailScreen = onDetailScreen
+            )
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
@@ -411,7 +416,8 @@ fun MyProjectWishesList(
     wishes: Map<String, Wish>,
     totalCount: Int,
     successCount: Int,
-    onItemClick: (String) -> Unit,
+    onDetailScreen: (String) -> Unit,
+    onOptionClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -431,7 +437,8 @@ fun MyProjectWishesList(
             ProjectListItem(
                 wish = wishes.values.elementAt(index),
                 wishId = wishes.keys.elementAt(index),
-                onClick = onItemClick
+                onDetailScreen = onDetailScreen,
+                onOptionClick = onOptionClick
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -442,10 +449,8 @@ fun MyProjectWishesList(
 @OptIn(ExperimentalMaterial3Api::class)
 fun MyProjectBottomSheet(
     sheetState: SheetState,
-    currentWishId: String,
-    scope: CoroutineScope,
-    viewModel: SettingsViewModel,
-    onDismiss: (Boolean) -> Unit
+    onDismiss: (Boolean) -> Unit,
+    onDeleteBtnClick: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = {
@@ -457,17 +462,7 @@ fun MyProjectBottomSheet(
         scrimColor = defaultScrimColor
     ) {
         ModalBottomSheetItem(
-            modifier = Modifier.clickable {
-                scope.launch {
-                    viewModel.deleteWish(currentWishId)
-                    viewModel.loadMyWishes()
-                    sheetState.hide()
-                }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onDismiss(false)
-                    }
-                }
-            },
+            modifier = Modifier.clickable { onDeleteBtnClick() },
             iconRsc = R.drawable.ic_trash,
             textRsc = R.string.delete,
             contentDescriptionRsc = R.string.btn_delete,
