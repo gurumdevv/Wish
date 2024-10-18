@@ -94,19 +94,22 @@ fun DetailContent(
                 modifier = modifier
             ) {
                 ProjectDescriptionArea(scrollState = scrollState, wish = wish)
-                DetailScreenButtonArea(
-                    minimizedWish = minimizedWish,
-                    onUpdateWish = {
-                        viewModel.updateWish(
-                            wishId = wishId,
-                            currentDate = currentDate,
-                            currentUser = currentUser,
-                            failSnackbarMessageRes = R.string.please_try_again_later
-                        )
-                    },
-                    onMessageScreen = onMessageScreen,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )
+
+                if (wish.posterId != currentUser.uid) {
+                    DetailScreenButtonArea(
+                        minimizedWish = minimizedWish,
+                        onUpdateWish = {
+                            viewModel.updateWish(
+                                wishId = wishId,
+                                currentDate = currentDate,
+                                currentUser = currentUser,
+                                failSnackbarMessageRes = R.string.please_try_again_later
+                            )
+                        },
+                        onMessageScreen = onMessageScreen,
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
 
                 ErrorSnackBar(
                     snackbarHostState = snackbarHostState,
