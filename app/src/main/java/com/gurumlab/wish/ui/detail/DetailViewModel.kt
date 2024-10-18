@@ -160,12 +160,23 @@ class DetailViewModel @Inject constructor(
         wishId: String,
         currentDate: Int,
         currentUser: UserInfo,
+        alreadyBegunMessageRes: Int,
         failSnackbarMessageRes: Int
     ) {
         viewModelScope.launch {
             val idToken = repository.getFirebaseIdToken()
             if (idToken.isBlank()) {
                 handleError(logMessage = "IdToken is blank", messageRes = failSnackbarMessageRes)
+                return@launch
+            }
+
+            if (isLatestStatusAlreadyBegun(
+                    idToken = idToken,
+                    wishId = wishId,
+                    failSnackbarMessageRes = failSnackbarMessageRes
+                )
+            ) {
+                handleError(logMessage = "", messageRes = alreadyBegunMessageRes)
                 return@launch
             }
 
@@ -188,6 +199,25 @@ class DetailViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun isLatestStatusAlreadyBegun(
+        idToken: String,
+        wishId: String,
+        failSnackbarMessageRes: Int
+    ): Boolean {
+        val currentStatus = repository.getPostStatus(
+            idToken = idToken,
+            postId = wishId,
+            onFail = { message ->
+                handleError(
+                    logMessage = "Getting status failed: $message",
+                    messageRes = failSnackbarMessageRes
+                )
+            }
+        ).singleOrNull()
+
+        return currentStatus != WishStatus.POSTED.ordinal
     }
 
     private fun handleError(logMessage: String, messageRes: Int) {

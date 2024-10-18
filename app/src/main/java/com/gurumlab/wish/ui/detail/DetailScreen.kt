@@ -103,6 +103,7 @@ fun DetailContent(
                                 wishId = wishId,
                                 currentDate = currentDate,
                                 currentUser = currentUser,
+                                alreadyBegunMessageRes = R.string.already_begun_message,
                                 failSnackbarMessageRes = R.string.please_try_again_later
                             )
                         },

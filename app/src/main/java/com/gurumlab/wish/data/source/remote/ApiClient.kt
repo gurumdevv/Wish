@@ -75,9 +75,9 @@ interface ApiClient {
         @Query("auth") idToken: String
     )
 
-    @GET("posts/{postIdentifier}/likes.json")
+    @GET("posts/{postId}/likes.json")
     suspend fun getLikeCount(
-        @Path("postIdentifier") postIdentifier: String,
+        @Path("postId") postIdentifier: String,
         @Query("auth") idToken: String
     ): ApiResponse<Int>
 
@@ -99,6 +99,12 @@ interface ApiClient {
         @Query("equalTo") equalTo: String,
         @Query("auth") idToken: String
     ): ApiResponse<Map<String, Wish>>
+
+    @GET("posts/{postId}/status.json")
+    suspend fun getPostStatus(
+        @Path("postId") postId: String,
+        @Query("auth") idToken: String
+    ): ApiResponse<Int>
 
     @DELETE("posts/{wishId}.json")
     suspend fun deleteWish(

@@ -139,4 +139,5 @@
     <string name="one_line_description_empty">프로젝트 한 줄 설명을 작성해 주세요.</string>
     <string name="simple_description_empty">프로젝트 간단 설명을 작성해 주세요.</string>
     <string name="project_description_empty">프로젝트 설명을 작성해 주세요.</string>
+    <string name="already_begun_message">이미 착수된 프로젝트입니다!</string>
 </resources>

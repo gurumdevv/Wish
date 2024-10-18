@@ -94,6 +94,23 @@ class DetailRepository @Inject constructor(
         }
     }
 
+    fun getPostStatus(
+        idToken: String,
+        postId: String,
+        onFail: (String) -> Unit
+    ): Flow<Int?> = flow {
+        val response = apiClient.getPostStatus(postId = postId, idToken = idToken)
+        response.onSuccess {
+            emit(it)
+        }.onError { code, message ->
+            emit(null)
+            onFail("code: $code, message: $message")
+        }.onException {
+            emit(null)
+            onFail(it.message ?: "")
+        }
+    }
+
     fun getCurrentUser() = currentUser
 
     suspend fun getFirebaseIdToken(): String {
