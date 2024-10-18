@@ -415,7 +415,29 @@ fun WishNavHost(
             }
         }
         navigation(startDestination = WishScreen.POST_START.name, route = WishScreen.POST.name) {
-            composable(route = WishScreen.POST_START.name) {
+            composable(
+                route = WishScreen.POST_START.name,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        WishScreen.POST_DESCRIPTION.name -> {
+                            fadeOut(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Down,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
+                }
+            ) {
                 val viewModel = it.sharedViewModel<PostViewModel>(navController = navController)
                 PostStartRoute(viewModel, onNavUp) {
                     navController.navigate(WishScreen.POST_DESCRIPTION.name)
