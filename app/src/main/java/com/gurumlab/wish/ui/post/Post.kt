@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.post
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,13 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -52,7 +46,6 @@ import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.Gray01
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
-import com.gurumlab.wish.ui.util.CustomSnackbarContent
 import com.gurumlab.wish.ui.util.CustomTextField
 import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.CoroutineScope
@@ -277,36 +270,12 @@ fun PostSimpleDescriptionSection(
 
 @Composable
 fun PostStartButtonSection(
-    projectTitle: String,
-    oneLineDescription: String,
-    simpleDescription: String,
-    onClick: () -> Unit,
-    onError: () -> Unit
+    onClick: () -> Unit
 ) {
     CustomWideButton(
-        text = stringResource(R.string.next)
-    ) {
-        if (checkValidValue(
-                projectTitle = projectTitle,
-                oneLineDescription = oneLineDescription,
-                simpleDescription = simpleDescription
-            )
-        ) {
-            onClick()
-        } else {
-            onError()
-        }
-    }
-}
-
-fun checkValidValue(
-    projectTitle: String,
-    oneLineDescription: String,
-    simpleDescription: String
-): Boolean {
-    return projectTitle.isNotBlank() &&
-            oneLineDescription.isNotBlank() &&
-            simpleDescription.isNotBlank()
+        text = stringResource(R.string.next),
+        onClick = onClick
+    )
 }
 
 // <-- PostFeatures -->
@@ -362,9 +331,7 @@ fun moveToLastItem(
 fun PostFeaturesTitleWithButton(
     titleTextRsc: Int,
     btnTextRsc: Int,
-    viewModel: PostViewModel,
     onClick: () -> Unit,
-    onSnackbarMessageChange: (Int) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -383,17 +350,7 @@ fun PostFeaturesTitleWithButton(
                 contentColor = Color.White,
                 containerColor = defaultBoxColor
             ),
-            onClick = {
-                if (checkValidValue(
-                        featureTitles = viewModel.featureTitles.values.toList(),
-                        featureDescriptions = viewModel.featureDescriptions.values.toList()
-                    )
-                ) {
-                    onSnackbarMessageChange(R.string.blank)
-                } else {
-                    onClick()
-                }
-            }
+            onClick = onClick
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -408,13 +365,6 @@ fun PostFeaturesTitleWithButton(
             }
         }
     }
-}
-
-fun checkValidValue(
-    featureTitles: List<String>,
-    featureDescriptions: List<String>
-): Boolean {
-    return (featureTitles.any { it.isBlank() } || featureDescriptions.any { it.isBlank() })
 }
 
 @Composable
@@ -589,19 +539,12 @@ fun PostDescriptionTextFieldSection(
 
 @Composable
 fun PostDescriptionButtonSection(
-    projectDescription: String,
-    onPostFeatures: () -> Unit,
-    onSnackbarMessageChange: (Int) -> Unit
+    onClick: () -> Unit
 ) {
     CustomWideButton(
-        text = stringResource(R.string.next)
-    ) {
-        if (projectDescription.isNotBlank()) {
-            onPostFeatures()
-        } else {
-            onSnackbarMessageChange(R.string.blank)
-        }
-    }
+        text = stringResource(R.string.next),
+        onClick = onClick
+    )
 }
 
 // <-- PostExamination -->

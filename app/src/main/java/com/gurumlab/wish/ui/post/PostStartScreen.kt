@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.CautionSnackbar
 import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
@@ -98,17 +98,29 @@ fun PostStartContent(
             }
             Spacer(modifier = Modifier.weight(1f))
 
-            PostStartButtonSection(
-                projectTitle = viewModel.projectTitle,
-                oneLineDescription = viewModel.oneLineDescription,
-                simpleDescription = viewModel.simpleDescription,
-                onClick = onPostDescription,
-                onError = { viewModel.showSnackbarMessage(R.string.blank) }
-            )
+            PostStartButtonSection {
+                when {
+                    viewModel.isProjectTitleEmpty() -> {
+                        viewModel.showSnackbarMessage(R.string.project_title_empty)
+                    }
+
+                    viewModel.isOneLineDescriptionEmpty() -> {
+                        viewModel.showSnackbarMessage(R.string.one_line_description_empty)
+                    }
+
+                    viewModel.isSimpleDescriptionEmpty() -> {
+                        viewModel.showSnackbarMessage(R.string.simple_description_empty)
+                    }
+
+                    else -> {
+                        onPostDescription()
+                    }
+                }
+            }
             Spacer(modifier = Modifier.size(24.dp))
         }
 
-        ErrorSnackBarMessage(
+        CautionSnackbar(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

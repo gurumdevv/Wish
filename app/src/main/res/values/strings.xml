@@ -132,4 +132,11 @@
     <string name="please_try_again_later">잠시 후 다시 시도해 주세요.</string>
     <string name="cannot_chat_now">현재 채팅 서비스를 이용할 수 없습니다.</string>
     <string name="sending_message_error">메세지 전송에 실패했습니다.</string>
+    <string name="photo_empty">한 장 이상의 사진을 첨부해 주세요.</string>
+    <string name="title_empty">제목을 모두 작성하셨는지 확인해 주세요.</string>
+    <string name="description_empty">설명을 모두 작성하셨는지 확인해 주세요.</string>
+    <string name="project_title_empty">프로젝트 명을 작성해 주세요.</string>
+    <string name="one_line_description_empty">프로젝트 한 줄 설명을 작성해 주세요.</string>
+    <string name="simple_description_empty">프로젝트 간단 설명을 작성해 주세요.</string>
+    <string name="project_description_empty">프로젝트 설명을 작성해 주세요.</string>
 </resources>

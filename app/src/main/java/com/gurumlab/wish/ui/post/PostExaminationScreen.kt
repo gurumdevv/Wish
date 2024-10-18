@@ -24,7 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.CustomLoadingScreen
-import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.ErrorSnackBar
 import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
@@ -115,7 +115,7 @@ fun PostExaminationContent(
             CustomLoadingScreen()
         }
 
-        ErrorSnackBarMessage(
+        ErrorSnackBar(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

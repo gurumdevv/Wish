@@ -21,8 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.CautionSnackbar
 import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
@@ -77,15 +78,17 @@ fun PostDescriptionContent(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            PostDescriptionButtonSection(
-                projectDescription = viewModel.projectDescription,
-                onPostFeatures = onPostFeatures,
-                onSnackbarMessageChange = { viewModel.showSnackbarMessage(it) }
-            )
+            PostDescriptionButtonSection {
+                if (viewModel.isProjectDescriptionEmpty()) {
+                    viewModel.showSnackbarMessage(R.string.project_description_empty)
+                } else {
+                    onPostFeatures()
+                }
+            }
             Spacer(modifier = Modifier.size(24.dp))
         }
 
-        ErrorSnackBarMessage(
+        CautionSnackbar(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

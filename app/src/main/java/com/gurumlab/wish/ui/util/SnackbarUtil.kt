@@ -9,9 +9,42 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.gurumlab.wish.ui.theme.yellow03
 
 @Composable
-fun ErrorSnackBarMessage(
+fun ErrorSnackBar(
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+    CommonSnackbar(
+        textColor = Color.White,
+        backgroundColor = Color.Red,
+        icon = Icons.Outlined.Warning,
+        snackbarHostState = snackbarHostState,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun CautionSnackbar(
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+    CommonSnackbar(
+        textColor = Color.Black,
+        backgroundColor = yellow03,
+        icon = Icons.Outlined.Warning,
+        snackbarHostState = snackbarHostState,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun CommonSnackbar(
+    textColor: Color,
+    backgroundColor: Color,
+    icon: ImageVector,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
@@ -19,7 +52,12 @@ fun ErrorSnackBarMessage(
         hostState = snackbarHostState,
         modifier = modifier
     ) { data ->
-        CustomSnackbarContent(data, Color.Red, Color.White, Icons.Outlined.Warning)
+        CustomSnackbarContent(
+            snackbarData = data,
+            textColor = textColor,
+            backgroundColor = backgroundColor,
+            icon = icon
+        )
     }
 }
 

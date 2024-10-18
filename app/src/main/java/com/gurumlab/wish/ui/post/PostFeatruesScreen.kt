@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.ErrorSnackBarMessage
+import com.gurumlab.wish.ui.util.CautionSnackbar
 import com.gurumlab.wish.ui.util.showSnackbar
 
 @Composable
@@ -79,11 +79,26 @@ fun PostFeaturesContent(
             PostFeaturesTitleWithButton(
                 titleTextRsc = R.string.post_features_title,
                 btnTextRsc = R.string.btn_finish,
-                viewModel = viewModel,
-                onClick = onFinishClick,
-                onSnackbarMessageChange = { viewModel.showSnackbarMessage(it) }
-            )
+                onClick = {
+                    when {
+                        viewModel.isAnyTitleEmpty() -> {
+                            viewModel.showSnackbarMessage(R.string.title_empty)
+                        }
 
+                        viewModel.isAnyDescriptionEmpty() -> {
+                            viewModel.showSnackbarMessage(R.string.description_empty)
+                        }
+
+                        viewModel.isAttachedPhoto() -> {
+                            viewModel.showSnackbarMessage(R.string.photo_empty)
+                        }
+
+                        else -> {
+                            onFinishClick()
+                        }
+                    }
+                }
+            )
             PostFeaturesLazyColumn(
                 itemCount = viewModel.itemCount,
                 featureTitles = viewModel.featureTitles,
@@ -113,11 +128,11 @@ fun PostFeaturesContent(
             )
         }
 
-        ErrorSnackBarMessage(
+        CautionSnackbar(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(y = (-102).dp)
+                .offset(y = (-24).dp)
         )
     }
 

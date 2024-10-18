@@ -18,6 +18,12 @@ val Gray02 = Color(0xFF414141)
 
 val lightGreen00 = Color(0xFF92CC6C)
 
+val yellow00 = Color(0xFFFFFFCC)
+val yellow01 = Color(0xFFFFF099)
+val yellow02 = Color(0xFFFFE880)
+val yellow03 = Color(0xFFFFD94D)
+val yellow04 = Color(0xFFFFCA1A)
+
 val backgroundColor = Color.Black
 val defaultBoxColor = Color(0xFF2E2E2E)
 val defaultPlaceHolderColor = Color(0xFF7F7F7F)

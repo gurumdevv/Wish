@@ -119,14 +119,10 @@ class PostViewModel @Inject constructor(
         val features = mutableListOf<DetailDescription>()
 
         featureTitles.forEach { (index, title) ->
-            val description =
-                featureDescriptions.getOrDefault(
-                    key = index,
-                    defaultValue = ""
-                )
+            val description = featureDescriptions[index]!!
             val photos = imageDownloadUrls.getOrDefault(
                 key = index,
-                defaultValue = emptyList() //이미지가 첨부되지 않은 경우 문제가 발생한다면 이부분 확인
+                defaultValue = listOf("")
             )
             features.add(
                 DetailDescription(
@@ -207,6 +203,38 @@ class PostViewModel @Inject constructor(
 
     fun updateSelectedImageUris(index: Int, uris: List<Uri>) {
         selectedImageUris[index] = uris
+    }
+
+    fun isProjectTitleEmpty(): Boolean {
+        return projectTitle.isEmpty()
+    }
+
+    fun isOneLineDescriptionEmpty(): Boolean {
+        return oneLineDescription.isEmpty()
+    }
+
+    fun isSimpleDescriptionEmpty(): Boolean {
+        return simpleDescription.isEmpty()
+    }
+
+    fun isProjectDescriptionEmpty(): Boolean {
+        return projectDescription.isEmpty()
+    }
+
+    fun isAttachedPhoto(): Boolean {
+        return selectedImageUris.values.all { it.isEmpty() }
+    }
+
+    fun isAnyTitleEmpty(): Boolean {
+        return areAnyFieldsEmpty(featureTitles.values.toList())
+    }
+
+    fun isAnyDescriptionEmpty(): Boolean {
+        return areAnyFieldsEmpty(featureDescriptions.values.toList())
+    }
+
+    private fun areAnyFieldsEmpty(list: List<String>): Boolean {
+        return list.any { it.isEmpty() } || list.isEmpty()
     }
 
     fun showSnackbarMessage(messageRes: Int) {
