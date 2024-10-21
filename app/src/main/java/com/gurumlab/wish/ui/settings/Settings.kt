@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,16 +27,11 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +48,6 @@ import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultScrimColor
 import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomLottieLoader
-import com.gurumlab.wish.ui.util.toDp
 
 //<--- Settings--->
 @Composable
@@ -177,8 +172,6 @@ fun ProjectSettingTitle(
 
 @Composable
 fun ProjectStatistics(successWishCount: Int, postedWishCount: Int) {
-    var heightPx by remember { mutableIntStateOf(0) }
-
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -197,11 +190,8 @@ fun ProjectStatistics(successWishCount: Int, postedWishCount: Int) {
                 )
                 .background(defaultBoxColor)
                 .padding(8.dp)
-                .onGloballyPositioned { coordinates ->
-                    heightPx = coordinates.size.height
-                }
         )
-        VerticalDivider(modifier = Modifier.height(heightPx.toDp()), color = Color.Black)
+        VerticalDivider(modifier = Modifier.fillMaxHeight(), color = Color.Black)
         ProjectStatisticsItem(
             modifier = Modifier
                 .weight(1f)
@@ -396,7 +386,7 @@ fun ApproachingProjectWishesList(
             Spacer(modifier = Modifier.height(16.dp))
             ProjectSettingTitle(textRsc = R.string.statistics, fontSize = 20)
             Spacer(modifier = Modifier.height(8.dp))
-            ProjectStatistics(totalCount, successCount)
+            ProjectStatistics(successWishCount = successCount, postedWishCount = totalCount)
             Spacer(modifier = Modifier.height(16.dp))
             ProjectSettingTitle(
                 textRsc = R.string.posted_wish_list,
@@ -439,7 +429,7 @@ fun MyProjectWishesList(
             Spacer(modifier = Modifier.height(16.dp))
             ProjectSettingTitle(textRsc = R.string.statistics, fontSize = 20)
             Spacer(modifier = Modifier.height(8.dp))
-            ProjectStatistics(totalCount, successCount)
+            ProjectStatistics(successWishCount = successCount, postedWishCount = totalCount)
             Spacer(modifier = Modifier.height(16.dp))
             ProjectSettingTitle(textRsc = R.string.posted_wish_list, fontSize = 20)
             Spacer(modifier = Modifier.height(8.dp))
