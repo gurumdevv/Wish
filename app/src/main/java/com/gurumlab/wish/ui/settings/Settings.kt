@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -421,8 +422,11 @@ fun MyProjectWishesList(
     onOptionClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val lazyListState = rememberLazyListState()
+
     LazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        state = lazyListState
     ) {
         item {
             ProjectSettingTitle(textRsc = R.string.my_project_setting, fontSize = 24)

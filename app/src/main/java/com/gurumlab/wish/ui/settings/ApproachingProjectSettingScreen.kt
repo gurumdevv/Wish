@@ -21,10 +21,6 @@ fun ApproachingProjectSettingScreen(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadApproachingWishes()
-    }
-
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
@@ -48,6 +44,12 @@ fun ApproachingProjectSettingContent(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.approachingProjectUiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState) {
+        if (uiState == ApproachingProjectUiState.Loading) {
+            viewModel.loadApproachingWishes()
+        }
+    }
 
     when (uiState) {
         ApproachingProjectUiState.Loading -> {

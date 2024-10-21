@@ -129,6 +129,7 @@ class SettingsViewModel @Inject constructor(
                 return@launch
             }
             repository.deleteWish(idToken = idToken, wishId = wishId)
+            _myProjectUiState.value = MyProjectUiState.Loading
         }
     }
 

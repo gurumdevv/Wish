@@ -27,10 +27,6 @@ fun MyProjectSettingScreen(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadMyWishes()
-    }
-
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
@@ -60,6 +56,12 @@ fun MyProjectSettingContent(
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var currentWishId by remember { mutableStateOf("") }
+
+    LaunchedEffect(uiState) {
+        if (uiState == MyProjectUiState.Loading) {
+            viewModel.loadMyWishes()
+        }
+    }
 
     when (uiState) {
         MyProjectUiState.Loading -> {
@@ -107,7 +109,6 @@ fun MyProjectSettingContent(
             onDeleteBtnClick = {
                 scope.launch {
                     viewModel.deleteWish(currentWishId)
-                    viewModel.loadMyWishes()
                     sheetState.hide()
                 }.invokeOnCompletion {
                     if (!sheetState.isVisible) {
