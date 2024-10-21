@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -218,19 +219,38 @@ fun WishNavHost(
         composable(
             route = WishScreen.DETAIL.name + "/{wishId}",
             enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Up,
-                    animationSpec = tween(500)
-                )
+                when (initialState.destination.route) {
+                    WishScreen.MY_PROJECT_SETTING.name,
+                    WishScreen.APPROACHING_PROJECT_SETTING.name
+                    -> {
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(500)
+                        )
+                    }
+
+                    else -> {
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Up,
+                            animationSpec = tween(500)
+                        )
+                    }
+                }
             },
             exitTransition = {
                 when (targetState.destination.route) {
-                    WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}" + "/{wishId}" -> {
+                    WishScreen.CHAT_ROOM.name + "/{chatRoom}/{name}/{imageUrl}",
+                    WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}/{wishId}"
+                    -> {
                         fadeOut(animationSpec = tween(durationMillis = 200))
                     }
 
-                    WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}" -> {
-                        fadeOut(animationSpec = tween(durationMillis = 200))
+                    WishScreen.MY_PROJECT_SETTING.name,
+                    WishScreen.APPROACHING_PROJECT_SETTING.name -> {
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(500)
+                        )
                     }
 
                     else -> {
@@ -363,16 +383,32 @@ fun WishNavHost(
             composable(
                 route = WishScreen.MY_PROJECT_SETTING.name,
                 enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(500)
-                    )
+                    when (initialState.destination.route) {
+                        WishScreen.DETAIL.name + "/{wishId}" -> {
+                            fadeIn(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Left,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
                 },
                 exitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
+                    when (targetState.destination.route) {
+                        WishScreen.DETAIL.name + "/{wishId}" -> {
+                            fadeOut(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Right,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
