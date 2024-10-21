@@ -286,7 +286,35 @@ fun WishNavHost(
             )
         }
         composable(
-            route = WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}" + "/{wishId}"
+            route = WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}" + "/{wishId}",
+            enterTransition = {
+                when (initialState.destination.route) {
+                    WishScreen.APPROACHING_PROJECT_SETTING.name -> {
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(500)
+                        )
+                    }
+
+                    else -> {
+                        EnterTransition.None
+                    }
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    WishScreen.APPROACHING_PROJECT_SETTING.name -> {
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(500)
+                        )
+                    }
+
+                    else -> {
+                        ExitTransition.None
+                    }
+                }
+            }
         ) { backStackEntry ->
             val minimizedWishJson = backStackEntry.arguments?.getString("minimizedWish")
             val minimizedWish = Gson().fromJson(minimizedWishJson, MinimizedWish::class.java)
@@ -419,16 +447,32 @@ fun WishNavHost(
             composable(
                 route = WishScreen.APPROACHING_PROJECT_SETTING.name,
                 enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(500)
-                    )
+                    when (initialState.destination.route) {
+                        WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}/{wishId}" -> {
+                            fadeIn(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Left,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
                 },
                 exitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
+                    when (targetState.destination.route) {
+                        WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}/{wishId}" -> {
+                            fadeOut(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Right,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
                 }
             ) {
                 val viewModel = it.sharedViewModel<SettingsViewModel>(navController = navController)
