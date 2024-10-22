@@ -292,7 +292,9 @@ fun HomeErrorScreen(modifier: Modifier = Modifier) {
             resId = R.raw.animation_shooting_star
         )
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -306,7 +308,7 @@ fun HomeErrorScreen(modifier: Modifier = Modifier) {
             Text(
                 text = stringResource(R.string.how_about_sharing_wish),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = Color.White
             )
         }
