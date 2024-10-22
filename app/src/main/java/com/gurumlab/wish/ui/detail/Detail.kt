@@ -1,6 +1,5 @@
 package com.gurumlab.wish.ui.detail
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,30 +26,43 @@ import com.gurumlab.wish.data.model.DetailDescription
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.ui.theme.backgroundColor
-import com.gurumlab.wish.ui.util.CustomAsyncImage
+import com.gurumlab.wish.ui.util.CustomAsyncImageWithRecompositionTrigger
 import com.gurumlab.wish.ui.util.CustomExceptionScreen
 import com.gurumlab.wish.ui.util.CustomIconButton
 import com.gurumlab.wish.ui.util.CustomLoadingScreen
 
 @Composable
 fun ProjectDescriptionArea(
-    scrollState: ScrollState,
     wish: Wish,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState),
+    LazyColumn(
+        modifier = modifier.fillMaxSize()
     ) {
-        ProjectTitle(wish.title)
-        Spacer(modifier = Modifier.height(16.dp))
-        ProjectDescription(wish.simpleDescription)
-        Spacer(modifier = Modifier.height(16.dp))
-        FeatureList(wish.features)
-        Spacer(modifier = Modifier.height(16.dp))
-        DetailFeatureDescription(wish.detailDescription)
-        Spacer(modifier = Modifier.height(78.dp))
+        item {
+            ProjectTitle(wish.title)
+            Spacer(modifier = Modifier.height(16.dp))
+            ProjectDescription(wish.simpleDescription)
+            Spacer(modifier = Modifier.height(16.dp))
+            ProjectFeaturesTitle()
+            Spacer(modifier = Modifier.height(2.dp))
+        }
+
+        itemsIndexed(wish.features) { index, feature ->
+            ProjectFeatureItem(index, feature)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        items(wish.detailDescription) { detailDescription ->
+            DetailFeatureDescription(detailDescription)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(78.dp))
+        }
     }
 }
 
@@ -72,50 +86,49 @@ fun ProjectDescription(description: String) {
 }
 
 @Composable
-fun FeatureList(featureList: List<String>) {
+fun ProjectFeaturesTitle() {
     Text(
         text = stringResource(R.string.representative_feature_title),
         fontSize = 16.sp,
         color = Color.White,
         fontWeight = FontWeight.Bold
     )
-    Spacer(modifier = Modifier.height(2.dp))
-    featureList.forEachIndexed { index, feature ->
-        Text(
-            modifier = Modifier.padding(start = 8.dp),
-            text = "${index + 1}. $feature",
-            fontSize = 16.sp,
-            color = Color.White
-        )
-    }
 }
 
 @Composable
-fun DetailFeatureDescription(detailFeatureList: List<DetailDescription>) {
-    detailFeatureList.forEach { detailDescription ->
-        Text(
-            text = detailDescription.feature,
-            fontSize = 16.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold
+fun ProjectFeatureItem(index: Int, feature: String) {
+    Text(
+        modifier = Modifier.padding(start = 8.dp),
+        text = "${index + 1}. $feature",
+        fontSize = 16.sp,
+        color = Color.White
+    )
+}
+
+@Composable
+fun DetailFeatureDescription(detailDescription: DetailDescription) {
+    Text(
+        text = detailDescription.feature,
+        fontSize = 16.sp,
+        color = Color.White,
+        fontWeight = FontWeight.Bold
+    )
+    Spacer(modifier = Modifier.height(2.dp))
+    Text(
+        text = detailDescription.description,
+        fontSize = 16.sp,
+        color = Color.White,
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    detailDescription.photos.forEach { url ->
+        CustomAsyncImageWithRecompositionTrigger(
+            url = url,
+            contentDescription = stringResource(R.string.wish_image),
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = detailDescription.description,
-            fontSize = 16.sp,
-            color = Color.White,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        detailDescription.photos.forEach { url ->
-            CustomAsyncImage(
-                url = url,
-                contentDescription = stringResource(R.string.wish_image),
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
     }
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable

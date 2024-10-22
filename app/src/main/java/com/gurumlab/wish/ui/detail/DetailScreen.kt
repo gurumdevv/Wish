@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -63,7 +62,6 @@ fun DetailContent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val startingWishUiState by viewModel.startingWishUiState.collectAsStateWithLifecycle()
@@ -93,7 +91,7 @@ fun DetailContent(
             Box(
                 modifier = modifier
             ) {
-                ProjectDescriptionArea(scrollState = scrollState, wish = wish)
+                ProjectDescriptionArea(wish)
 
                 if (wish.posterId != currentUser.uid) {
                     DetailScreenButtonArea(
