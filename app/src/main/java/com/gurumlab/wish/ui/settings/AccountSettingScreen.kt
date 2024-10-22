@@ -1,5 +1,8 @@
 package com.gurumlab.wish.ui.settings
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gurumlab.wish.R
@@ -46,7 +50,28 @@ fun AccountSettingContent(
     onStartScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.accountUiState.collectAsStateWithLifecycle()
+
+    val oneTapSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.signInWithGoogle(result.data)
+        } else {
+            viewModel.notifyIsLoginError("One Tap Sign-In failed")
+        }
+    }
+
+    val legacySignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.signInWithGoogle(result.data)
+        } else {
+            viewModel.notifyIsLoginError("Legacy Sign-In failed")
+        }
+    }
 
     Column(
         modifier = modifier
@@ -62,7 +87,7 @@ fun AccountSettingContent(
         AccountSubsetTitle(textRsc = R.string.delete_account)
         Spacer(modifier = Modifier.height(8.dp))
         AccountSubsetButton(textRsc = R.string.delete_account, textColor = Color.Red) {
-            viewModel.deleteAccount()
+            viewModel.setSignInRequest(oneTapSignInLauncher, legacySignInLauncher, context)
         }
     }
 

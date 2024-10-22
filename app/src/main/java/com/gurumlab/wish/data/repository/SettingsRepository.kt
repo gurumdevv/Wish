@@ -3,6 +3,7 @@ package com.gurumlab.wish.data.repository
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.storage.StorageReference
 import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import com.gurumlab.wish.data.model.Wish
@@ -34,7 +35,7 @@ class SettingsRepository @Inject constructor(
         firebaseAuth.signOut()
     }
 
-    fun deleteAccount(idToken: String, uid: String): Flow<Boolean> = flow {
+    fun deleteAccount(googleIdToken: String, idToken: String, uid: String): Flow<Boolean> = flow {
         val response = apiClient.getPostsByUid(
             orderBy = "\"${Constants.POSTER_ID}\"",
             equalTo = "\"${uid}\"",
@@ -46,25 +47,38 @@ class SettingsRepository @Inject constructor(
             it.keys.forEach { wishId ->
                 try {
                     apiClient.deleteWish(wishId = wishId, idToken = idToken)
-                    storageRef.child("images").child(wishId).delete()
+                    storageRef.child(Constants.IMAGES).child(wishId).delete()
                         .addOnFailureListener {
                             failedWishes.add(wishId)
                         }
                 } catch (e: Exception) {
                     failedWishes.add(wishId) //실패하면 ID Token 유효성이 중간에 상실됐는지 확인하기
+                    Log.d("SettingsRepository", "Fail to delete wish: ${e.message}")
                 }
             }
 
-            emit(if (failedWishes.isEmpty()) removeFirebaseAuthUser(currentUser!!) else false)
+            emit(
+                if (failedWishes.isEmpty()) removeFirebaseAuthUser(
+                    googleIdToken = googleIdToken,
+                    user = currentUser!!
+                ) else false
+            )
         }.onError { _, _ ->
-            emit(removeFirebaseAuthUser(currentUser!!))
+            emit(
+                removeFirebaseAuthUser(
+                    googleIdToken = googleIdToken,
+                    user = currentUser!!
+                )
+            )
         }.onException {
             emit(false)
         }
     }.flowOn(Dispatchers.IO)
 
-    private suspend fun removeFirebaseAuthUser(user: FirebaseUser): Boolean {
+    private suspend fun removeFirebaseAuthUser(googleIdToken: String, user: FirebaseUser): Boolean {
         return try {
+            val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
+            user.reauthenticate(credential).await()
             user.delete().await()
             true
         } catch (e: Exception) {
