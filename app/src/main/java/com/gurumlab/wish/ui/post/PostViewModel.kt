@@ -122,7 +122,7 @@ class PostViewModel @Inject constructor(
             val description = featureDescriptions[index]!!
             val photos = imageDownloadUrls.getOrDefault(
                 key = index,
-                defaultValue = listOf("")
+                defaultValue = emptyList()
             )
             features.add(
                 DetailDescription(
