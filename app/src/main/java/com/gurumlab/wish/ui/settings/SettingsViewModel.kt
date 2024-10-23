@@ -2,23 +2,20 @@ package com.gurumlab.wish.ui.settings
 
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.gurumlab.wish.BuildConfig
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.repository.SettingsRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
@@ -26,11 +23,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private typealias SignInSuccessListener = (uid: String) -> Unit
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val repository: SettingsRepository
+    private val repository: SettingsRepository,
+    private val loginService: LoginService
 ) : ViewModel() {
 
     private val _accountUiState = MutableStateFlow(AccountUiState())
@@ -43,6 +40,9 @@ class SettingsViewModel @Inject constructor(
     private val _myProjectUiState: MutableStateFlow<MyProjectUiState> =
         MutableStateFlow(MyProjectUiState.Loading)
     val myProjectUiState = _myProjectUiState.asStateFlow()
+
+    var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
+        private set
 
     val userInfo = fetchUserInfo()
 
@@ -166,6 +166,11 @@ class SettingsViewModel @Inject constructor(
             val uid = repository.getUid()
             val idToken = repository.getFirebaseIdToken()
 
+            if (idToken.isBlank()) {
+                _accountUiState.update { it.copy(isLoginFail = true) }
+                return@launch
+            }
+
             repository.deleteAccount(googleIdToken = googleIdToken, idToken = idToken, uid = uid)
                 .collect { isSuccess ->
                     _accountUiState.update { it.copy(isDeleteAccount = isSuccess) }
@@ -173,91 +178,44 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    //From LoginViewModel
-    private lateinit var signInClient: SignInClient
-    private var signInRequest: BeginSignInRequest = getBeginSignInRequest()
-
-    private val onSuccess: SignInSuccessListener = { idToken ->
-        deleteAccount(idToken)
+    fun signInWithGoogle(data: Intent?) {
+        loginService.signInWithGoogle(data)
     }
-
-    private fun getBeginSignInRequest() = BeginSignInRequest.builder()
-        .setGoogleIdTokenRequestOptions(
-            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                .setSupported(true)
-                .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
-                .setFilterByAuthorizedAccounts(false)
-                .build()
-        ).build()
 
     fun setSignInRequest(
         oneTapSignInLauncher: ActivityResultLauncher<IntentSenderRequest>,
         legacySignInLauncher: ActivityResultLauncher<IntentSenderRequest>,
         context: Context
     ) {
-        signInClient = Identity.getSignInClient(context)
+        loginService.setSignInRequest(oneTapSignInLauncher, legacySignInLauncher, context)
 
-        signInClient.beginSignIn(signInRequest)
-            .addOnSuccessListener { result ->
-                try {
-                    oneTapSignInLauncher.launch(
-                        IntentSenderRequest
-                            .Builder(result.pendingIntent.intentSender)
-                            .build()
-                    )
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.d("SettingsViewModel", "sign-in error: ${e.localizedMessage}")
+        viewModelScope.launch(Dispatchers.IO) {
+            loginService.idToken.collect { idToken ->
+                idToken?.run {
+                    if (isNotBlank()) {
+                        deleteAccount(this)
+                    } else {
+                        _accountUiState.update { it.copy(isLoginFail = true) }
+                    }
                 }
             }
-            .addOnFailureListener { e ->
-                Log.d("SettingsViewModel", "sign-in fail: ${e.localizedMessage}")
-                requestLegacySignIn(legacySignInLauncher, context)
-            }
-            .addOnCanceledListener {
-                Log.d("SettingsViewModel", "sign-in cancelled")
-            }
-    }
-
-    fun signInWithGoogle(data: Intent?) {
-        val credential = signInClient.getSignInCredentialFromIntent(data)
-        val idToken = credential.googleIdToken
-        if (idToken != null) {
-            onSuccess(idToken)
         }
     }
 
-    private fun requestLegacySignIn(
-        launcher: ActivityResultLauncher<IntentSenderRequest>,
-        context: Context
-    ) {
-        val lastToken = GoogleSignIn.getLastSignedInAccount(context)?.idToken
-        if (lastToken == null) {
-            val request = GetSignInIntentRequest.builder()
-                .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
-                .build()
-
-            signInClient
-                .getSignInIntent(request)
-                .addOnSuccessListener { pendingIntent ->
-                    launcher.launch(
-                        IntentSenderRequest
-                            .Builder(pendingIntent.intentSender)
-                            .build()
-                    )
-                }
-                .addOnFailureListener { e ->
-                    Log.d("SettingsViewModel", "Legacy sign-in fail: ${e.localizedMessage}")
-                }
-                .addOnCanceledListener {
-                    Log.d("SettingsViewModel", "Legacy sign-in cancelled")
-                }
-        } else {
-            onSuccess(lastToken)
+    fun showSnackbarMessage(messageRes: Int) {
+        viewModelScope.launch {
+            updateSnackbarMessage(messageRes)
+            delay(4000L) //SnackbarDuration.Short
+            resetSnackbarMessage()
         }
     }
 
-    fun notifyIsLoginError(message: String) {
-        Log.d("SettingsViewModel", "error: $message")
+    private fun updateSnackbarMessage(messageRes: Int) {
+        snackbarMessageRes.value = messageRes
+    }
+
+    private fun resetSnackbarMessage() {
+        snackbarMessageRes.value = null
     }
 }
 
@@ -269,7 +227,8 @@ data class CurrentUserInfo(
 
 data class AccountUiState(
     val isLogOut: Boolean = false,
-    val isDeleteAccount: Boolean = false
+    val isDeleteAccount: Boolean = false,
+    val isLoginFail: Boolean = false
 )
 
 sealed class ApproachingProjectUiState {

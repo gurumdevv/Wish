@@ -68,7 +68,7 @@ suspend fun showSnackbar(
 ) {
     snackbarMessageRes?.let {
         snackbarHostState.showSnackbar(
-            message = context.getString(snackbarMessageRes),
+            message = context.getString(it),
             duration = SnackbarDuration.Short
         )
     }
