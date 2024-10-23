@@ -109,6 +109,12 @@ fun AccountSettingContent(
 
     if (uiState.isLoginFail) {
         viewModel.showSnackbarMessage(R.string.login_error)
+        viewModel.resetIsLoginFail()
+    }
+
+    if (uiState.isDeleteAccount == false) {
+        viewModel.showSnackbarMessage(R.string.fail_delete_account)
+        viewModel.resetIsDeleteAccount()
     }
 
     LaunchedEffect(viewModel.snackbarMessageRes.value) {
@@ -120,7 +126,7 @@ fun AccountSettingContent(
     }
 
     LaunchedEffect(uiState.isLogOut, uiState.isDeleteAccount) {
-        if (uiState.isLogOut || uiState.isDeleteAccount) {
+        if (uiState.isLogOut || uiState.isDeleteAccount == true) {
             onStartScreen()
         }
     }

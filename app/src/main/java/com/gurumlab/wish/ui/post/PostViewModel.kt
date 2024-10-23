@@ -71,16 +71,19 @@ class PostViewModel @Inject constructor(
                 return@launch
             }
 
+            val postId = getPostId()
+
             val imageUploadedResult =
-                uploadImages(selectedImageUris.toMap()).await()
+                uploadImages(postId = postId, imageUris = selectedImageUris.toMap()).await()
 
             when (imageUploadedResult) {
                 UploadState.Success -> {
                     _postExaminationUiState.value =
-                        if (repository.uploadPost(idToken = idToken, wish = getWish()))
+                        if (repository.uploadPost(idToken = idToken, wish = getWish(postId))) {
                             PostExaminationUiState.Success
-                        else
+                        } else {
                             PostExaminationUiState.Failed
+                        }
                 }
 
                 UploadState.Failed -> {
@@ -92,28 +95,28 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    private fun uploadImages(imageUris: Map<Int, List<Uri>>) = viewModelScope.async {
-        val postId = getPostId()
-        val uploadResults = imageUris.flatMap { (key, imageUris) ->
-            imageUris.map { imageUri ->
-                async {
-                    val imageDownloadUrl = repository.uploadImages(
-                        postId = postId,
-                        featureIndex = key,
-                        imageUri = imageUri
-                    )
-                    imageDownloadUrls.getOrPut(key) { mutableListOf() }.add(imageDownloadUrl)
-                    imageDownloadUrl
+    private fun uploadImages(postId: String, imageUris: Map<Int, List<Uri>>) =
+        viewModelScope.async {
+            val uploadResults = imageUris.flatMap { (key, imageUris) ->
+                imageUris.map { imageUri ->
+                    async {
+                        val imageDownloadUrl = repository.uploadImages(
+                            postId = postId,
+                            featureIndex = key,
+                            imageUri = imageUri
+                        )
+                        imageDownloadUrls.getOrPut(key) { mutableListOf() }.add(imageDownloadUrl)
+                        imageDownloadUrl
+                    }
                 }
             }
+
+            val uploadSuccessList = uploadResults.awaitAll()
+            val successUploadCount = uploadSuccessList.count()
+            val isAllUploaded = successUploadCount == imageUris.values.sumOf { it.size }
+
+            if (isAllUploaded) UploadState.Success else UploadState.Failed
         }
-
-        val uploadSuccessList = uploadResults.awaitAll()
-        val successUploadCount = uploadSuccessList.count()
-        val isAllUploaded = successUploadCount == imageUris.values.sumOf { it.size }
-
-        if (isAllUploaded) UploadState.Success else UploadState.Failed
-    }
 
     private fun getDetailFeatures(): List<DetailDescription> {
         val features = mutableListOf<DetailDescription>()
@@ -136,11 +139,10 @@ class PostViewModel @Inject constructor(
         return features.toList()
     }
 
-    private fun getWish(): Wish {
+    private fun getWish(postId: String): Wish {
         val uid = repository.getCurrentUser()?.uid ?: ""
         val userName = repository.getCurrentUser()?.displayName ?: ""
         val currentDate = DateTimeConverter.getCurrentDate()
-        val postId = getPostId()
         val detailFeatures = getDetailFeatures()
 
         return Wish(

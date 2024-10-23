@@ -140,4 +140,5 @@
     <string name="simple_description_empty">프로젝트 간단 설명을 작성해 주세요.</string>
     <string name="project_description_empty">프로젝트 설명을 작성해 주세요.</string>
     <string name="already_begun_message">이미 착수된 프로젝트입니다!</string>
+    <string name="fail_delete_account">계정 삭제에 실패했습니다.\n잠시 후 다시 시도해 주세요.</string>
 </resources>

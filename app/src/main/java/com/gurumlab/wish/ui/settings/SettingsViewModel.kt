@@ -15,10 +15,13 @@ import com.gurumlab.wish.data.repository.SettingsRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -162,7 +165,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun deleteAccount(googleIdToken: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val uid = repository.getUid()
             val idToken = repository.getFirebaseIdToken()
 
@@ -171,10 +174,40 @@ class SettingsViewModel @Inject constructor(
                 return@launch
             }
 
-            repository.deleteAccount(googleIdToken = googleIdToken, idToken = idToken, uid = uid)
-                .collect { isSuccess ->
-                    _accountUiState.update { it.copy(isDeleteAccount = isSuccess) }
+            val wishes = repository.getWishesByUid(
+                idToken = idToken,
+                uid = uid,
+                onException = { e -> Log.d("SettingsViewModel", "Fail to load data: $e") }
+            ).single()
+
+            if (wishes == null) {
+                _accountUiState.update { it.copy(isDeleteAccount = false) }
+                return@launch
+            }
+
+            val failWishList = mutableListOf<String>()
+
+            val deleteWishTasks = wishes.map { wish ->
+                async {
+                    val deleteWishResult =
+                        repository.deleteWish(idToken = idToken, wishId = wish.key)
+                    val deleteImagesResult = repository.deleteImages(wish.value.postId)
+
+                    if (!deleteWishResult || !deleteImagesResult) {
+                        failWishList.add(wish.key)
+                    }
                 }
+            }
+
+            deleteWishTasks.awaitAll()
+
+            if (failWishList.isEmpty()) {
+                val isDeleteAccount =
+                    repository.removeFirebaseAuthUser(googleIdToken, repository.getCurrentUser()!!)
+                _accountUiState.update { it.copy(isDeleteAccount = isDeleteAccount) }
+            } else {
+                _accountUiState.update { it.copy(isDeleteAccount = false) }
+            }
         }
     }
 
@@ -217,6 +250,14 @@ class SettingsViewModel @Inject constructor(
     private fun resetSnackbarMessage() {
         snackbarMessageRes.value = null
     }
+
+    fun resetIsDeleteAccount() {
+        _accountUiState.update { it.copy(isDeleteAccount = null) }
+    }
+
+    fun resetIsLoginFail() {
+        _accountUiState.update { it.copy(isLoginFail = false) }
+    }
 }
 
 data class CurrentUserInfo(
@@ -227,7 +268,7 @@ data class CurrentUserInfo(
 
 data class AccountUiState(
     val isLogOut: Boolean = false,
-    val isDeleteAccount: Boolean = false,
+    val isDeleteAccount: Boolean? = null,
     val isLoginFail: Boolean = false
 )
 
