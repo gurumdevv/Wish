@@ -134,15 +134,19 @@ fun AccountSubsetTitle(
 fun AccountSubsetButton(
     textRsc: Int,
     textColor: Color,
+    enabled: Boolean,
     onClick: () -> Unit
 ) {
     Button(
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             containerColor = defaultBoxColor,
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = defaultBoxColor,
+            disabledContentColor = Color.White
         ),
         shape = RoundedCornerShape(10.dp),
+        enabled = enabled,
         onClick = onClick
     ) {
         Row {
@@ -154,6 +158,20 @@ fun AccountSubsetButton(
                 fontWeight = FontWeight.Bold
             )
         }
+    }
+}
+
+@Composable
+fun AccountSettingLoadingScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        CustomLottieLoader(
+            resId = R.raw.animation_default_loading,
+            modifier = Modifier
+                .size(130.dp)
+                .align(Alignment.Center)
+        )
     }
 }
 
@@ -332,10 +350,10 @@ fun ProjectSettingLoadingScreen(
     ) {
         ProjectSettingTitle(textRsc = textRsc, fontSize = 24)
         CustomLottieLoader(
+            resId = R.raw.animation_default_loading,
             modifier = Modifier
                 .size(130.dp)
-                .align(Alignment.Center),
-            resId = R.raw.animation_default_loading
+                .align(Alignment.Center)
         )
     }
 }

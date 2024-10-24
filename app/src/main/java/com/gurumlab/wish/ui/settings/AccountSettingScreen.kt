@@ -84,13 +84,21 @@ fun AccountSettingContent(
             Spacer(modifier = Modifier.height(16.dp))
             AccountSubsetTitle(textRsc = R.string.log_out)
             Spacer(modifier = Modifier.height(8.dp))
-            AccountSubsetButton(textRsc = R.string.log_out, textColor = Color.White) {
+            AccountSubsetButton(
+                textRsc = R.string.log_out,
+                textColor = Color.White,
+                enabled = !uiState.isOnGoing
+            ) {
                 viewModel.logOut()
             }
             Spacer(modifier = Modifier.height(16.dp))
             AccountSubsetTitle(textRsc = R.string.delete_account)
             Spacer(modifier = Modifier.height(8.dp))
-            AccountSubsetButton(textRsc = R.string.delete_account, textColor = Color.Red) {
+            AccountSubsetButton(
+                textRsc = R.string.delete_account,
+                textColor = Color.Red,
+                enabled = !uiState.isOnGoing
+            ) {
                 viewModel.setSignInRequest(
                     oneTapSignInLauncher = oneTapSignInLauncher,
                     legacySignInLauncher = legacySignInLauncher,
@@ -105,6 +113,10 @@ fun AccountSettingContent(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp)
         )
+    }
+
+    if (uiState.isOnGoing) {
+        AccountSettingLoadingScreen(modifier)
     }
 
     if (uiState.isLoginFail) {

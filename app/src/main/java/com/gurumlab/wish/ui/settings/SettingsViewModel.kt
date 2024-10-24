@@ -15,8 +15,6 @@ import com.gurumlab.wish.data.repository.SettingsRepository
 import com.gurumlab.wish.ui.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,8 +48,9 @@ class SettingsViewModel @Inject constructor(
     val userInfo = fetchUserInfo()
 
     fun logOut() {
+        _accountUiState.update { it.copy(isOnGoing = true) }
         repository.logOut()
-        _accountUiState.update { it.copy(isLogOut = true) }
+        _accountUiState.update { it.copy(isLogOut = true, isOnGoing = false) }
     }
 
     private fun loadWishes(
@@ -166,6 +165,7 @@ class SettingsViewModel @Inject constructor(
 
     private fun deleteAccount(googleIdToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            _accountUiState.update { it.copy(isOnGoing = true) }
             val uid = repository.getUid()
             val idToken = repository.getFirebaseIdToken()
 
@@ -185,28 +185,16 @@ class SettingsViewModel @Inject constructor(
                 return@launch
             }
 
-            val failWishList = mutableListOf<String>()
+            val submitResult = repository.submitDeactivatedUserPostIds(uid, wishes.keys.toList())
 
-            val deleteWishTasks = wishes.map { wish ->
-                async {
-                    val deleteWishResult =
-                        repository.deleteWish(idToken = idToken, wishId = wish.key)
-                    val deleteImagesResult = repository.deleteImages(wish.value.postId)
-
-                    if (!deleteWishResult || !deleteImagesResult) {
-                        failWishList.add(wish.key)
-                    }
-                }
-            }
-
-            deleteWishTasks.awaitAll()
-
-            if (failWishList.isEmpty()) {
+            if (submitResult) {
                 val isDeleteAccount =
                     repository.removeFirebaseAuthUser(googleIdToken, repository.getCurrentUser()!!)
-                _accountUiState.update { it.copy(isDeleteAccount = isDeleteAccount) }
+                _accountUiState.update {
+                    it.copy(isDeleteAccount = isDeleteAccount, isOnGoing = false)
+                }
             } else {
-                _accountUiState.update { it.copy(isDeleteAccount = false) }
+                _accountUiState.update { it.copy(isDeleteAccount = false, isOnGoing = false) }
             }
         }
     }
@@ -269,7 +257,8 @@ data class CurrentUserInfo(
 data class AccountUiState(
     val isLogOut: Boolean = false,
     val isDeleteAccount: Boolean? = null,
-    val isLoginFail: Boolean = false
+    val isLoginFail: Boolean = false,
+    val isOnGoing: Boolean = false
 )
 
 sealed class ApproachingProjectUiState {

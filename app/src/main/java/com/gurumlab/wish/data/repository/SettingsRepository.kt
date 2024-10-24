@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.storage.StorageReference
+import com.google.firebase.database.DatabaseReference
 import com.gurumlab.wish.data.auth.FirebaseAuthManager
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.source.remote.ApiClient
@@ -23,7 +23,7 @@ class SettingsRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val firebaseAuth: FirebaseAuth,
     private val currentUser: FirebaseUser?,
-    private val storageRef: StorageReference,
+    private val databaseRef: DatabaseReference,
     private val authManager: FirebaseAuthManager
 ) {
 
@@ -57,16 +57,12 @@ class SettingsRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun deleteImages(postId: String): Boolean {
+    suspend fun submitDeactivatedUserPostIds(uid: String, postIds: List<String>): Boolean {
         return try {
-            val images = storageRef.child(Constants.IMAGES).child(postId).listAll().await()
-            images.items.map { imageRef ->
-                imageRef.delete().await()
-            }.let {
-                true
-            }
+            databaseRef.child(Constants.DELETED_POSTS).child(uid).setValue(postIds).await()
+            true
         } catch (e: Exception) {
-            Log.d("SettingsRepository", "Fail to delete image: ${e.message}")
+            Log.d("settingsRepository", "Fail to upload postIds: ${e.message}")
             false
         }
     }
