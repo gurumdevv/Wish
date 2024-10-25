@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -240,66 +241,76 @@ fun ChatInput(
     text: String,
     isEnabled: Boolean,
     onTextChange: (String) -> Unit,
-    onSendClick: () -> Unit
+    onSendClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.Bottom
+            .height(88.dp)
     ) {
-        CustomTextField(
-            value = text,
-            enabled = isEnabled,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = defaultPlaceHolderColor,
-                unfocusedPlaceholderColor = defaultPlaceHolderColor,
-                cursorColor = Color.Black,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                selectionColors = TextSelectionColors(
-                    handleColor = Color.Black,
-                    backgroundColor = defaultMyMessageItemColor.copy(alpha = 0.4f)
-                )
-            ),
-            shape = RoundedCornerShape(10.dp),
-            textStyle = TextStyle(fontSize = 16.sp),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Send
-            ),
-            contentPadding = PaddingValues(14.dp),
-            onValueChange = onTextChange,
-            modifier = Modifier.weight(1f)
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        IconButton(
-            enabled = isEnabled,
-            onClick = onSendClick
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.Bottom
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(defaultMyMessageItemColor),
-                contentAlignment = Alignment.Center
+            CustomTextField(
+                value = text,
+                enabled = isEnabled,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = defaultPlaceHolderColor,
+                    unfocusedPlaceholderColor = defaultPlaceHolderColor,
+                    cursorColor = Color.Black,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    selectionColors = TextSelectionColors(
+                        handleColor = Color.Black,
+                        backgroundColor = defaultMyMessageItemColor.copy(alpha = 0.4f)
+                    )
+                ),
+                shape = RoundedCornerShape(10.dp),
+                textStyle = TextStyle(fontSize = 16.sp),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Send
+                ),
+                contentPadding = PaddingValues(14.dp),
+                onValueChange = onTextChange,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            IconButton(
+                enabled = isEnabled,
+                onClick = onSendClick
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_send),
-                    contentDescription = stringResource(R.string.btn_send),
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(defaultMyMessageItemColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_send),
+                        contentDescription = stringResource(R.string.btn_send),
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
 fun ChatList(
+    state: LazyListState,
     chatList: List<Chat>,
     currentUserUid: String,
     otherUserName: String,
@@ -309,7 +320,10 @@ fun ChatList(
     onDonation: (String) -> Unit,
     modifier: Modifier
 ) {
-    LazyColumn(modifier) {
+    LazyColumn(
+        state = state,
+        modifier = modifier.fillMaxSize()
+    ) {
         items(chatList.size) { index ->
             val currentItem = chatList[index]
             if (currentItem.uid == currentUserUid) {
