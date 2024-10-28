@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.message
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.ErrorSnackBar
 import com.gurumlab.wish.ui.util.showSnackbar
 import com.gurumlab.wish.ui.util.toFloatPx
+import kotlinx.coroutines.delay
 
 @Composable
 fun ChatRoomScreen(
@@ -97,6 +99,22 @@ fun ChatRoomContent(
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding().toFloatPx()
     var isNavigationBarHeightApplied by remember { mutableStateOf(false) }
 
+    val isCanForward = listState.canScrollForward
+    val isCanBackward = listState.canScrollBackward
+
+//    LaunchedEffect(key1 = isCanBackward) {
+//        Log.d("IME TEST", "isCanBackward: $isCanBackward")
+//    }
+//
+//    LaunchedEffect(key1 = isCanForward) {
+//        Log.d("IME TEST", "isCanForward: $isCanForward")
+//    }
+
+    var sumOfScroll by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(key1 = sumOfScroll) {
+        Log.d("IME TEST", "sumOfScroll: $sumOfScroll")
+    }
     LaunchedEffect(currentKeyboardHeight) {
         val deltaHeight = currentKeyboardHeight - previousKeyboardHeight
         previousKeyboardHeight = currentKeyboardHeight
@@ -116,6 +134,13 @@ fun ChatRoomContent(
         }
 
         val totalScrollAdjustment = deltaHeight + navigationBarAdjustment
+
+        sumOfScroll += totalScrollAdjustment
+        Log.d(
+            "IME TEST",
+            "currentKeyboardHeight = $currentKeyboardHeight totalScrollAdjustment: $totalScrollAdjustment, sum: $sumOfScroll"
+        )
+
         listState.scrollBy(totalScrollAdjustment)
     }
 
