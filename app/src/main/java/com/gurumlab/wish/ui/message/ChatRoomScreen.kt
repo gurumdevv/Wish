@@ -1,15 +1,11 @@
 package com.gurumlab.wish.ui.message
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
@@ -20,10 +16,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -35,8 +28,6 @@ import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.util.ErrorSnackBar
 import com.gurumlab.wish.ui.util.showSnackbar
-import com.gurumlab.wish.ui.util.toFloatPx
-import kotlinx.coroutines.delay
 
 @Composable
 fun ChatRoomScreen(
@@ -92,57 +83,6 @@ fun ChatRoomContent(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
-    val currentKeyboardHeight =
-        WindowInsets.ime.asPaddingValues().calculateBottomPadding().toFloatPx()
-    var previousKeyboardHeight by remember { mutableFloatStateOf(0f) }
-    val navigationBarHeight =
-        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding().toFloatPx()
-    var isNavigationBarHeightApplied by remember { mutableStateOf(false) }
-
-    val isCanForward = listState.canScrollForward
-    val isCanBackward = listState.canScrollBackward
-
-//    LaunchedEffect(key1 = isCanBackward) {
-//        Log.d("IME TEST", "isCanBackward: $isCanBackward")
-//    }
-//
-//    LaunchedEffect(key1 = isCanForward) {
-//        Log.d("IME TEST", "isCanForward: $isCanForward")
-//    }
-
-    var sumOfScroll by remember { mutableFloatStateOf(0f) }
-
-    LaunchedEffect(key1 = sumOfScroll) {
-        Log.d("IME TEST", "sumOfScroll: $sumOfScroll")
-    }
-    LaunchedEffect(currentKeyboardHeight) {
-        val deltaHeight = currentKeyboardHeight - previousKeyboardHeight
-        previousKeyboardHeight = currentKeyboardHeight
-
-        val navigationBarAdjustment = when {
-            deltaHeight > 0 && !isNavigationBarHeightApplied && deltaHeight >= navigationBarHeight -> {
-                isNavigationBarHeightApplied = true
-                -navigationBarHeight
-            }
-
-            deltaHeight < 0 && isNavigationBarHeightApplied && deltaHeight <= -navigationBarHeight -> {
-                isNavigationBarHeightApplied = false
-                navigationBarHeight
-            }
-
-            else -> 0f
-        }
-
-        val totalScrollAdjustment = deltaHeight + navigationBarAdjustment
-
-        sumOfScroll += totalScrollAdjustment
-        Log.d(
-            "IME TEST",
-            "currentKeyboardHeight = $currentKeyboardHeight totalScrollAdjustment: $totalScrollAdjustment, sum: $sumOfScroll"
-        )
-
-        listState.scrollBy(totalScrollAdjustment)
-    }
 
     Box(modifier = modifier) {
         Column(
@@ -166,6 +106,7 @@ fun ChatRoomContent(
                         otherUserName = otherUserName,
                         otherUserImageUrl = otherUserImageUrl,
                         screenWidth = screenWidth,
+                        isReverse = true,
                         onRepository = onRepository,
                         onDonation = onDonation,
                         modifier = Modifier.weight(1f)

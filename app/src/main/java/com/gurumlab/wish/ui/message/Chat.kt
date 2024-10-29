@@ -314,12 +314,14 @@ fun ChatList(
     otherUserName: String,
     otherUserImageUrl: String,
     screenWidth: Dp,
+    isReverse: Boolean,
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit,
     modifier: Modifier
 ) {
     LazyColumn(
         state = state,
+        reverseLayout = isReverse,
         modifier = modifier.fillMaxSize()
     ) {
         items(chatList.size) { index ->

@@ -19,6 +19,7 @@ import com.gurumlab.wish.data.repository.ChatRoomRepository
 import com.gurumlab.wish.ui.util.Constants
 import com.gurumlab.wish.ui.util.NetWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -81,8 +82,12 @@ class ChatRoomViewModel @Inject constructor(
         messagesQuery.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chatList = snapshot.children.mapNotNull { it.getValue(Chat::class.java) }
-                _uiState.value = ChatRoomUiState.Success(chatList)
-                resetMyNotReadMessageCount()
+                viewModelScope.launch(Dispatchers.Default) {
+                    val reversedChatList = chatList.reversed()
+                    _uiState.value = ChatRoomUiState.Success(reversedChatList)
+                    resetMyNotReadMessageCount()
+                }
+
             }
 
             override fun onCancelled(error: DatabaseError) {
