@@ -82,6 +82,7 @@ class ChatRoomViewModel @Inject constructor(
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chatList = snapshot.children.mapNotNull { it.getValue(Chat::class.java) }
                 _uiState.value = ChatRoomUiState.Success(chatList)
+                resetMyNotReadMessageCount()
             }
 
             override fun onCancelled(error: DatabaseError) {
