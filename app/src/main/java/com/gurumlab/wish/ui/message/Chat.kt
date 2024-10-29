@@ -247,13 +247,11 @@ fun ChatInput(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(88.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.Bottom
         ) {
             CustomTextField(

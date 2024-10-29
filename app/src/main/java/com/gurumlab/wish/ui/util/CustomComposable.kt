@@ -421,9 +421,10 @@ fun CustomGifImage(
     )
 }
 
+/** from TextField.kt **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTextField( //from TextField.kt
+fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -516,9 +517,9 @@ fun CustomTextField( //from TextField.kt
     }
 }
 
+/** from TextFieldImpl.kt **/
 // slot API, we can set the default error message in case developers forget about it.
 internal fun Modifier.defaultErrorSemantics(
-    //from TextFieldImpl.kt
     isError: Boolean,
     defaultErrorMessage: String,
 ): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this
