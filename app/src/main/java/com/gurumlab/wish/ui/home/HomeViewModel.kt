@@ -9,6 +9,7 @@ import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.HomeRepository
+import com.gurumlab.wish.data.source.local.InternalDataStore
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.NumericConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,16 +27,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: HomeRepository
+    private val repository: HomeRepository,
+    private val internalDataStore: InternalDataStore
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    var wasPermissionChecked: MutableState<Boolean?> = mutableStateOf(null)
+        private set
+
     var snackbarMessageRes: MutableState<Int?> = mutableStateOf(null)
         private set
 
     init {
+        loadWasPermissionChecked()
         loadWishes()
     }
 
@@ -146,6 +152,20 @@ class HomeViewModel @Inject constructor(
 
     private fun resetSnackbarMessage() {
         snackbarMessageRes.value = null
+    }
+
+    private fun loadWasPermissionChecked() {
+        viewModelScope.launch {
+            val wasPermissionCheck = internalDataStore.getWasPermissionCheck()
+            wasPermissionChecked.value = wasPermissionCheck
+        }
+    }
+
+    fun updatePermissionCheck() {
+        viewModelScope.launch {
+            internalDataStore.updatePermissionCheck(true)
+            wasPermissionChecked.value = true
+        }
     }
 }
 

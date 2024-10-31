@@ -68,6 +68,8 @@ android {
 
 dependencies {
 
+    implementation(libs.accompanist.permissions)
+    implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.auth)

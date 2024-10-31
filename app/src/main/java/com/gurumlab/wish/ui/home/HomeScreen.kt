@@ -1,5 +1,6 @@
 package com.gurumlab.wish.ui.home
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +11,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +30,8 @@ fun HomeScreen(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
+    PermissionCheck(viewModel = viewModel)
+
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar
@@ -95,5 +100,23 @@ fun HomeContent(
             context = context,
             snackbarHostState = snackbarHostState
         )
+    }
+}
+
+@Composable
+fun PermissionCheck(
+    viewModel: HomeViewModel
+) {
+    var isDialogOpen by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewModel.wasPermissionChecked.value) {
+        if (viewModel.wasPermissionChecked.value == false) {
+            isDialogOpen = true
+        }
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && isDialogOpen) {
+        FeatureThatRequiresNotificationPermission { isDialogOpen = false }
+        viewModel.updatePermissionCheck()
     }
 }
