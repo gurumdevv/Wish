@@ -1,6 +1,9 @@
 package com.gurumlab.wish
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,6 +13,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.gurumlab.wish.navigation.WishNavHost
 import com.gurumlab.wish.navigation.WishScreen
 import com.gurumlab.wish.ui.theme.WishTheme
@@ -23,6 +28,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel()
 
         val splashScreen = installSplashScreen()
 
@@ -31,6 +37,16 @@ class MainActivity : ComponentActivity() {
                 splashScreen.setKeepOnScreenCondition { it == null }
             }
         }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("Messaging Service", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            val token = task.result
+            Log.d("Messaging Service", "token: $token")
+        })
 
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -46,5 +62,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun createNotificationChannel() {
+        val channelId = getString(R.string.default_notification_channel_id)
+        val channelName = getString(R.string.chat)
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(channelId, channelName, importance).apply {
+            description = getString(R.string.chat_notification_description)
+        }
+
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(channel)
     }
 }

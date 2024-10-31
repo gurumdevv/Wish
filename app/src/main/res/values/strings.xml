@@ -145,4 +145,7 @@
     <string name="refusal">거부</string>
     <string name="notification_permission_description">채팅 기능을 위해서\n알림 권한이 필요합니다.</string>
     <string name="permission_request">권한 요청</string>
+    <string name="default_notification_channel_id">"wish_chat"</string>
+    <string name="chat">채팅</string>
+    <string name="chat_notification_description">채팅을 위한 알림</string>
 </resources>
