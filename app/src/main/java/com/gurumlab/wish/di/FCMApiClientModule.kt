@@ -1,13 +1,15 @@
 package com.gurumlab.wish.di
 
+import com.gurumlab.wish.BuildConfig
 import com.gurumlab.wish.data.source.remote.ApiCallAdapterFactory
-import com.gurumlab.wish.data.source.remote.ApiClient
+
+import com.gurumlab.wish.data.source.remote.FCMApiClient
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,35 +19,36 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ApiClientModule {
+object FCMApiClientModule {
 
     @Singleton
-    @Provides
-    fun provideMoshi(): Moshi {
-        return Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-    }
-
-    @Singleton
-    @DatabaseOkhttpClient
+    @FCMOkhttpClient
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
+        val header = Interceptor { chain ->
+            val newRequest = chain.request().newBuilder()
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer ${BuildConfig.GOOGLE_SDK_KEY}")
+                .build()
+            chain.proceed(newRequest)
+        }
+
         val logger = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         return OkHttpClient.Builder()
             .addInterceptor(logger)
+            .addInterceptor(header)
             .build()
     }
 
     @Singleton
-    @DatabaseRetrofit
+    @FCMRetrofit
     @Provides
-    fun provideRetrofit(@DatabaseOkhttpClient client: OkHttpClient, moshi: Moshi): Retrofit {
+    fun provideRetrofit(@FCMOkhttpClient client: OkHttpClient, moshi: Moshi): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://wish-a3649-default-rtdb.asia-southeast1.firebasedatabase.app")
+            .baseUrl("https://fcm.googleapis.com")
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .addCallAdapterFactory(ApiCallAdapterFactory.create())
@@ -54,15 +57,15 @@ object ApiClientModule {
 
     @Singleton
     @Provides
-    fun provideApiServices(@DatabaseRetrofit retrofit: Retrofit): ApiClient {
-        return retrofit.create(ApiClient::class.java)
+    fun provideApiServices(@FCMRetrofit retrofit: Retrofit): FCMApiClient {
+        return retrofit.create(FCMApiClient::class.java)
     }
 }
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class DatabaseRetrofit
+annotation class FCMRetrofit
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class DatabaseOkhttpClient
+annotation class FCMOkhttpClient

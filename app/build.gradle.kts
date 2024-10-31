@@ -7,6 +7,8 @@ val localPropertiesFile = rootProject.file("local.properties").let {
     }
 }
 val googleClientId: String = localProperties.getProperty("google_client_id") ?: ""
+val googleSdkKey: String = localProperties.getProperty("google_sdk_key") ?: ""
+val projectId: String = localProperties.getProperty("project_id") ?: ""
 
 plugins {
     alias(libs.plugins.android.application)
@@ -34,6 +36,8 @@ android {
         }
 
         buildConfigField("String", "GOOGLE_CLIENT_ID", "\"$googleClientId\"")
+        buildConfigField("String", "GOOGLE_SDK_KEY", "\"$googleSdkKey\"")
+        buildConfigField("String", "PROJECT_ID", "\"$projectId\"")
     }
 
     buildTypes {
