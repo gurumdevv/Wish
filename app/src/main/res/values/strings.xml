@@ -148,4 +148,5 @@
     <string name="default_notification_channel_id">"wish_chat"</string>
     <string name="chat">채팅</string>
     <string name="chat_notification_description">채팅을 위한 알림</string>
+    <string name="default_push_message_title">님으로 부터 메시지가 도착했습니다.</string>
 </resources>
