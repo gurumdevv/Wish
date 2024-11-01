@@ -312,8 +312,8 @@ fun ChatList(
     state: LazyListState,
     chatList: List<Chat>,
     currentUserUid: String,
-    otherUserName: String,
-    otherUserImageUrl: String,
+    othersUserName: String,
+    othersUserImageUrl: String,
     screenWidth: Dp,
     isReverse: Boolean,
     onRepository: (String) -> Unit,
@@ -359,8 +359,8 @@ fun ChatList(
                 } else {
                     ChatItem(
                         text = currentItem.message,
-                        userName = otherUserName,
-                        userImageUrl = otherUserImageUrl,
+                        userName = othersUserName,
+                        userImageUrl = othersUserImageUrl,
                         chatType = ChatType.Other,
                         screenWidth = screenWidth
                     )
