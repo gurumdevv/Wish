@@ -112,21 +112,22 @@ fun WishNavHost(
             }
         }
         composable(route = WishScreen.CHATS.name) {
-            ChatsRoute(bottomNavigationBar) { chatRoom, name, imageUrl ->
+            ChatsRoute(bottomNavigationBar) { chatRoom, name, imageUrl, fcmToken ->
                 navController.navigate(
                     WishScreen.CHAT_ROOM.name
                             + "/${Gson().toJson(chatRoom)}"
                             + "/${name}"
                             + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                            + "/${fcmToken}"
                 )
             }
         }
         navigation(
-            startDestination = WishScreen.CHAT_ROOM.name + "/{chatRoom}/{name}/{imageUrl}",
+            startDestination = WishScreen.CHAT_ROOM.name + "/{chatRoom}/{name}/{imageUrl}/{fcmToken}",
             route = WishScreen.MESSAGE.name
         ) {
             composable(
-                route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}",
+                route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}" + "/{fcmToken}",
                 enterTransition = {
                     slideIntoContainer(
                         AnimatedContentTransitionScope.SlideDirection.Up,
@@ -157,10 +158,12 @@ fun WishNavHost(
                 val name = backStackEntry.arguments?.getString("name") ?: ""
                 val imageUrl =
                     URLDecoder.decode(backStackEntry.arguments?.getString("imageUrl"), "UTF-8")
+                val fcmToken = backStackEntry.arguments?.getString("fcmToken") ?: ""
                 ChatRoomRoute(
                     chatRoom = chatRoom,
-                    otherUserName = name,
-                    otherUserImageUrl = imageUrl,
+                    othersUserName = name,
+                    othersUserImageUrl = imageUrl,
+                    othersFcmToken = fcmToken,
                     onNavUp = onNavUp,
                     onRepository = { completedWishId ->
                         navController.navigate(
@@ -239,7 +242,7 @@ fun WishNavHost(
             },
             exitTransition = {
                 when (targetState.destination.route) {
-                    WishScreen.CHAT_ROOM.name + "/{chatRoom}/{name}/{imageUrl}",
+                    WishScreen.CHAT_ROOM.name + "/{chatRoom}/{name}/{imageUrl}/{fcmToken}",
                     WishScreen.PROGRESS_FOR_DEVELOPER.name + "/{minimizedWish}/{wishId}"
                     -> {
                         fadeOut(animationSpec = tween(durationMillis = 200))
@@ -274,12 +277,13 @@ fun WishNavHost(
                     )
                 },
                 onMessageScreen = {
-                    moveToChatRoom(it.posterId) { chatRoom, name, imageUrl ->
+                    moveToChatRoom(it.posterId) { chatRoom, name, imageUrl, fcmToken ->
                         navController.navigate(
                             WishScreen.CHAT_ROOM.name
                                     + "/${Gson().toJson(chatRoom)}"
                                     + "/${name}"
                                     + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                                    + "/${fcmToken}"
                         )
                     }
                 }
@@ -329,12 +333,13 @@ fun WishNavHost(
                     )
                 },
                 onMessageScreen = {
-                    moveToChatRoom(it.posterId) { chatRoom, name, imageUrl ->
+                    moveToChatRoom(it.posterId) { chatRoom, name, imageUrl, fcmToken ->
                         navController.navigate(
                             WishScreen.CHAT_ROOM.name
                                     + "/${Gson().toJson(chatRoom)}"
                                     + "/${name}"
                                     + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                                    + "/${fcmToken}"
                         )
                     }
                 }

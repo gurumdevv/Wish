@@ -14,7 +14,7 @@ import com.gurumlab.wish.data.model.UserInfo
 import com.gurumlab.wish.ui.util.Constants
 import kotlinx.coroutines.tasks.await
 
-fun moveToChatRoom(othersUid: String, callback: (ChatRoom, String, String) -> Unit) {
+fun moveToChatRoom(othersUid: String, callback: (ChatRoom, String, String, String) -> Unit) {
     val uid = Firebase.auth.currentUser?.uid ?: ""
     val roomId = "${uid}+${othersUid}"
     val firestore = Firebase.firestore
@@ -38,10 +38,15 @@ fun moveToChatRoom(othersUid: String, callback: (ChatRoom, String, String) -> Un
 
         otherUserInfoRef.get().addOnSuccessListener {
             val userinfo = it.getValue(UserInfo::class.java)
-            callback(chatRoom, userinfo?.name ?: "", userinfo?.profileImageUrl ?: "")
+            callback(
+                chatRoom,
+                userinfo?.name ?: "",
+                userinfo?.profileImageUrl ?: "",
+                userinfo?.fcmToken ?: ""
+            )
         }.addOnFailureListener {
             Log.e("MoveToChatRoom", "Error getting user info", it)
-            callback(chatRoom, "", "")
+            callback(chatRoom, "", "", "")
         }
     }.addOnFailureListener {
         Log.e("MoveToChatRoom", "Error getting chat room", it)
