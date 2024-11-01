@@ -32,8 +32,9 @@ import com.gurumlab.wish.ui.util.showSnackbar
 @Composable
 fun ChatRoomScreen(
     chatRoom: ChatRoom,
-    otherUserName: String,
-    otherUserImageUrl: String,
+    othersUserName: String,
+    othersUserImageUrl: String,
+    othersFcmToken: String,
     viewModel: ChatRoomViewModel,
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit,
@@ -53,8 +54,9 @@ fun ChatRoomScreen(
         bottomBar = bottomBar
     ) { innerPadding ->
         ChatRoomContent(
-            otherUserName = otherUserName,
-            otherUserImageUrl = otherUserImageUrl,
+            otherUserName = othersUserName,
+            otherUserImageUrl = othersUserImageUrl,
+            othersFcmToken = othersFcmToken,
             viewModel = viewModel,
             onRepository = onRepository,
             onDonation = onDonation,
@@ -71,6 +73,7 @@ fun ChatRoomScreen(
 fun ChatRoomContent(
     otherUserName: String,
     otherUserImageUrl: String,
+    othersFcmToken: String, //TODO: 메세지 푸시 보내기 기능 구현에 사용
     viewModel: ChatRoomViewModel,
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit,

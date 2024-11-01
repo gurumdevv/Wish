@@ -12,7 +12,7 @@ import com.gurumlab.wish.ui.util.CustomTopAppBarWithButton
 @Composable
 fun ChatsRoute(
     bottomNavigationBar: @Composable () -> Unit,
-    onChatRoom: (ChatRoom, otherUserName: String, otherUserImageUrl: String) -> Unit
+    onChatRoom: (chatRoom: ChatRoom, othersUserName: String, othersUserImageUrl: String, othersFcmToken: String) -> Unit
 ) {
     val viewModel = hiltViewModel<ChatsViewModel>()
     val topBar: @Composable () -> Unit = { CustomTopAppBar(stringResource(id = R.string.chats)) }
@@ -28,19 +28,21 @@ fun ChatsRoute(
 @Composable
 fun ChatRoomRoute(
     chatRoom: ChatRoom,
-    otherUserName: String,
-    otherUserImageUrl: String,
+    othersUserName: String,
+    othersUserImageUrl: String,
+    othersFcmToken: String,
     onNavUp: () -> Unit,
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit
 ) {
     val topBar: @Composable () -> Unit =
-        { CustomTopAppBarWithButton(title = otherUserName, onNavIconPressed = onNavUp) }
+        { CustomTopAppBarWithButton(title = othersUserName, onNavIconPressed = onNavUp) }
     val viewModel: ChatRoomViewModel = hiltViewModel()
     ChatRoomScreen(
         chatRoom = chatRoom,
-        otherUserName = otherUserName,
-        otherUserImageUrl = otherUserImageUrl,
+        othersUserName = othersUserName,
+        othersUserImageUrl = othersUserImageUrl,
+        othersFcmToken = othersFcmToken,
         viewModel = viewModel,
         onRepository = onRepository,
         onDonation = onDonation,
