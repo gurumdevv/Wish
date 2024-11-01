@@ -22,7 +22,7 @@ import com.gurumlab.wish.ui.theme.backgroundColor
 @Composable
 fun ChatsScreen(
     viewModel: ChatsViewModel,
-    onChatRoom: (ChatRoom, String, String) -> Unit,
+    onChatRoom: (ChatRoom, String, String, String) -> Unit,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
@@ -45,7 +45,7 @@ fun ChatsScreen(
 @Composable
 fun ChatsContent(
     viewModel: ChatsViewModel,
-    onChatRoom: (ChatRoom, String, String) -> Unit,
+    onChatRoom: (ChatRoom, String, String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -73,11 +73,13 @@ fun ChatsContent(
                         val otherUserInfo = viewModel.userInfos[othersUid]
                         val othersName = otherUserInfo?.name ?: stringResource(R.string.name)
                         val othersProfileImageUrl = otherUserInfo?.profileImageUrl ?: ""
+                        val othersFcmToken = otherUserInfo?.fcmToken ?: ""
 
                         ChatsItem(
                             chatRoom = chatRooms[index],
                             othersName = othersName,
                             othersProfileImageUrl = othersProfileImageUrl,
+                            othersFcmToken = othersFcmToken,
                             context = context,
                             onChatRoom = onChatRoom
                         )

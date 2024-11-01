@@ -107,15 +107,16 @@ fun ChatRoomTitle(
 fun ChatsItem(
     chatRoom: ChatRoom,
     othersName: String,
-    context: Context,
     othersProfileImageUrl: String,
-    onChatRoom: (ChatRoom, String, String) -> Unit
+    othersFcmToken: String,
+    context: Context,
+    onChatRoom: (ChatRoom, String, String, String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onChatRoom(chatRoom, othersName, othersProfileImageUrl)
+                onChatRoom(chatRoom, othersName, othersProfileImageUrl, othersFcmToken)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
