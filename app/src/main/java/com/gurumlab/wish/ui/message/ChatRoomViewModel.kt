@@ -97,7 +97,7 @@ class ChatRoomViewModel @Inject constructor(
         })
     }
 
-    fun sendMessage() {
+    fun sendMessage(othersName: String, othersFcmToken: String, defaultTitle: String) {
         val message = messageUiState.message
         if (message.isBlank()) return
 
@@ -126,6 +126,14 @@ class ChatRoomViewModel @Inject constructor(
                     myFireStoreRef = myFireStoreRef,
                     othersFireStoreRef = othersFireStoreRef
                 )
+
+                sendPushMessage(
+                    othersName = othersName,
+                    othersFcmToken = othersFcmToken,
+                    message = message,
+                    defaultTitle = defaultTitle
+                )
+
                 updateMessageUiState(message = "", isChatEnabled = true)
             } else {
                 Log.d("ChatRoomViewModel", "Failed to add message")
@@ -181,6 +189,19 @@ class ChatRoomViewModel @Inject constructor(
 
     private fun resetSnackbarMessage() {
         snackbarMessageRes.value = null
+    }
+
+    private suspend fun sendPushMessage(
+        othersName: String,
+        othersFcmToken: String,
+        message: String,
+        defaultTitle: String
+    ) {
+        val title = "$othersName $defaultTitle" //예: "피터팬 님으로부터 메시지가 도착했습니다."
+        val isSuccess = repository.sendPushMessage(othersFcmToken, title, message)
+        if (!isSuccess) {
+            Log.d("ChatRoomViewModel", "Failed to send push message")
+        }
     }
 }
 

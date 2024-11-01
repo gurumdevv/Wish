@@ -54,8 +54,8 @@ fun ChatRoomScreen(
         bottomBar = bottomBar
     ) { innerPadding ->
         ChatRoomContent(
-            otherUserName = othersUserName,
-            otherUserImageUrl = othersUserImageUrl,
+            othersUserName = othersUserName,
+            othersUserImageUrl = othersUserImageUrl,
             othersFcmToken = othersFcmToken,
             viewModel = viewModel,
             onRepository = onRepository,
@@ -71,9 +71,9 @@ fun ChatRoomScreen(
 
 @Composable
 fun ChatRoomContent(
-    otherUserName: String,
-    otherUserImageUrl: String,
-    othersFcmToken: String, //TODO: 메세지 푸시 보내기 기능 구현에 사용
+    othersUserName: String,
+    othersUserImageUrl: String,
+    othersFcmToken: String,
     viewModel: ChatRoomViewModel,
     onRepository: (String) -> Unit,
     onDonation: (String) -> Unit,
@@ -106,8 +106,8 @@ fun ChatRoomContent(
                         state = listState,
                         chatList = messages,
                         currentUserUid = viewModel.getUid(),
-                        otherUserName = otherUserName,
-                        otherUserImageUrl = otherUserImageUrl,
+                        othersUserName = othersUserName,
+                        othersUserImageUrl = othersUserImageUrl,
                         screenWidth = screenWidth,
                         isReverse = true,
                         onRepository = onRepository,
@@ -121,7 +121,13 @@ fun ChatRoomContent(
                 text = viewModel.messageUiState.message,
                 isEnabled = viewModel.messageUiState.isChatEnabled,
                 onTextChange = { viewModel.updateMessage(it) },
-                onSendClick = { viewModel.sendMessage() },
+                onSendClick = {
+                    viewModel.sendMessage(
+                        othersName = othersUserName,
+                        othersFcmToken = othersFcmToken,
+                        defaultTitle = context.getString(R.string.default_push_message_title)
+                    )
+                },
                 modifier = Modifier
                     .consumeWindowInsets(WindowInsets.navigationBars)
                     .imePadding()
