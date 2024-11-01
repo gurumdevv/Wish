@@ -23,6 +23,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.gurumlab.wish.BuildConfig
 import com.gurumlab.wish.data.model.UserInfo
 import com.gurumlab.wish.ui.util.Constants
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 private typealias SignInSuccessListener = (uid: String) -> Unit
@@ -161,10 +163,9 @@ class LoginViewModel @Inject constructor(
                                     updateFailState()
                                 } else {
                                     viewModelScope.launch {
-                                        registerUserInfo(user.uid) { isSuccess ->
-                                            if (isSuccess) updateUI(user)
-                                            else updateFailState()
-                                        }
+                                        val isSuccess = registerUserInfo(user.uid)
+                                        if (isSuccess) updateUI(user)
+                                        else updateFailState()
                                     }
                                 }
                             } else {
@@ -178,23 +179,31 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    private fun registerUserInfo(uid: String, callback: (Boolean) -> Unit) {
-        val ref = Firebase.database.getReference(Constants.AUTH)
-        ref.child(uid).get().addOnSuccessListener {
-            if (it.value == null) {
-                val currentUser = Firebase.auth.currentUser
-                val userInfo = UserInfo(
-                    uid,
-                    currentUser?.email ?: "",
-                    currentUser?.displayName ?: "",
-                    (currentUser?.photoUrl ?: "").toString()
+    private suspend fun registerUserInfo(uid: String): Boolean {
+        try {
+            val messagingToken = FirebaseMessaging.getInstance().token.await()
+
+            val ref = Firebase.database.getReference(Constants.AUTH)
+            val result = ref.child(uid).get().await()
+            val currentUser = Firebase.auth.currentUser
+
+            val userInfo = if (result.value == null) {
+                UserInfo(
+                    uid = uid,
+                    email = currentUser?.email ?: "",
+                    name = currentUser?.displayName ?: "",
+                    profileImageUrl = (currentUser?.photoUrl ?: "").toString(),
+                    fcmToken = messagingToken
                 )
-                ref.child(uid).setValue(userInfo)
+            } else {
+                val registeredUserInfo = result.getValue(UserInfo::class.java)!!
+                registeredUserInfo.copy(fcmToken = messagingToken)
             }
-            callback(true)
-        }.addOnFailureListener {
-            Log.d("LoginViewModel", "Firebase register userInfo failed: ${it.message}")
-            callback(false)
+            ref.child(uid).setValue(userInfo)
+            return true
+        } catch (e: Exception) {
+            Log.d("LoginViewModel", "Firebase register userInfo failed: ${e.message}")
+            return false
         }
     }
 
