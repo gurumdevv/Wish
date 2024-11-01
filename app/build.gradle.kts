@@ -66,12 +66,15 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/DEPENDENCIES"
         }
     }
 }
 
 dependencies {
-
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.15.0") {
+        exclude(group = "io.grpc")
+    }
     implementation(libs.firebase.messaging)
     implementation(libs.google.firebase.analytics)
     implementation(libs.accompanist.permissions)
