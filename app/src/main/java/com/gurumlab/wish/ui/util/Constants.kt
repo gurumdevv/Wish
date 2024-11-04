@@ -15,4 +15,10 @@ object Constants {
     const val POSTER_ID = "posterId"
     const val CREATED_DATE = "createdDate"
     const val DELETED_POSTS = "deleted_posts"
+    const val CHAT_ROOM_ID = "chatRoomId"
+    const val TITLE = "title"
+    const val BODY = "body"
+    const val DATA = "data"
+    const val TOKEN = "token"
+    const val DEFAULT_USER_NAME = "User"
 }

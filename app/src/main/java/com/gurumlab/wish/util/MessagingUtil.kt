@@ -5,6 +5,7 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.gurumlab.wish.BuildConfig
+import com.gurumlab.wish.ui.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -82,12 +83,19 @@ class MessagingUtil(private val context: Context) {
      * @throws IOException
      */
     suspend fun sendCommonMessage(
+        chatRoomId: String,
+        othersFcmToken: String,
         title: String,
-        body: String,
-        othersFcmToken: String
+        body: String
     ) =
         withContext(Dispatchers.IO) {
-            val notificationMessage = buildNotificationMessage(title, body, othersFcmToken)
+            val notificationMessage =
+                buildNotificationMessage(
+                    chatRoomId = chatRoomId,
+                    othersFcmToken = othersFcmToken,
+                    title = title,
+                    body = body
+                )
             println("FCM request body for message using common notification object:")
             prettyPrint(notificationMessage)
             sendMessage(notificationMessage)
@@ -99,18 +107,20 @@ class MessagingUtil(private val context: Context) {
      * @return JSON of notification message.
      */
     private fun buildNotificationMessage(
+        chatRoomId: String,
+        othersFcmToken: String,
         title: String,
-        body: String,
-        othersFcmToken: String
+        body: String
     ): JsonObject {
-        val jNotification = JsonObject().apply {
-            addProperty("title", title)
-            addProperty("body", body)
+        val jData = JsonObject().apply {
+            addProperty(Constants.TITLE, title)
+            addProperty(Constants.BODY, body)
+            addProperty(Constants.CHAT_ROOM_ID, chatRoomId)
         }
 
         val jMessage = JsonObject().apply {
-            add("notification", jNotification)
-            addProperty("token", othersFcmToken)
+            add(Constants.DATA, jData)
+            addProperty(Constants.TOKEN, othersFcmToken)
         }
 
         return JsonObject().apply {

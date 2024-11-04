@@ -95,7 +95,7 @@ class ChatRoomViewModel @Inject constructor(
         })
     }
 
-    fun sendMessage(othersName: String, othersFcmToken: String, defaultTitle: String) {
+    fun sendMessage(othersFcmToken: String, defaultTitle: String) {
         val message = messageUiState.message
         if (message.isBlank()) return
 
@@ -127,7 +127,7 @@ class ChatRoomViewModel @Inject constructor(
                 )
 
                 sendPushMessage(
-                    othersName = othersName,
+                    chatRoomId = chatRoomDetailUiState.roomId,
                     othersFcmToken = othersFcmToken,
                     message = message,
                     defaultTitle = defaultTitle
@@ -199,13 +199,19 @@ class ChatRoomViewModel @Inject constructor(
     }
 
     private suspend fun sendPushMessage(
-        othersName: String,
+        chatRoomId: String,
         othersFcmToken: String,
         message: String,
         defaultTitle: String
     ) {
-        val title = "$othersName $defaultTitle" //예: "피터팬 님으로부터 메시지가 도착했습니다."
-        val isSuccess = repository.sendPushMessage(othersFcmToken, title, message)
+        val myName = repository.getCurrentUser()?.displayName ?: Constants.DEFAULT_USER_NAME
+        val title = "$myName $defaultTitle" //예: "피터팬 님으로부터 메시지가 도착했습니다."
+        val isSuccess = repository.sendPushMessage(
+            chatRoomId = chatRoomId,
+            token = othersFcmToken,
+            title = title,
+            body = message
+        )
         if (!isSuccess) {
             Log.d("ChatRoomViewModel", "Failed to send push message")
         }

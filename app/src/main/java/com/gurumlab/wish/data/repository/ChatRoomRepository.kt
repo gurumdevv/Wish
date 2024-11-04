@@ -20,9 +20,19 @@ class ChatRoomRepository @Inject constructor(
 
     fun getFirebaseDatabaseRef() = firebaseDatabaseRef
 
-    suspend fun sendPushMessage(token: String, title: String, body: String): Boolean {
+    suspend fun sendPushMessage(
+        chatRoomId: String,
+        token: String,
+        title: String,
+        body: String
+    ): Boolean {
         return try {
-            messagingUtil.sendCommonMessage(title = title, body = body, othersFcmToken = token)
+            messagingUtil.sendCommonMessage(
+                chatRoomId = chatRoomId,
+                othersFcmToken = token,
+                title = title,
+                body = body
+            )
             true
         } catch (e: Exception) {
             Log.d("Messaging Service", "Failed to send push message: ${e.message}")

@@ -65,8 +65,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun createNotificationChannel() {
-        val channelId = getString(R.string.default_notification_channel_id)
-        val channelName = getString(R.string.chat)
+        val channelId = getString(R.string.notification_channel_id)
+        val channelName = getString(R.string.channel_name)
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(channelId, channelName, importance).apply {
             description = getString(R.string.chat_notification_description)

@@ -123,7 +123,6 @@ fun ChatRoomContent(
                 onTextChange = { viewModel.updateMessage(it) },
                 onSendClick = {
                     viewModel.sendMessage(
-                        othersName = othersUserName,
                         othersFcmToken = othersFcmToken,
                         defaultTitle = context.getString(R.string.default_push_message_title)
                     )
