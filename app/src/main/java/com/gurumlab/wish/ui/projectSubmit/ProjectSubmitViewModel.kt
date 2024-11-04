@@ -11,9 +11,9 @@ import com.gurumlab.wish.data.model.CompletedWish
 import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.ProjectSubmitRepository
-import com.gurumlab.wish.ui.message.addMessage
-import com.gurumlab.wish.ui.message.getChatRoom
-import com.gurumlab.wish.ui.message.updateChatRoom
+import com.gurumlab.wish.util.addMessage
+import com.gurumlab.wish.util.getChatRoom
+import com.gurumlab.wish.util.updateChatRoom
 import com.gurumlab.wish.ui.util.Constants
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel

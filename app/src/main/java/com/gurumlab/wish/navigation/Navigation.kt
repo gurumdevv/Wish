@@ -30,7 +30,7 @@ import com.gurumlab.wish.ui.message.ChatsRoute
 import com.gurumlab.wish.ui.message.DonationRoute
 import com.gurumlab.wish.ui.message.RepositoryRedirectRoute
 import com.gurumlab.wish.ui.message.SubmissionViewModel
-import com.gurumlab.wish.ui.message.moveToChatRoom
+import com.gurumlab.wish.util.moveToChatRoom
 import com.gurumlab.wish.ui.post.PostDescriptionRoute
 import com.gurumlab.wish.ui.post.PostExaminationRoute
 import com.gurumlab.wish.ui.post.PostFeaturesRoute
@@ -77,7 +77,8 @@ enum class WishScreen {
 
 @Composable
 fun WishNavHost(
-    startDestination: String
+    startDestination: String,
+    chatRoomId: String?
 ) {
     val navController = rememberNavController()
     val navigationActions = remember(navController) { NavigationActions(navController) }
@@ -93,6 +94,21 @@ fun WishNavHost(
 
     val onNavUp: () -> Unit = {
         navController.navigateUp()
+    }
+
+    if(chatRoomId != null){
+        navController.navigate(WishScreen.CHAT_ROOM.name + "/$chatRoomId")
+        /*
+          moveToChatRoom(it.posterId) { chatRoom, name, imageUrl, fcmToken ->
+                        navController.navigate(
+                            WishScreen.CHAT_ROOM.name
+                                    + "/${Gson().toJson(chatRoom)}"
+                                    + "/${name}"
+                                    + "/" + URLEncoder.encode(imageUrl, "UTF-8")
+                                    + "/${fcmToken}"
+                        )
+                    }
+         */
     }
 
     NavHost(

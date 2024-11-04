@@ -1,4 +1,4 @@
-package com.gurumlab.wish.ui.message
+package com.gurumlab.wish.util
 
 import android.util.Log
 import com.google.firebase.auth.ktx.auth

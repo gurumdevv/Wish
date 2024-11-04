@@ -18,6 +18,8 @@ import com.gurumlab.wish.data.model.ChatRoom
 import com.gurumlab.wish.data.repository.ChatRoomRepository
 import com.gurumlab.wish.ui.util.Constants
 import com.gurumlab.wish.ui.util.NetWorkManager
+import com.gurumlab.wish.util.addMessage
+import com.gurumlab.wish.util.updateChatRoom
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
