@@ -49,7 +49,7 @@ fun PermissionDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .padding(16.dp),
+                .padding(vertical = 16.dp, horizontal = 45.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = defaultBoxColor,
