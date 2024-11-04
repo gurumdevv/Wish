@@ -89,6 +89,23 @@ suspend fun addMessage(
     }
 }
 
+suspend fun getNotReadMessageCount(
+    othersFireStoreRef: DocumentReference
+): Int {
+    try {
+        val chatRoomSnapshot = othersFireStoreRef.get().await()
+        val result = if (chatRoomSnapshot.exists()) {
+            chatRoomSnapshot.toObject(ChatRoom::class.java) ?: ChatRoom()
+        } else {
+            ChatRoom()
+        }
+        return result.notReadMessageCount
+    } catch (e: Exception) {
+        Log.d("getNotReadMessageCount", "Error getting chat room: ${e.message}")
+        return 0
+    }
+}
+
 suspend fun updateChatRoom(
     message: String,
     chatRoom: ChatRoom,
@@ -98,6 +115,7 @@ suspend fun updateChatRoom(
     myFireStoreRef: DocumentReference,
     othersFireStoreRef: DocumentReference
 ): Boolean {
+    val notReadMessageCount = getNotReadMessageCount(othersFireStoreRef) + 1
     val currentTimeStamp = FieldValue.serverTimestamp()
     val batch = Firebase.firestore.batch()
 
@@ -114,7 +132,8 @@ suspend fun updateChatRoom(
 
     val othersChatRoomData = mutableMapOf(
         Constants.LAST_MESSAGE to message,
-        Constants.LAST_SENT_AT to currentTimeStamp
+        Constants.LAST_SENT_AT to currentTimeStamp,
+        Constants.NOT_READ_MESSAGE_COUNT to notReadMessageCount
     ).apply {
         if (chatRoom.lastMessageSentAt == null) {
             put(Constants.ID, roomId)
@@ -129,11 +148,6 @@ suspend fun updateChatRoom(
     } else {
         batch.update(myFireStoreRef, myChatRoomData)
         batch.update(othersFireStoreRef, othersChatRoomData)
-        batch.update(
-            othersFireStoreRef,
-            Constants.NOT_READ_MESSAGE_COUNT,
-            FieldValue.increment(1)
-        )
     }
 
     return try {

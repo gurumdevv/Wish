@@ -75,7 +75,7 @@ class ChatRoomViewModel @Inject constructor(
         othersFireStoreRef = fireStore.collection(othersUid).document(roomId)
 
         getMessage()
-        resetMyNotReadMessageCount()
+        resetNotReadMessageCount()
     }
 
     private fun getMessage() {
@@ -85,9 +85,7 @@ class ChatRoomViewModel @Inject constructor(
                 viewModelScope.launch(Dispatchers.Default) {
                     val reversedChatList = chatList.reversed()
                     _uiState.value = ChatRoomUiState.Success(reversedChatList)
-                    resetMyNotReadMessageCount()
                 }
-
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -108,6 +106,7 @@ class ChatRoomViewModel @Inject constructor(
 
         viewModelScope.launch {
             updateMessageUiState(isChatEnabled = false)
+            updateMessageUiState(message = "")
 
             val result = addMessage(
                 uid = chatRoomDetailUiState.uid,
@@ -134,16 +133,24 @@ class ChatRoomViewModel @Inject constructor(
                     defaultTitle = defaultTitle
                 )
 
-                updateMessageUiState(message = "", isChatEnabled = true)
+                updateMessageUiState(isChatEnabled = true)
             } else {
                 Log.d("ChatRoomViewModel", "Failed to add message")
-                updateMessageUiState(isChatEnabled = true, isChatError = true)
+                updateMessageUiState(message = message, isChatEnabled = true, isChatError = true)
             }
         }
     }
 
-    private fun resetMyNotReadMessageCount() {
-        myFireStoreRef.update(mapOf(Constants.NOT_READ_MESSAGE_COUNT to 0))
+    private fun resetNotReadMessageCount() {
+        myFireStoreRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                myFireStoreRef.update(mapOf(Constants.NOT_READ_MESSAGE_COUNT to 0))
+            }
+        }
     }
 
     fun getUid(): String {
