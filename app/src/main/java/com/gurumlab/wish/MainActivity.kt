@@ -2,6 +2,7 @@ package com.gurumlab.wish
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -35,12 +36,7 @@ class MainActivity : ComponentActivity() {
 
         createNotificationChannel()
         getFCMToken()
-
-        val chatRoomId = intent.getStringExtra(Constants.CHAT_ROOM_ID)
-
-        if (chatRoomId != null && chatRoomId != viewModel.getCurrentChatRoomId()) {
-            viewModel.loadChatRoomInfo(chatRoomId)
-        }
+        handleIntent(intent)
 
         val splashScreen = installSplashScreen()
 
@@ -75,6 +71,19 @@ class MainActivity : ComponentActivity() {
                             + "/${it.othersInfo.fcmToken}"
                 )
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
+        val chatRoomId = intent.getStringExtra(Constants.CHAT_ROOM_ID)
+
+        if (chatRoomId != null && chatRoomId != viewModel.getCurrentChatRoomId()) {
+            viewModel.loadChatRoomInfo(chatRoomId)
         }
     }
 
