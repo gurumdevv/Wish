@@ -16,7 +16,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.google.gson.Gson
 import com.gurumlab.wish.data.model.ChatRoom
@@ -77,10 +76,9 @@ enum class WishScreen {
 
 @Composable
 fun WishNavHost(
+    navController: NavHostController,
     startDestination: String,
-    chatRoomId: String?
 ) {
-    val navController = rememberNavController()
     val navigationActions = remember(navController) { NavigationActions(navController) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val selectedDestination = navBackStackEntry?.destination?.route ?: WishScreen.HOME.name
@@ -94,21 +92,6 @@ fun WishNavHost(
 
     val onNavUp: () -> Unit = {
         navController.navigateUp()
-    }
-
-    if(chatRoomId != null){
-        navController.navigate(WishScreen.CHAT_ROOM.name + "/$chatRoomId")
-        /*
-          moveToChatRoom(it.posterId) { chatRoom, name, imageUrl, fcmToken ->
-                        navController.navigate(
-                            WishScreen.CHAT_ROOM.name
-                                    + "/${Gson().toJson(chatRoom)}"
-                                    + "/${name}"
-                                    + "/" + URLEncoder.encode(imageUrl, "UTF-8")
-                                    + "/${fcmToken}"
-                        )
-                    }
-         */
     }
 
     NavHost(
