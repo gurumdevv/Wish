@@ -31,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatRoomViewModel @Inject constructor(
     private val repository: ChatRoomRepository,
-    private val netWorkManager: NetWorkManager
+    private val netWorkManager: NetWorkManager,
+    private val chatRoomStateManager: ChatRoomStateManager
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ChatRoomUiState> =
@@ -62,6 +63,8 @@ class ChatRoomViewModel @Inject constructor(
             _uiState.value = ChatRoomUiState.Fail
             return
         }
+
+        chatRoomStateManager.updateCurrentChatRoomId(roomId)
 
         chatRoomDetailUiState = ChatRoomDetailUiState(
             chatRoom = chatRoom,
@@ -217,6 +220,11 @@ class ChatRoomViewModel @Inject constructor(
         if (!isSuccess) {
             Log.d("ChatRoomViewModel", "Failed to send push message")
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatRoomStateManager.clearCurrentChatRoomId()
     }
 }
 

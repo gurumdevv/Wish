@@ -36,7 +36,11 @@ class MainActivity : ComponentActivity() {
         createNotificationChannel()
         getFCMToken()
 
-        intent.getStringExtra(Constants.CHAT_ROOM_ID)?.let { viewModel.loadChatRoomInfo(it) }
+        val chatRoomId = intent.getStringExtra(Constants.CHAT_ROOM_ID)
+
+        if (chatRoomId != null && chatRoomId != viewModel.getCurrentChatRoomId()) {
+            viewModel.loadChatRoomInfo(chatRoomId)
+        }
 
         val splashScreen = installSplashScreen()
 

@@ -10,9 +10,16 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.gurumlab.wish.MainActivity
 import com.gurumlab.wish.R
+import com.gurumlab.wish.ui.message.ChatRoomStateManager
 import com.gurumlab.wish.ui.util.Constants
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class WishFirebaseMessagingService : FirebaseMessagingService() {
+
+    @Inject
+    lateinit var chatRoomStateManager: ChatRoomStateManager
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
@@ -29,6 +36,8 @@ class WishFirebaseMessagingService : FirebaseMessagingService() {
         val title = remoteMessage.data.getOrDefault(Constants.TITLE, "")
         val body = remoteMessage.data.getOrDefault(Constants.BODY, "")
         val chatRoomId = remoteMessage.data.getOrDefault(Constants.CHAT_ROOM_ID, "")
+
+        if (chatRoomId == chatRoomStateManager.getCurrentChatRoomId()) return
 
         val intent = Intent(this, MainActivity::class.java)
             .apply {
