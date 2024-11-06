@@ -58,7 +58,7 @@ import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 import com.gurumlab.wish.ui.theme.defaultSubmissionCheckButtonColor
 import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.CustomLottieLoader
-import com.gurumlab.wish.ui.util.CustomTextField
+import com.gurumlab.wish.ui.util.CustomTextFieldWithCustomPadding
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.toDp
 import com.valentinilk.shimmer.shimmer
@@ -255,7 +255,7 @@ fun ChatInput(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.Bottom
         ) {
-            CustomTextField(
+            CustomTextFieldWithCustomPadding(
                 value = text,
                 enabled = isEnabled,
                 colors = TextFieldDefaults.colors(

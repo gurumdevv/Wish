@@ -186,9 +186,11 @@ fun CustomTopAppBar(text: String) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Spacer(modifier = Modifier.width(12.dp))
-                //내부 TopAppBar TopAppBarTitleInset이 12dp이므로 12dp 추가
-                //private val TopAppBarHorizontalPadding = 4.dp
-                //private val TopAppBarTitleInset = 16.dp - TopAppBarHorizontalPadding
+                /**
+                내부 TopAppBar TopAppBarTitleInset이 12dp이므로 12dp 추가
+                private val TopAppBarHorizontalPadding = 4.dp
+                private val TopAppBarTitleInset = 16.dp - TopAppBarHorizontalPadding
+                 **/
                 Image(
                     modifier = Modifier.size(30.dp),
                     painter = painterResource(id = R.drawable.temp_logo),
@@ -430,7 +432,7 @@ fun CustomGifImage(
 /** from TextField.kt **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTextField(
+fun CustomTextFieldWithCustomPadding(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
