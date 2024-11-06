@@ -341,21 +341,21 @@ fun ChatList(
                 }
             } else {
                 if (currentItem.submission) {
-                    ChatItemAboutSubmission(R.string.submission_received)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ChatItemWithButton(
-                        messageRes = R.string.receive_submission_from_developer,
-                        buttonTextRes = R.string.btn_check_result,
-                        submissionType = SubmissionType.Check,
-                        screenWidth = screenWidth
-                    ) { onRepository(currentItem.message) }
-                    Spacer(modifier = Modifier.height(8.dp))
                     ChatItemWithButton(
                         messageRes = R.string.please_donate_to_developer,
                         buttonTextRes = R.string.btn_donation,
                         submissionType = SubmissionType.Donation,
                         screenWidth = screenWidth
                     ) { onDonation(currentItem.message) }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ChatItemWithButton(
+                        messageRes = R.string.receive_submission_from_developer,
+                        buttonTextRes = R.string.btn_check_result,
+                        submissionType = SubmissionType.Check,
+                        screenWidth = screenWidth
+                    ) { onRepository(currentItem.message) }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ChatItemAboutSubmission(R.string.submission_received)
                 } else {
                     ChatItem(
                         text = currentItem.message,
