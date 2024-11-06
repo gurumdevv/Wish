@@ -88,7 +88,7 @@ fun PostExaminationContent(
                     Spacer(modifier = Modifier.height(16.dp))
                     PostExaminationDefaultItem(
                         titleRsc = R.string.post_project_description,
-                        description = viewModel.projectDescription
+                        description = viewModel.projectDescription.text
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     PostTitle(titleTextRsc = R.string.features_item_title)
@@ -98,7 +98,7 @@ fun PostExaminationContent(
                 items(viewModel.itemCount) { index ->
                     PostExaminationFeaturesItem(
                         title = viewModel.featureTitles[index] ?: "",
-                        description = viewModel.featureDescriptions[index] ?: "",
+                        description = viewModel.featureDescriptions[index]?.text ?: "",
                         imageUris = viewModel.selectedImageUris[index] ?: emptyList()
                     )
                     Spacer(modifier = Modifier.height(8.dp))

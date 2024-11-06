@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.ui.theme.backgroundColor
@@ -115,7 +116,7 @@ fun PostFeaturesContent(
                 onAddButtonClick = { index ->
                     viewModel.updateItemCount(index + 2)
                     viewModel.updateFeatureTitles(index + 1, "")
-                    viewModel.updateFeatureDescriptions(index + 1, "")
+                    viewModel.updateFeatureDescriptions(index + 1, TextFieldValue())
                 },
                 onSelectedItemIndexChange = { selectedItemIndex = it },
                 onCameraButtonClick = {

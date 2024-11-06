@@ -26,7 +26,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -47,6 +47,7 @@ import com.gurumlab.wish.ui.theme.Gray01
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
 import com.gurumlab.wish.ui.util.CustomTextField
+import com.gurumlab.wish.ui.util.CustomTextFieldWithAutoScrolling
 import com.gurumlab.wish.ui.util.CustomWideButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -138,18 +139,18 @@ fun LimitTextLength(textLength: Int, maxLength: Int) {
 
 @Composable
 fun PostMultiLineTextField(
-    text: String,
+    textFieldValue: TextFieldValue,
     placeHolderRsc: Int,
     textSize: Int,
     placeHolderTextSize: Int,
-    onValueChange: (String) -> Unit,
+    onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     imeOption: ImeAction = ImeAction.Default
 ) {
-    TextField(
-        modifier = modifier,
-        value = text,
+    CustomTextFieldWithAutoScrolling(
+        textFieldValue = textFieldValue,
         onValueChange = onValueChange,
+        modifier = modifier,
         placeholder = {
             Text(
                 text = stringResource(id = placeHolderRsc),
@@ -283,12 +284,12 @@ fun PostStartButtonSection(
 fun PostFeaturesLazyColumn(
     itemCount: Int,
     featureTitles: Map<Int, String>,
-    featureDescriptions: Map<Int, String>,
+    featureDescriptions: Map<Int, TextFieldValue>,
     selectedImageUris: Map<Int, List<Uri>>,
     listState: LazyListState,
     scope: CoroutineScope,
     onTitleChange: (Int, String) -> Unit,
-    onDescriptionChange: (Int, String) -> Unit,
+    onDescriptionChange: (Int, TextFieldValue) -> Unit,
     onAddButtonClick: (Int) -> Unit,
     onSelectedItemIndexChange: (Int) -> Unit,
     onCameraButtonClick: () -> Unit
@@ -301,7 +302,7 @@ fun PostFeaturesLazyColumn(
                 index = index,
                 titleTextRsc = R.string.features_item_title,
                 titleFieldText = featureTitles.getOrElse(index) { "" },
-                descriptionFieldText = featureDescriptions.getOrElse(index) { "" },
+                descriptionTextField = featureDescriptions[index] ?: TextFieldValue(),
                 imageUris = selectedImageUris.getOrElse(index) { emptyList() },
                 onIndexChange = { onSelectedItemIndexChange(it) },
                 onTitleChange = { onTitleChange(index, it) },
@@ -372,11 +373,11 @@ fun PostFeaturesItem(
     index: Int,
     titleTextRsc: Int,
     titleFieldText: String,
-    descriptionFieldText: String,
+    descriptionTextField: TextFieldValue,
     imageUris: List<Uri>,
     onIndexChange: (Int) -> Unit,
     onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
+    onDescriptionChange: (TextFieldValue) -> Unit,
     onAddButtonClick: () -> Unit,
     onCameraButtonClick: () -> Unit
 ) {
@@ -384,7 +385,7 @@ fun PostFeaturesItem(
     Spacer(modifier = Modifier.height(8.dp))
     PostFeaturesItemDescription(
         title = titleFieldText,
-        description = descriptionFieldText,
+        description = descriptionTextField,
         onTitleChange = onTitleChange,
         onDescriptionChange = onDescriptionChange
     )
@@ -419,9 +420,9 @@ fun PostFeaturesItemTitle(
 @Composable
 fun PostFeaturesItemDescription(
     title: String,
-    description: String,
+    description: TextFieldValue,
     onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit
+    onDescriptionChange: (TextFieldValue) -> Unit
 ) {
     CustomTextField(
         text = title,
@@ -432,7 +433,7 @@ fun PostFeaturesItemDescription(
     )
     Spacer(modifier = Modifier.height(8.dp))
     PostMultiLineTextField(
-        text = description,
+        textFieldValue = description,
         placeHolderRsc = R.string.features_item_description_placeholder,
         textSize = 16,
         placeHolderTextSize = 16,
@@ -512,8 +513,8 @@ fun PostDescriptionTitleSection() {
 
 @Composable
 fun PostDescriptionTextFieldSection(
-    text: String,
-    onValueChange: (String) -> Unit,
+    textFieldValue: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier
 ) {
     Column(
@@ -522,7 +523,7 @@ fun PostDescriptionTextFieldSection(
         PostSubTitle(textRsc = R.string.post_project_description)
         Spacer(modifier = Modifier.height(8.dp))
         PostMultiLineTextField(
-            text = text,
+            textFieldValue = textFieldValue,
             placeHolderRsc = R.string.post_project_description_placeholder,
             textSize = 16,
             placeHolderTextSize = 16,

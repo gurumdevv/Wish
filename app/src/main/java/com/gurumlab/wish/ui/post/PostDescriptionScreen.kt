@@ -69,7 +69,7 @@ fun PostDescriptionContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             PostDescriptionTextFieldSection(
-                text = viewModel.projectDescription,
+                textFieldValue = viewModel.projectDescription,
                 onValueChange = { viewModel.updateProjectDescription(it) },
                 modifier = Modifier
                     .weight(1f)

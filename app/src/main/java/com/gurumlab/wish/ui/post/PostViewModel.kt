@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gurumlab.wish.data.model.DetailDescription
@@ -38,14 +39,14 @@ class PostViewModel @Inject constructor(
     var simpleDescription by mutableStateOf("")
         private set
 
-    var projectDescription by mutableStateOf("")
+    var projectDescription by mutableStateOf(TextFieldValue())
         private set
 
     var itemCount by mutableIntStateOf(1)
         private set
     var featureTitles = mutableStateMapOf<Int, String>()
         private set
-    var featureDescriptions = mutableStateMapOf<Int, String>()
+    var featureDescriptions = mutableStateMapOf<Int, TextFieldValue>()
         private set
     var selectedImageUris = mutableStateMapOf<Int, List<Uri>>()
         private set
@@ -130,7 +131,7 @@ class PostViewModel @Inject constructor(
             features.add(
                 DetailDescription(
                     feature = title,
-                    description = description,
+                    description = description.text,
                     photos = photos
                 )
             )
@@ -187,7 +188,7 @@ class PostViewModel @Inject constructor(
         simpleDescription = description
     }
 
-    fun updateProjectDescription(description: String) {
+    fun updateProjectDescription(description: TextFieldValue) {
         projectDescription = description
     }
 
@@ -199,7 +200,7 @@ class PostViewModel @Inject constructor(
         featureTitles[index] = title
     }
 
-    fun updateFeatureDescriptions(index: Int, description: String) {
+    fun updateFeatureDescriptions(index: Int, description: TextFieldValue) {
         featureDescriptions[index] = description
     }
 
@@ -220,7 +221,7 @@ class PostViewModel @Inject constructor(
     }
 
     fun isProjectDescriptionEmpty(): Boolean {
-        return projectDescription.isEmpty()
+        return projectDescription.text.isEmpty()
     }
 
     fun isAttachedPhoto(): Boolean {
@@ -232,7 +233,7 @@ class PostViewModel @Inject constructor(
     }
 
     fun isAnyDescriptionEmpty(): Boolean {
-        return areAnyFieldsEmpty(featureDescriptions.values.toList())
+        return areAnyFieldsEmpty(featureDescriptions.values.toList().map { it.text })
     }
 
     private fun areAnyFieldsEmpty(list: List<String>): Boolean {

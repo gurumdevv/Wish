@@ -1,6 +1,7 @@
 package com.gurumlab.wish.ui.util
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -48,6 +51,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +73,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -87,6 +92,7 @@ import com.gurumlab.wish.ui.theme.Gray02
 import com.gurumlab.wish.ui.theme.backgroundColor
 import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.theme.defaultPlaceHolderColor
+import kotlinx.coroutines.launch
 
 @Composable
 fun CustomIconButton(
@@ -470,15 +476,14 @@ fun CustomTextField(
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = value,
-            modifier =
-            modifier
+            onValueChange = onValueChange,
+            modifier = modifier
 //                .then(if (isError) semantics { error(defaultErrorMessage) } else this)
                 .defaultErrorSemantics(isError, stringResource(R.string.error_text_field))
                 .defaultMinSize(
                     minWidth = TextFieldDefaults.MinWidth,
                     minHeight = TextFieldDefaults.MinHeight
                 ),
-            onValueChange = onValueChange,
             enabled = enabled,
             readOnly = readOnly,
             textStyle = mergedTextStyle,
@@ -523,6 +528,110 @@ internal fun Modifier.defaultErrorSemantics(
     isError: Boolean,
     defaultErrorMessage: String,
 ): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun CustomTextFieldWithAutoScrolling(
+    textFieldValue: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
+    interactionSource: MutableInteractionSource? = null,
+    shape: Shape = TextFieldDefaults.shape,
+    colors: TextFieldColors = TextFieldDefaults.colors(),
+    contentPadding: PaddingValues = // I customized TextField for this option
+        if (label != null) TextFieldDefaults.contentPaddingWithLabel()
+        else TextFieldDefaults.contentPaddingWithoutLabel()
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // If color is not provided via the text style, use content color as a default
+    val textColor =
+        textStyle.color.takeOrElse {
+            val focused = interactionSource.collectIsFocusedAsState().value
+            when {
+                !enabled -> colors.disabledTextColor
+                isError -> colors.errorTextColor
+                focused -> colors.focusedTextColor
+                else -> colors.unfocusedTextColor
+            }
+        }
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val scope = rememberCoroutineScope()
+    val paddingSize = remember { 24.dp }.toFloatPx()
+
+    CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
+        BasicTextField(
+            value = textFieldValue,
+            onValueChange = onValueChange,
+            modifier = modifier
+                .defaultErrorSemantics(isError, stringResource(R.string.error_text_field))
+                .defaultMinSize(
+                    minWidth = TextFieldDefaults.MinWidth,
+                    minHeight = TextFieldDefaults.MinHeight
+                )
+                .bringIntoViewRequester(bringIntoViewRequester),
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = mergedTextStyle,
+            cursorBrush = SolidColor(if (isError) colors.errorCursorColor else colors.cursorColor),
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            interactionSource = interactionSource,
+            singleLine = singleLine,
+            maxLines = maxLines,
+            minLines = minLines,
+            decorationBox =
+            @Composable { innerTextField ->
+                // places leading icon, text field with label and placeholder, trailing icon
+                TextFieldDefaults.DecorationBox(
+                    value = textFieldValue.text,
+                    visualTransformation = visualTransformation,
+                    innerTextField = innerTextField,
+                    placeholder = placeholder,
+                    label = label,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    prefix = prefix,
+                    suffix = suffix,
+                    supportingText = supportingText,
+                    shape = shape,
+                    singleLine = singleLine,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                    contentPadding = contentPadding
+                )
+            },
+            onTextLayout = {
+                val cursorRect = it.getCursorRect(textFieldValue.selection.start)
+                val paddedCursorRect = cursorRect.inflate(paddingSize)
+                scope.launch {
+                    bringIntoViewRequester.bringIntoView(paddedCursorRect)
+                }
+            }
+        )
+    }
+}
 
 @Composable
 fun CustomAsyncImage(
