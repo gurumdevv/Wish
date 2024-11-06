@@ -74,6 +74,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.setCurrentChatRoomIdToTempChatRoomId()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.setTempChatRoomIdToCurrentChatRoomId()
+        viewModel.clearCurrentChatRoomId()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.clearCurrentChatRoomId()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)

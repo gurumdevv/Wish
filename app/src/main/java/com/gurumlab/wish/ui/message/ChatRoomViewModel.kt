@@ -65,6 +65,7 @@ class ChatRoomViewModel @Inject constructor(
         }
 
         chatRoomStateManager.updateCurrentChatRoomId(roomId)
+        chatRoomStateManager.setIsChatRoomViewModelExist(true)
 
         chatRoomDetailUiState = ChatRoomDetailUiState(
             chatRoom = chatRoom,
@@ -225,6 +226,7 @@ class ChatRoomViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         chatRoomStateManager.clearCurrentChatRoomId()
+        chatRoomStateManager.setIsChatRoomViewModelExist(false)
     }
 }
 
