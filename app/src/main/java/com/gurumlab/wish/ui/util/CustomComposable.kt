@@ -193,7 +193,7 @@ fun CustomTopAppBar(text: String) {
                  **/
                 Image(
                     modifier = Modifier.size(30.dp),
-                    painter = painterResource(id = R.drawable.temp_logo),
+                    painter = painterResource(id = R.drawable.ic_logo),
                     contentDescription = stringResource(
                         R.string.logo
                     )
