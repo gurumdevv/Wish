@@ -10,6 +10,13 @@ val googleClientId: String = localProperties.getProperty("google_client_id") ?: 
 val googleSdkKey: String = localProperties.getProperty("google_sdk_key") ?: ""
 val projectId: String = localProperties.getProperty("project_id") ?: ""
 
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("keystore.properties").let {
+    it.inputStream().use { input ->
+        keystoreProperties.load(input)
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -20,6 +27,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties.getProperty("store_file"))
+            storePassword = keystoreProperties.getProperty("store_password") ?: ""
+            keyAlias = keystoreProperties.getProperty("key_alias") ?: ""
+            keyPassword = keystoreProperties.getProperty("key_password") ?: ""
+        }
+    }
     namespace = "com.gurumlab.wish"
     compileSdk = 34
 
@@ -42,11 +57,18 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            versionNameSuffix = "-release"
+        }
+        debug {
+            isMinifyEnabled = false
+            versionNameSuffix = "-debug"
         }
     }
     compileOptions {
