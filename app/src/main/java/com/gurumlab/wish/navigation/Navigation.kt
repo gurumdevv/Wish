@@ -128,10 +128,18 @@ fun WishNavHost(
             composable(
                 route = WishScreen.CHAT_ROOM.name + "/{chatRoom}" + "/{name}" + "/{imageUrl}" + "/{fcmToken}",
                 enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Up,
-                        animationSpec = tween(500)
-                    )
+                    when (initialState.destination.route) {
+                        WishScreen.DONATION.name + "/{completedWishId}" -> {
+                            fadeIn(animationSpec = tween(durationMillis = 200))
+                        }
+
+                        else -> {
+                            slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Up,
+                                animationSpec = tween(500)
+                            )
+                        }
+                    }
                 },
                 exitTransition = {
                     when (targetState.destination.route) {
