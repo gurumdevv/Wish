@@ -48,7 +48,9 @@ class ProjectSubmitViewModel @Inject constructor(
         minimizedWish: MinimizedWish,
         emptySnackbarMessageRes: Int,
         failSnackbarMessageRes: Int,
-        projectCompletedDescription: String
+        projectCompletedDescription: String,
+        defaultCompletedMessageTitle: String,
+        defaultCompletedMessageBody: String
     ) {
         if (!isInputFieldsValid()) {
             handleError("", emptySnackbarMessageRes)
@@ -83,7 +85,9 @@ class ProjectSubmitViewModel @Inject constructor(
             val isMessageSent = sendMessageWithSubmission(
                 completedWishId = completedWishId.values.first(),
                 minimizedWish = minimizedWish,
-                projectCompletedDescription = projectCompletedDescription
+                projectCompletedDescription = projectCompletedDescription,
+                defaultCompletedMessageTitle = defaultCompletedMessageTitle,
+                defaultCompletedMessageBody = defaultCompletedMessageBody
             )
 
             if (isMessageSent) {
@@ -110,12 +114,15 @@ class ProjectSubmitViewModel @Inject constructor(
     private suspend fun sendMessageWithSubmission(
         completedWishId: String,
         minimizedWish: MinimizedWish,
-        projectCompletedDescription: String
+        projectCompletedDescription: String,
+        defaultCompletedMessageTitle: String,
+        defaultCompletedMessageBody: String
     ): Boolean {
         val currentUser = repository.getCurrentUser()
         val uid = currentUser?.uid ?: ""
         val othersUid = minimizedWish.posterId
         val roomId = "${uid}+${othersUid}"
+        val othersFcmToken = repository.getFCMToken(othersUid)
 
         val fireStore = repository.getFireStore()
         val myFireStoreRef = fireStore.collection(uid).document(roomId)
@@ -132,6 +139,13 @@ class ProjectSubmitViewModel @Inject constructor(
         )
         if (!isMessageSent) return false
 
+        sendPushMessage(
+            chatRoomId = roomId,
+            othersFcmToken = othersFcmToken,
+            message = defaultCompletedMessageBody,
+            defaultTitle = defaultCompletedMessageTitle
+        )
+
         val chatRoom = getChatRoom(myFireStoreRef) ?: return false
 
         val isFireStoreUpdated = updateChatRoom(
@@ -145,6 +159,25 @@ class ProjectSubmitViewModel @Inject constructor(
         )
 
         return isFireStoreUpdated
+    }
+
+    private suspend fun sendPushMessage(
+        chatRoomId: String,
+        othersFcmToken: String,
+        message: String,
+        defaultTitle: String
+    ) {
+        val myName = repository.getCurrentUser()?.displayName ?: Constants.DEFAULT_USER_NAME
+        val title = "$myName $defaultTitle" //예: "피터팬 님으로부터 메시지가 도착했습니다."
+        val isSuccess = repository.sendPushMessage(
+            chatRoomId = chatRoomId,
+            token = othersFcmToken,
+            title = title,
+            body = message
+        )
+        if (!isSuccess) {
+            Log.d("ChatRoomViewModel", "Failed to send push message")
+        }
     }
 
     private fun updateProjectStatus(idToken: String, wishId: String, failSnackbarMessageRes: Int) {

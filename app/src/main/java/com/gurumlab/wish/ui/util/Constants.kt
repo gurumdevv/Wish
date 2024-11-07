@@ -21,4 +21,5 @@ object Constants {
     const val DATA = "data"
     const val TOKEN = "token"
     const val DEFAULT_USER_NAME = "User"
+    const val FCM_TOKEN = "fcmToken"
 }

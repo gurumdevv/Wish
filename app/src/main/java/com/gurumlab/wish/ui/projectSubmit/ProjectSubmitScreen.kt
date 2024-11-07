@@ -89,7 +89,9 @@ fun ProjectSubmitContent(
                 minimizedWish = minimizedWish,
                 emptySnackbarMessageRes = R.string.blank,
                 failSnackbarMessageRes = R.string.fail_submit,
-                projectCompletedDescription = context.getString(R.string.project_completed)
+                projectCompletedDescription = context.getString(R.string.project_completed),
+                defaultCompletedMessageBody = context.getString(R.string.default_completed_message_body),
+                defaultCompletedMessageTitle = context.getString(R.string.default_push_message_title)
             )
         }
 

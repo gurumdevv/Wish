@@ -24,6 +24,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("kotlin-parcelize")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -42,7 +43,7 @@ android {
         applicationId = "com.gurumlab.wish"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -58,8 +59,8 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -97,6 +98,8 @@ dependencies {
     implementation("com.google.auth:google-auth-library-oauth2-http:1.15.0") {
         exclude(group = "io.grpc")
     }
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.com.google.firebase.firebase.analytics)
     implementation(libs.firebase.messaging)
     implementation(libs.google.firebase.analytics)
     implementation(libs.accompanist.permissions)
