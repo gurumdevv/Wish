@@ -46,7 +46,7 @@ val navigationItems = listOf(
 class NavigationActions(private val navController: NavHostController) {
     fun navigateTo(destination: NavigationItem) {
         navController.navigate(destination.route) {
-            popUpTo(navController.graph.startDestinationId) {
+            popUpTo(WishScreen.HOME.name) {
                 saveState = true
             }
             launchSingleTop = true
