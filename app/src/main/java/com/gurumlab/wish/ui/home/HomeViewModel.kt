@@ -12,12 +12,14 @@ import com.gurumlab.wish.data.repository.HomeRepository
 import com.gurumlab.wish.data.source.local.InternalDataStore
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.NumericConstants
+import com.gurumlab.wish.ui.util.WishesUpdateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
@@ -28,7 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: HomeRepository,
-    private val internalDataStore: InternalDataStore
+    private val internalDataStore: InternalDataStore,
+    private val wishesUpdateManager: WishesUpdateManager
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Loading)
@@ -43,6 +46,7 @@ class HomeViewModel @Inject constructor(
     init {
         loadWasPermissionChecked()
         loadWishes()
+        observeWishesChanges()
     }
 
     fun loadWishes() {
@@ -165,6 +169,14 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             internalDataStore.updatePermissionCheck(true)
             wasPermissionChecked.value = true
+        }
+    }
+
+    private fun observeWishesChanges() {
+        viewModelScope.launch {
+            wishesUpdateManager.count.drop(1).collect { _ ->
+                loadWishes()
+            }
         }
     }
 }

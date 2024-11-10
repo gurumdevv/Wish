@@ -13,6 +13,7 @@ import com.gurumlab.wish.data.model.MinimizedWish
 import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.repository.SettingsRepository
 import com.gurumlab.wish.ui.util.Constants
+import com.gurumlab.wish.ui.util.WishesUpdateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository,
-    private val loginService: LoginService
+    private val loginService: LoginService,
+    private val wishesUpdateManager: WishesUpdateManager
 ) : ViewModel() {
 
     private val _accountUiState = MutableStateFlow(AccountUiState())
@@ -134,9 +136,9 @@ class SettingsViewModel @Inject constructor(
             }
 
             val wishes = (_myProjectUiState.value as MyProjectUiState.Success).wishes
-            _myProjectUiState.value = MyProjectUiState.Loading
             val isSuccess = repository.deleteWish(idToken = idToken, wishId = wishId)
             if (isSuccess) {
+                wishesUpdateManager.updateState()
                 val newWishes = wishes.filter { it.key != wishId }
                 _myProjectUiState.value = MyProjectUiState.Success(newWishes)
             } else {

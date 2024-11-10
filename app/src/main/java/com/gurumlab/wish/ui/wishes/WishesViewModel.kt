@@ -8,17 +8,20 @@ import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.WishesRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.NumericConstants
+import com.gurumlab.wish.ui.util.WishesUpdateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WishesViewModel @Inject constructor(
-    private val repository: WishesRepository
+    private val repository: WishesRepository,
+    private val wishesUpdateManager: WishesUpdateManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WishesUiState())
@@ -27,6 +30,7 @@ class WishesViewModel @Inject constructor(
     init {
         loadWishes()
         loadWishesSortedByLikes()
+        observeWishesChanges()
     }
 
     fun loadWishes() {
@@ -101,6 +105,15 @@ class WishesViewModel @Inject constructor(
                 val filteredWishes =
                     loadedWishes.filter { it.value.status == WishStatus.POSTED.ordinal }
                 _uiState.update { wishesUpdate(filteredWishes) }
+            }
+        }
+    }
+
+    private fun observeWishesChanges() {
+        viewModelScope.launch {
+            wishesUpdateManager.count.drop(1).collect { _ ->
+                loadWishes()
+                loadWishesSortedByLikes()
             }
         }
     }

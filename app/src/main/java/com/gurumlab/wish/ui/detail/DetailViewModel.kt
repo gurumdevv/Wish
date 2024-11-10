@@ -11,6 +11,7 @@ import com.gurumlab.wish.data.model.Wish
 import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.DetailRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
+import com.gurumlab.wish.ui.util.WishesUpdateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -24,7 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val repository: DetailRepository
+    private val repository: DetailRepository,
+    private val wishesUpdateManager: WishesUpdateManager
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<DetailUiState> = MutableStateFlow(DetailUiState.Loading)
@@ -179,6 +181,8 @@ class DetailViewModel @Inject constructor(
                 handleError(logMessage = "", messageRes = alreadyBegunMessageRes)
                 return@launch
             }
+
+            wishesUpdateManager.updateState()
 
             val isStatusUpdatedSuccess = async { updateStatus(idToken, wishId) }.await()
             val isDateUpdatedSuccess =

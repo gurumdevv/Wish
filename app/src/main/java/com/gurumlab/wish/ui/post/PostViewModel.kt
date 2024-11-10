@@ -15,6 +15,7 @@ import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.data.repository.PostRepository
 import com.gurumlab.wish.ui.util.DateTimeConverter
 import com.gurumlab.wish.ui.util.URL
+import com.gurumlab.wish.ui.util.WishesUpdateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -28,7 +29,8 @@ import kotlin.random.Random
 
 @HiltViewModel
 class PostViewModel @Inject constructor(
-    private val repository: PostRepository
+    private val repository: PostRepository,
+    private val wishesUpdateManager: WishesUpdateManager
 ) : ViewModel() {
 
     var projectTitle by mutableStateOf("")
@@ -77,6 +79,7 @@ class PostViewModel @Inject constructor(
                 UploadState.Success -> {
                     _postExaminationUiState.value =
                         if (repository.uploadPost(idToken = idToken, wish = getWish(postId))) {
+                            wishesUpdateManager.updateState()
                             PostExaminationUiState.Success
                         } else {
                             PostExaminationUiState.Failed
