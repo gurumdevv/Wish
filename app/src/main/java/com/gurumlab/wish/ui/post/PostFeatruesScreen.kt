@@ -6,7 +6,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -130,6 +134,8 @@ fun PostFeaturesContent(
         CautionSnackbar(
             snackbarHostState = snackbarHostState,
             modifier = Modifier
+                .consumeWindowInsets(WindowInsets.navigationBars)
+                .imePadding()
                 .align(Alignment.BottomCenter)
                 .offset(y = (-24).dp)
         )
