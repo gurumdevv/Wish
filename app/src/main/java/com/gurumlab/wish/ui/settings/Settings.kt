@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -456,9 +457,12 @@ fun MyProjectWishesList(
             ProjectSettingTitle(textRsc = R.string.posted_wish_list, fontSize = 20)
             Spacer(modifier = Modifier.height(8.dp))
         }
-        items(wishes.keys.size) { index ->
+        itemsIndexed(
+            items = wishes.values.toList(),
+            key = { index, item -> item.postId }
+        ) { index, wish ->
             ProjectListItem(
-                wish = wishes.values.elementAt(index),
+                wish = wish,
                 wishId = wishes.keys.elementAt(index),
                 onDetailScreen = onDetailScreen,
                 onOptionClick = onOptionClick

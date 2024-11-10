@@ -132,8 +132,16 @@ class SettingsViewModel @Inject constructor(
             if (idToken.isBlank()) {
                 return@launch
             }
-            repository.deleteWish(idToken = idToken, wishId = wishId)
+
+            val wishes = (_myProjectUiState.value as MyProjectUiState.Success).wishes
             _myProjectUiState.value = MyProjectUiState.Loading
+            val isSuccess = repository.deleteWish(idToken = idToken, wishId = wishId)
+            if (isSuccess) {
+                val newWishes = wishes.filter { it.key != wishId }
+                _myProjectUiState.value = MyProjectUiState.Success(newWishes)
+            } else {
+                _myProjectUiState.value = MyProjectUiState.Success(wishes)
+            }
         }
     }
 
