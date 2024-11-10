@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -320,19 +322,22 @@ fun ChatList(
     onDonation: (String) -> Unit,
     modifier: Modifier
 ) {
+    LaunchedEffect(chatList) {
+        state.scrollToItem(0)
+    }
+
     LazyColumn(
         state = state,
         reverseLayout = isReverse,
         modifier = modifier.fillMaxSize()
     ) {
-        items(chatList.size) { index ->
-            val currentItem = chatList[index]
-            if (currentItem.uid == currentUserUid) {
-                if (currentItem.submission) {
+        items(items = chatList, key = { item -> item.sentAt }) { item ->
+            if (item.uid == currentUserUid) {
+                if (item.submission) {
                     ChatItemAboutSubmission(messageRes = R.string.submission_complete)
                 } else {
                     ChatItem(
-                        text = currentItem.message,
+                        text = item.message,
                         userName = "",
                         userImageUrl = "",
                         chatType = ChatType.Me,
@@ -340,25 +345,25 @@ fun ChatList(
                     )
                 }
             } else {
-                if (currentItem.submission) {
+                if (item.submission) {
                     ChatItemWithButton(
                         messageRes = R.string.please_donate_to_developer,
                         buttonTextRes = R.string.btn_donation,
                         submissionType = SubmissionType.Donation,
                         screenWidth = screenWidth
-                    ) { onDonation(currentItem.message) }
+                    ) { onDonation(item.message) }
                     Spacer(modifier = Modifier.height(8.dp))
                     ChatItemWithButton(
                         messageRes = R.string.receive_submission_from_developer,
                         buttonTextRes = R.string.btn_check_result,
                         submissionType = SubmissionType.Check,
                         screenWidth = screenWidth
-                    ) { onRepository(currentItem.message) }
+                    ) { onRepository(item.message) }
                     Spacer(modifier = Modifier.height(16.dp))
                     ChatItemAboutSubmission(R.string.submission_received)
                 } else {
                     ChatItem(
-                        text = currentItem.message,
+                        text = item.message,
                         userName = othersUserName,
                         userImageUrl = othersUserImageUrl,
                         chatType = ChatType.Other,
