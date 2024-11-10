@@ -101,7 +101,6 @@ fun PostFeaturesContent(
                 }
             )
             PostFeaturesLazyColumn(
-                itemCount = viewModel.itemCount,
                 featureTitles = viewModel.featureTitles,
                 featureDescriptions = viewModel.featureDescriptions,
                 selectedImageUris = viewModel.selectedImageUris,
@@ -114,7 +113,6 @@ fun PostFeaturesContent(
                     viewModel.updateFeatureDescriptions(index, text)
                 },
                 onAddButtonClick = { index ->
-                    viewModel.updateItemCount(index + 2)
                     viewModel.updateFeatureTitles(index + 1, "")
                     viewModel.updateFeatureDescriptions(index + 1, TextFieldValue())
                 },

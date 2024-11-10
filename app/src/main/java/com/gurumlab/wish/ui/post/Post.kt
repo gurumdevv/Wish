@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -282,7 +283,6 @@ fun PostStartButtonSection(
 // <-- PostFeatures -->
 @Composable
 fun PostFeaturesLazyColumn(
-    itemCount: Int,
     featureTitles: Map<Int, String>,
     featureDescriptions: Map<Int, TextFieldValue>,
     selectedImageUris: Map<Int, List<Uri>>,
@@ -297,7 +297,10 @@ fun PostFeaturesLazyColumn(
     LazyColumn(
         state = listState
     ) {
-        items(itemCount) { index ->
+        itemsIndexed(
+            items = featureTitles.keys.toList(),
+            key = { _, itemIndex -> itemIndex }
+        ) { index, _ ->
             PostFeaturesItem(
                 index = index,
                 titleTextRsc = R.string.features_item_title,

@@ -3,7 +3,6 @@ package com.gurumlab.wish.ui.post
 import android.net.Uri
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,14 +40,11 @@ class PostViewModel @Inject constructor(
 
     var projectDescription by mutableStateOf(TextFieldValue())
         private set
-
-    var itemCount by mutableIntStateOf(1)
+    var featureTitles = mutableStateMapOf(Pair(0, ""))
         private set
-    var featureTitles = mutableStateMapOf<Int, String>()
+    var featureDescriptions = mutableStateMapOf(Pair(0, TextFieldValue()))
         private set
-    var featureDescriptions = mutableStateMapOf<Int, TextFieldValue>()
-        private set
-    var selectedImageUris = mutableStateMapOf<Int, List<Uri>>()
+    var selectedImageUris = mutableStateMapOf<Int, List<Uri>>(Pair(0, emptyList()))
         private set
     private val imageDownloadUrls = mutableMapOf<Int, MutableList<String>>()
 
@@ -190,10 +186,6 @@ class PostViewModel @Inject constructor(
 
     fun updateProjectDescription(description: TextFieldValue) {
         projectDescription = description
-    }
-
-    fun updateItemCount(count: Int) {
-        itemCount = count
     }
 
     fun updateFeatureTitles(index: Int, title: String) {

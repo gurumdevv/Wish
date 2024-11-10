@@ -95,7 +95,7 @@ fun PostExaminationContent(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                items(viewModel.itemCount) { index ->
+                items(count = viewModel.featureTitles.size) { index ->
                     PostExaminationFeaturesItem(
                         title = viewModel.featureTitles[index] ?: "",
                         description = viewModel.featureDescriptions[index]?.text ?: "",
