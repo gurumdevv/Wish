@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,15 +69,15 @@ fun ChatsContent(
                 val chatRooms = (uiState as ChatsUiState.Success).chatRooms
 
                 LazyColumn {
-                    items(chatRooms.count()) { index ->
-                        val othersUid = chatRooms[index].othersUid
+                    items(items = chatRooms, key = { item -> item.id }) { chatRoom ->
+                        val othersUid = chatRoom.othersUid
                         val otherUserInfo = viewModel.userInfos[othersUid]
                         val othersName = otherUserInfo?.name ?: stringResource(R.string.name)
                         val othersProfileImageUrl = otherUserInfo?.profileImageUrl ?: ""
                         val othersFcmToken = otherUserInfo?.fcmToken ?: ""
 
                         ChatsItem(
-                            chatRoom = chatRooms[index],
+                            chatRoom = chatRoom,
                             othersName = othersName,
                             othersProfileImageUrl = othersProfileImageUrl,
                             othersFcmToken = othersFcmToken,
