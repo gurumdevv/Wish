@@ -414,9 +414,12 @@ fun ApproachingProjectWishesList(
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-        items(wishes.keys.size) { index ->
+        itemsIndexed(
+            items = wishes.values.toList(),
+            key = { index, item -> item.postId }
+        ) { index, wish ->
             ProjectListItem(
-                wish = wishes.values.elementAt(index),
+                wish = wish,
                 wishId = wishes.keys.elementAt(index),
                 getMinimizedWish = getMinimizedWish,
                 onProgressScreen = onProgressScreen
