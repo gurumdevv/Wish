@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,9 +70,11 @@ fun WishesLazyColumn(
         if (isWishesLoading) {
             items(15) { ShimmerWishesRandomItem() }
         } else {
-            items(wishes.keys.size) { index ->
+            itemsIndexed(
+                items = wishes.values.toList(),
+                key = { index, _ -> wishes.keys.elementAt(index) }) { index, wish ->
                 WishesRandomItem(
-                    wish = wishes.values.elementAt(index),
+                    wish = wish,
                     wishId = wishes.keys.elementAt(index),
                     onDetailScreen = onDetailScreen
                 )
@@ -295,7 +299,9 @@ fun WishesRandomItem(
                 .clickable { onDetailScreen(wishId) }
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -306,13 +312,15 @@ fun WishesRandomItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = wish.oneLineDescription,
+                    text = wish.simpleDescription,
                     color = Color.Black,
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
+                    minLines = 2,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
