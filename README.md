@@ -1,7 +1,5 @@
 ![aipp](https://github.com/user-attachments/assets/dbde0534-302d-4480-92cb-aeec9fe8d251)
 
-# Wish
-
 ## Project Explanation
 🌟 아이디어와 개발자를 이어주는 플랫폼입니다.<br>
 🌟 자유롭게 아이디어를 공유하고 맘에 드는 아이디어를 선택해서 개발을 시작할 수 있습니다.<br>
@@ -23,7 +21,7 @@
 <img src="https://github.com/user-attachments/assets/119fd42b-789c-44b5-9b72-99462aae8ef6" width="23%" height="30%">
 <img src="https://github.com/user-attachments/assets/c0d8bb3e-8be7-4f57-98cd-acae39e3f3bf" width="23%" height="30%">
 <img src="https://github.com/user-attachments/assets/b83cccd2-edc2-428d-b381-34a9735f8b2c" width="23%" height="30%">
-<img src="https://github.com/user-attachments/assets/3e06dd3a-7463-4227-9ba1-ec3a5d1e461c" width="23%" height="30%">
+<img src="https://github.com/user-attachments/assets/f61697bc-19f6-48d3-8f72-f441979c0bb3" width="23%" height="30%">
 </p>
 
 ## App Architecture
