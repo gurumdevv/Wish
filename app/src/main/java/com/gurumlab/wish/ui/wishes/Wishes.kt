@@ -34,14 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gurumlab.wish.R
 import com.gurumlab.wish.data.model.Wish
-import com.gurumlab.wish.data.model.WishStatus
 import com.gurumlab.wish.ui.theme.White00
 import com.gurumlab.wish.ui.util.CustomAsyncImage
 import com.gurumlab.wish.ui.util.URL
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import kotlin.random.Random
 
 @Composable
 fun WishesLazyColumn(
@@ -111,19 +109,13 @@ fun WishesBanner(wishes: Map<String, Wish>) {
         title = stringResource(R.string.wish),
         comment = stringResource(R.string.please_wishes_come_true)
     )
-    val successfulWishes = wishes.values.filter { it.status == WishStatus.COMPLETED.ordinal }
-    val wishesCount = successfulWishes.size
-    val randomNumber = if (wishesCount > 0) Random.nextInt(wishesCount) else 0
-    val selectedWish =
-        if (wishesCount > 0) wishes.values.elementAt(randomNumber) else defaultWish
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(260.dp)
     ) {
         CustomAsyncImage(
-            url = selectedWish.representativeImage,
+            url = defaultWish.representativeImage,
             contentDescription = stringResource(R.string.wishes_screen_header),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -146,7 +138,7 @@ fun WishesBanner(wishes: Map<String, Wish>) {
                 .padding(start = 24.dp, end = 24.dp)
         ) {
             Text(
-                text = selectedWish.title,
+                text = defaultWish.title,
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -155,7 +147,7 @@ fun WishesBanner(wishes: Map<String, Wish>) {
             )
             Spacer(modifier = Modifier.height(3.dp))
             Text(
-                text = selectedWish.comment,
+                text = defaultWish.comment,
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1,
@@ -397,7 +389,8 @@ fun getDefaultWish(title: String, comment: String): Wish {
         likes = 0,
         oneLineDescription = "",
         simpleDescription = "",
-        detailDescription = emptyList(),
+        detailDescription = "",
+        detailFeatures = emptyList(),
         features = emptyList(),
         comment = comment
     )

@@ -161,7 +161,8 @@ class PostViewModel @Inject constructor(
             likes = 0,
             oneLineDescription = oneLineDescription,
             simpleDescription = simpleDescription,
-            detailDescription = detailFeatures,
+            detailDescription = projectDescription.text,
+            detailFeatures = detailFeatures,
             features = featureTitles.values.toList(),
             comment = ""
         )

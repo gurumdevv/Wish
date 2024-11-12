@@ -15,7 +15,8 @@ data class Wish(
     val likes: Int,
     val oneLineDescription: String,
     val simpleDescription: String,
-    val detailDescription: List<DetailDescription>,
+    val detailDescription: String,
+    val detailFeatures: List<DetailDescription>,
     val features: List<String>,
     val comment: String,
 )

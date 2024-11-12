@@ -42,7 +42,7 @@ fun ProjectDescriptionArea(
         item {
             ProjectTitle(wish.title)
             Spacer(modifier = Modifier.height(16.dp))
-            ProjectDescription(wish.simpleDescription)
+            ProjectDescription(wish.detailDescription)
             Spacer(modifier = Modifier.height(16.dp))
             ProjectFeaturesTitle()
             Spacer(modifier = Modifier.height(2.dp))
@@ -56,8 +56,8 @@ fun ProjectDescriptionArea(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        items(wish.detailDescription) { detailDescription ->
-            DetailFeatureDescription(detailDescription)
+        items(wish.detailFeatures) { detailFeatures ->
+            DetailFeatureDescription(detailFeatures)
         }
 
         item {
