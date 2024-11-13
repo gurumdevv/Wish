@@ -25,7 +25,7 @@
 </p>
 
 ## App Architecture
-<img width="960" alt="appArchitecure" src="https://github.com/user-attachments/assets/b2d2c4bd-7c37-42f9-8c27-3b18d8afd69e">
+<img width="960" alt="appArchitecure" src="https://github.com/user-attachments/assets/7857b1ff-2068-4f7a-b834-fc8457e77583">
 
 ## History
 ✔️ **2024. 9. 9 ~ 11. 11:** 개발 착수 및 완료<br>
