@@ -16,6 +16,11 @@
 ‣ **실시간 채팅**<br>
 프로젝트 진행을 위하여 아이디어 공유자와 개발자 간 원활한 소통을 위해서 실시간 푸시 알림을 지원하는 실시간 채팅이 가능합니다. <br>
 
+## Documents
+**프로젝트를 진행하면서 고민하고 공부했던 내용을 정리했습니다.** <br>
+
+- UI State Modeling 하기: [Link](https://github.com/gurumdevv/Wish/wiki/UI-State-Modeling-%ED%95%98%EA%B8%B0) <br>
+
 ## Screenshot
 <p align="center">
 <img src="https://github.com/user-attachments/assets/119fd42b-789c-44b5-9b72-99462aae8ef6" width="23%" height="30%">
@@ -25,7 +30,9 @@
 </p>
 
 ## App Architecture
-<img width="960" alt="appArchitecure" src="https://github.com/user-attachments/assets/7857b1ff-2068-4f7a-b834-fc8457e77583">
+<p align="center">
+  <img width="750" alt="appArchitecure" src="https://github.com/user-attachments/assets/7857b1ff-2068-4f7a-b834-fc8457e77583">
+</p>
 
 ## History
 ✔️ **2024. 9. 9 ~ 11. 11:** 개발 착수 및 완료<br>
@@ -42,12 +49,10 @@
 | **Notification** | NotificationManager |
 | **Firebase** | Crashlytics, Realtime Database, FireStore, Storage |
 
-## Documents
-UI State로 상태 관리하기: [Link](https://github.com/gurumdevv/Wish/wiki/UIState%EB%A1%9C-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC%ED%95%98%EA%B8%B0) <br>
-
 ## How to Download
-아래 링크에서 apk 파일을 다운받으실 수 있습니다.<br><br>
 <a href="https://drive.google.com/drive/folders/1IU4e7c7opncD5MkFeXeoP8gLidxN50zV?usp=sharing">
-    <img src="https://github.com/gurumdevv/VocaRoutine/assets/129643788/bb151951-8222-4d6d-b729-9cbc959707f5" alt="wish gdrive" width="45" height="45">
-</a> 
-&nbsp;&nbsp;← 구글 드라이브 아이콘을 클릭해주세요.
+    <img src="https://github.com/user-attachments/assets/db3d20c4-f3ca-4265-8328-0cdcd7f787b0" alt="download_on_gdrive" width="213" height="83">
+</a>
+
+
+
