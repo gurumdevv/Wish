@@ -112,7 +112,7 @@ class PostViewModel @Inject constructor(
             }
 
             val uploadSuccessList = uploadResults.awaitAll()
-            val successUploadCount = uploadSuccessList.count()
+            val successUploadCount = uploadSuccessList.count { it.isNotBlank() }
             val isAllUploaded = successUploadCount == imageUris.values.sumOf { it.size }
 
             if (isAllUploaded) UploadState.Success else UploadState.Failed
