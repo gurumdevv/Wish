@@ -19,7 +19,8 @@
 ## Documents
 **프로젝트를 진행하면서 고민하고 공부했던 내용을 정리했습니다.** <br>
 
-- UI State Modeling 하기: [Link](https://github.com/gurumdevv/Wish/wiki/UI-State-Modeling-%ED%95%98%EA%B8%B0) <br>
+- UI State Modeling 하기: [Link](https://github.com/gurumdevv/Wish/wiki/UI-State-Modeling-%ED%95%98%EA%B8%B0)
+- ‘async’와 ‘awaitAll’로 이미지 업로드 시간을 52% 단축한 방법: [Link](https://github.com/gurumdevv/Wish/wiki/%E2%80%98async%E2%80%99%EC%99%80-%E2%80%98awaitAll%E2%80%99%EB%A1%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%97%85%EB%A1%9C%EB%93%9C-%EC%8B%9C%EA%B0%84%EC%9D%84-52%25-%EB%8B%A8%EC%B6%95%ED%95%9C-%EB%B0%A9%EB%B2%95)
 
 ## Screenshot
 <p align="center">
