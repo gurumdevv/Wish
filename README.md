@@ -21,6 +21,8 @@
 
 - UI State Modeling 하기: [Link](https://github.com/gurumdevv/Wish/wiki/UI-State-Modeling-%ED%95%98%EA%B8%B0)
 - ‘async’와 ‘awaitAll’로 이미지 업로드 시간을 52% 단축한 방법: [Link](https://github.com/gurumdevv/Wish/wiki/%E2%80%98async%E2%80%99%EC%99%80-%E2%80%98awaitAll%E2%80%99%EB%A1%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%97%85%EB%A1%9C%EB%93%9C-%EC%8B%9C%EA%B0%84%EC%9D%84-52%25-%EB%8B%A8%EC%B6%95%ED%95%9C-%EB%B0%A9%EB%B2%95)
+- 올바른 LaunchMode 사용과 onNewIntent: [Link](https://github.com/gurumdevv/Wish/wiki/%EC%98%AC%EB%B0%94%EB%A5%B8-LaunchMode-%EC%82%AC%EC%9A%A9%EA%B3%BC-onNewIntent)
+- BringIntoViewRequester를 사용해서 커서를 따라 스크롤 되는 TextField 구현하기: [Link](https://github.com/gurumdevv/Wish/wiki/BringIntoViewRequester%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%BB%A4%EC%84%9C%EB%A5%BC-%EB%94%B0%EB%9D%BC-%EC%8A%A4%ED%81%AC%EB%A1%A4-%EB%90%98%EB%8A%94-TextField-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
 
 ## Screenshot
 <p align="center">
@@ -45,7 +47,7 @@
 | **Android Jetpack** | Compose, ViewModel, Navigation |
 | **Dependency Injection** | Hilt |
 | **Networking** | Retrofit2, OkHttp3 |
-| **Asynchronous** | Coroutine, Flow, SharedFlow, StateFlow |
+| **Asynchronous** | Coroutine, SharedFlow, StateFlow |
 | **Local DB** | DataStore |
 | **Notification** | NotificationManager |
 | **Firebase** | Crashlytics, Realtime Database, FireStore, Storage |
