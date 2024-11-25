@@ -53,6 +53,7 @@
 | **Firebase** | Crashlytics, Realtime Database, FireStore, Storage |
 
 ## How to Download
+구글 플레이스토어 심사 진행 중입니다. 현재는 구글 드라이브에서 다운로드가 가능합니다. <br>
 <a href="https://drive.google.com/drive/folders/1IU4e7c7opncD5MkFeXeoP8gLidxN50zV?usp=sharing">
     <img src="https://github.com/user-attachments/assets/db3d20c4-f3ca-4265-8328-0cdcd7f787b0" alt="download_on_gdrive" width="213" height="83">
 </a>
