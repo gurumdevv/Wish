@@ -83,7 +83,7 @@ class MainViewModel @Inject constructor(
 1. 채팅방에서 홈화면으로 나갔다가 다시 들어왔을 때
 a. currentChatRoomId를 가져와서 tempRoomId로 설정 (onStop)
 b. currentChatRoomId를 null로 초기화 (onStop)
-c. currentChatRoomId를 tempRoomId로로 다시 설정 (onStart)
+c. currentChatRoomId를 tempRoomId로 다시 설정 (onStart)
 
 2. 채팅방에서 홈화면으로 나갔다가 다시 들어오고 채팅방에서 나간 후 홈화면으로 갔다가 다시 앱으로 들어왔을 때
 a. currentChatRoomId를 가져와서 tempRoomId로 설정 (onStop)

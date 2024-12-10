@@ -3,6 +3,9 @@ package com.gurumlab.wish.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Ease
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -134,9 +137,13 @@ fun WishNavHost(
                         }
 
                         else -> {
-                            slideIntoContainer(
-                                AnimatedContentTransitionScope.SlideDirection.Up,
-                                animationSpec = tween(500)
+                            fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300, easing = LinearEasing
+                                )
+                            ) + slideIntoContainer(
+                                animationSpec = tween(durationMillis = 300, easing = Ease),
+                                towards = AnimatedContentTransitionScope.SlideDirection.Up
                             )
                         }
                     }
@@ -152,9 +159,13 @@ fun WishNavHost(
                         }
 
                         else -> {
-                            slideOutOfContainer(
-                                AnimatedContentTransitionScope.SlideDirection.Down,
-                                animationSpec = tween(500)
+                            fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300, easing = EaseOut
+                                )
+                            ) + slideOutOfContainer(
+                                animationSpec = tween(durationMillis = 300, easing = EaseOut),
+                                towards = AnimatedContentTransitionScope.SlideDirection.Down
                             )
                         }
                     }
@@ -187,15 +198,23 @@ fun WishNavHost(
             composable(
                 route = WishScreen.DONATION.name + "/{completedWishId}",
                 enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Up,
-                        animationSpec = tween(500)
+                    fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 300, easing = LinearEasing
+                        )
+                    ) + slideIntoContainer(
+                        animationSpec = tween(durationMillis = 300, easing = Ease),
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up
                     )
                 },
                 exitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Down,
-                        animationSpec = tween(500)
+                    fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 300, easing = EaseOut
+                        )
+                    ) + slideOutOfContainer(
+                        animationSpec = tween(durationMillis = 300, easing = EaseOut),
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down
                     )
                 }
             ) { backStackEntry ->
@@ -240,9 +259,13 @@ fun WishNavHost(
                     }
 
                     else -> {
-                        slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Up,
-                            animationSpec = tween(500)
+                        fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 300, easing = LinearEasing
+                            )
+                        ) + slideIntoContainer(
+                            animationSpec = tween(durationMillis = 300, easing = Ease),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Up
                         )
                     }
                 }
@@ -264,9 +287,13 @@ fun WishNavHost(
                     }
 
                     else -> {
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Down,
-                            animationSpec = tween(500)
+                        fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 300, easing = EaseOut
+                            )
+                        ) + slideOutOfContainer(
+                            animationSpec = tween(durationMillis = 300, easing = EaseOut),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Down
                         )
                     }
                 }
@@ -521,9 +548,13 @@ fun WishNavHost(
             composable(
                 route = WishScreen.POST_START.name,
                 enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Up,
-                        animationSpec = tween(500)
+                    fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 300, easing = LinearEasing
+                        )
+                    ) + slideIntoContainer(
+                        animationSpec = tween(durationMillis = 300, easing = Ease),
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up
                     )
                 },
                 exitTransition = {
@@ -533,9 +564,13 @@ fun WishNavHost(
                         }
 
                         else -> {
-                            slideOutOfContainer(
-                                AnimatedContentTransitionScope.SlideDirection.Down,
-                                animationSpec = tween(500)
+                            fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300, easing = EaseOut
+                                )
+                            ) + slideOutOfContainer(
+                                animationSpec = tween(durationMillis = 300, easing = EaseOut),
+                                towards = AnimatedContentTransitionScope.SlideDirection.Down
                             )
                         }
                     }
