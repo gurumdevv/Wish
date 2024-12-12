@@ -1,5 +1,9 @@
 package com.gurumlab.wish.ui.message
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Ease
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +19,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +39,7 @@ import com.gurumlab.wish.ui.theme.defaultBoxColor
 import com.gurumlab.wish.ui.util.CustomLottieLoader
 import com.gurumlab.wish.ui.util.CustomWideButton
 import com.gurumlab.wish.ui.util.DateTimeConverter
+import kotlinx.coroutines.delay
 
 @Composable
 fun DonationScreen(
@@ -67,31 +76,43 @@ fun DonationContent(
     onClick: () -> Unit
 ) {
     val completedWish = viewModel.completedWish.collectAsStateWithLifecycle()
+    var isShowList by remember { mutableStateOf(false) }
 
-    if (completedWish.value == null) {
-        DonationLoadingScreen(modifier = modifier)
-    } else {
-        Column(
-            modifier = modifier
-        ) {
-            ProjectTitle(completedWish.value!!.title)
-            Spacer(modifier = Modifier.height(8.dp))
-            ExplanationThanks(completedWish.value!!)
-            Spacer(modifier = Modifier.height(8.dp))
-            PeriodOfProgressTitle()
-            Spacer(modifier = Modifier.height(8.dp))
-            PeriodOfProgress(completedWish.value!!)
-            Spacer(modifier = Modifier.height(16.dp))
-            AccountOwnerTitle()
-            Spacer(modifier = Modifier.height(8.dp))
-            AccountInfoText(text = completedWish.value!!.accountOwner)
-            Spacer(modifier = Modifier.height(16.dp))
-            AccountInfoTitle()
-            Spacer(modifier = Modifier.height(8.dp))
-            AccountInfoText(text = completedWish.value!!.accountInfo)
-            Spacer(modifier = Modifier.weight(1f))
-            CustomWideButton(text = stringResource(R.string.close), onClick = onClick)
-            Spacer(modifier = Modifier.height(24.dp))
+    LaunchedEffect(Unit) {
+        delay(180)
+        isShowList = true
+    }
+
+    AnimatedVisibility(
+        modifier = Modifier.fillMaxSize(),
+        visible = isShowList,
+        enter = fadeIn(animationSpec = tween(durationMillis = 100, easing = Ease))
+    ) {
+        if (completedWish.value == null) {
+            DonationLoadingScreen(modifier = modifier)
+        } else {
+            Column(
+                modifier = modifier
+            ) {
+                ProjectTitle(completedWish.value!!.title)
+                Spacer(modifier = Modifier.height(8.dp))
+                ExplanationThanks(completedWish.value!!)
+                Spacer(modifier = Modifier.height(8.dp))
+                PeriodOfProgressTitle()
+                Spacer(modifier = Modifier.height(8.dp))
+                PeriodOfProgress(completedWish.value!!)
+                Spacer(modifier = Modifier.height(16.dp))
+                AccountOwnerTitle()
+                Spacer(modifier = Modifier.height(8.dp))
+                AccountInfoText(text = completedWish.value!!.accountOwner)
+                Spacer(modifier = Modifier.height(16.dp))
+                AccountInfoTitle()
+                Spacer(modifier = Modifier.height(8.dp))
+                AccountInfoText(text = completedWish.value!!.accountInfo)
+                Spacer(modifier = Modifier.weight(1f))
+                CustomWideButton(text = stringResource(R.string.close), onClick = onClick)
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }
